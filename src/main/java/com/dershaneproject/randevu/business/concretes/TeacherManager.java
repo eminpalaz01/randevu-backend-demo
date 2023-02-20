@@ -7,15 +7,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
 import com.dershaneproject.randevu.business.abstracts.TeacherService;
+import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.DayOfWeekDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.DepartmentDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.HourDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.TeacherDao;
+import com.dershaneproject.randevu.dto.DayOfWeekDto;
+import com.dershaneproject.randevu.dto.HourDto;
 import com.dershaneproject.randevu.dto.ScheduleDto;
 import com.dershaneproject.randevu.dto.TeacherDto;
+import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
 import com.dershaneproject.randevu.entities.concretes.Department;
+import com.dershaneproject.randevu.entities.concretes.Hour;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
 
 @Service
@@ -26,15 +31,17 @@ public class TeacherManager implements TeacherService {
 	private HourDao hourDao;
 	private DayOfWeekDao dayOfWeekDao;
 	private ScheduleService scheduleService;
+	private ModelMapperService modelMapperService;
 
 	@Autowired
 	public TeacherManager(TeacherDao teacherDao, DepartmentDao departmentDao, HourDao hourDao,
-			DayOfWeekDao dayOfWeekDao, ScheduleService scheduleService) {
+			DayOfWeekDao dayOfWeekDao, ScheduleService scheduleService, ModelMapperService modelMapperService) {
 		this.teacherDao = teacherDao;
 		this.departmentDao = departmentDao;
 		this.hourDao = hourDao;
 		this.dayOfWeekDao = dayOfWeekDao;
 		this.scheduleService = scheduleService;
+		this.modelMapperService = modelMapperService;
 	}
 
 	@Override
@@ -62,10 +69,16 @@ public class TeacherManager implements TeacherService {
 				for (int i = 0; i < dayOfWeekDao.count(); i++) {
 
 					for (int k = 0; k < hourDao.count(); k++) {
-
+						
+						Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById((long) (i+1));
+                        Optional<Hour> hour = hourDao.findById((long) (k+1));
+                        
+                        HourDto hourDto = modelMapperService.forResponse().map(hour, HourDto.class);
+                        DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(dayOfWeek, DayOfWeekDto.class);
+                        
 						ScheduleDto scheduleDto = new ScheduleDto();
-						scheduleDto.setDayOfWeekId(i + 1);
-						scheduleDto.setHourId(k + 1);
+						scheduleDto.setDayOfWeek(dayOfWeekDto);
+						scheduleDto.setHour(hourDto);
 						scheduleDto.setTeacherId(teacherDb.getId());
 
 						scheduleService.save(scheduleDto);
@@ -117,7 +130,7 @@ public class TeacherManager implements TeacherService {
 				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
 				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
 				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-				teacherDto.setSchedules(teacher.get().getSchedules());
+				teacherDto.setSchedules(null);
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
@@ -127,6 +140,35 @@ public class TeacherManager implements TeacherService {
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
+	}
+	
+	@Override
+	public DataResult<TeacherDto> findByIdWithSchedules(long id) {
+		// TODO Auto-generated method stub
+		try {
+			Optional<Teacher> teacher = teacherDao.findById(id);
+
+			if (!(teacher.equals(Optional.empty()))) {
+
+				TeacherDto teacherDto = new TeacherDto();
+
+				teacherDto.setId(teacher.get().getId());
+				teacherDto.setUserName(teacher.get().getUserName());
+				teacherDto.setEmail(teacher.get().getEmail());
+				teacherDto.setPassword(teacher.get().getPassword());
+				teacherDto.setCreateDate(teacher.get().getCreateDate());
+				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
+				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
+				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
+				teacherDto.setSchedules(teacher.get().getSchedules());
+
+				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
+			}
+			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<TeacherDto>(false, e.getMessage());
+		}
 	}
 
 	// schedules değer verilirse eğer öğretmen başına 105 satır değer olucak buda
@@ -388,7 +430,7 @@ public class TeacherManager implements TeacherService {
 	public DataResult<Long> getCount() {
 		// TODO Auto-generated method stub
 		try {
-			return new DataResult<Long>(teacherDao.count(), true, "Günlerin sayısı getirildi.");
+			return new DataResult<Long>(teacherDao.count(), true, "Öğretmenlerin sayısı getirildi.");
 		} catch (Exception e) {
 			return new DataResult<Long>(false, e.getMessage());
 		}

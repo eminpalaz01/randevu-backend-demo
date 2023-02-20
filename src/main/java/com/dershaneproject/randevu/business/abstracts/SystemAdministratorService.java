@@ -12,6 +12,8 @@ public interface SystemAdministratorService {
 	Result deleteById(long id);
 
 	DataResult<List<SystemAdministratorDto>> findAll();
+	
+	DataResult<List<SystemAdministratorDto>> findAllWithSchedules();
 
 	DataResult<SystemAdministratorDto> findById(long id);
 
@@ -22,4 +24,7 @@ public interface SystemAdministratorService {
 	DataResult<SystemAdministratorDto> updateEmailById(long id, String email);
 	
 	DataResult<Long> getCount();
+
+	DataResult<SystemAdministratorDto> findByIdWithSchedules(long id);
+	
 }

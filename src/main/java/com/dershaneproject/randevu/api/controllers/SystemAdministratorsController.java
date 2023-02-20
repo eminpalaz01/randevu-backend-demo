@@ -39,6 +39,12 @@ public class SystemAdministratorsController {
 
 		return ResponseEntity.ok(systemAdministratorService.findAll());
 	}
+	
+	@GetMapping("/schedules")
+	public ResponseEntity<DataResult<List<SystemAdministratorDto>>> findAllWithSchedules() {
+
+		return ResponseEntity.ok(systemAdministratorService.findAllWithSchedules());
+	}
 
 	@GetMapping("/count")
 	public ResponseEntity<DataResult<Long>> getCount() {
@@ -50,6 +56,12 @@ public class SystemAdministratorsController {
 	public ResponseEntity<DataResult<SystemAdministratorDto>> findById(@PathVariable long id) {
 
 		return ResponseEntity.ok(systemAdministratorService.findById(id));
+	}
+	
+	@GetMapping("/schedules/{id}")
+	public ResponseEntity<DataResult<SystemAdministratorDto>> findByIdWithSchedules(@PathVariable long id) {
+
+		return ResponseEntity.ok(systemAdministratorService.findByIdWithSchedules(id));
 	}
 
 	@DeleteMapping("/{id}")

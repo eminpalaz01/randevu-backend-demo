@@ -2,6 +2,9 @@ package com.dershaneproject.randevu.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
+import com.dershaneproject.randevu.entities.concretes.Schedule;
 
 import lombok.Data;
 
@@ -26,5 +29,7 @@ public class SystemAdministratorDto implements Serializable {
 	private Date lastUpdateDate;
 
 	private String email;
+	
+	private List<Schedule> schedules;
 
 }

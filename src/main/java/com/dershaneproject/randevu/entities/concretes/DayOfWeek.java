@@ -1,7 +1,10 @@
 package com.dershaneproject.randevu.entities.concretes;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -15,7 +18,12 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "days_of_week")
-public class DayOfWeek {
+public class DayOfWeek implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 767738165750845173L;
 
 	@Id
 	@SequenceGenerator(name = "day_of_week_id_seq", allocationSize = 1)
@@ -26,8 +34,4 @@ public class DayOfWeek {
 	@Column(name = "name", length = 10)
 	private String name;
 	
-	@JsonManagedReference(value = "dayOfWeekSchedulesReference")
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "dayOfWeek")
-	private List<Schedule> schedules;
-
 }

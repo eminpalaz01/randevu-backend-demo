@@ -1,5 +1,6 @@
 package com.dershaneproject.randevu.entities.concretes;
 
+import java.io.Serializable;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.OneToMany;
@@ -16,7 +17,12 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "departments")
-public class Department {
+public class Department implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5861384129261828888L;
 
 	@Id
 	@SequenceGenerator(name = "department_id_seq", allocationSize = 1)

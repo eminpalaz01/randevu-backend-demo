@@ -15,6 +15,8 @@ public interface TeacherService {
 
 	DataResult<TeacherDto> findById(long id);
 	
+	DataResult<TeacherDto> findByIdWithSchedules(long id);
+	
 	DataResult<List<TeacherDto>> getByDepartmentId(long departmentId);
 
 	DataResult<TeacherDto> updateUserNameById(long id, String userName);
@@ -28,4 +30,5 @@ public interface TeacherService {
 	DataResult<TeacherDto> updateDepartmentById(long id, long departmentId);
 	
 	DataResult<Long> getCount();
+
 }

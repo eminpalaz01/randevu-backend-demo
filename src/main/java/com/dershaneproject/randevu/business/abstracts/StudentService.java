@@ -14,6 +14,8 @@ public interface StudentService {
 	DataResult<List<StudentDto>> findAll();
 
 	DataResult<StudentDto> findById(long id);
+	
+	DataResult<StudentDto> findByIdWithSchedules(long id);
 
 	DataResult<StudentDto> updateUserNameById(long id, String userName);
 
@@ -24,4 +26,5 @@ public interface StudentService {
 	DataResult<StudentDto> updateStudentNumberById(long id, String studentNumber);
 	
 	DataResult<Long> getCount();
+
 }

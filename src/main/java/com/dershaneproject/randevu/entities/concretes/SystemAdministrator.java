@@ -14,6 +14,11 @@ import lombok.ToString;
 @Table(name = "system_administrators")
 public class SystemAdministrator extends SystemWorker {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7679491206007942246L;
+
 	public SystemAdministrator() {
 		// TODO Auto-generated constructor stub
 		super();

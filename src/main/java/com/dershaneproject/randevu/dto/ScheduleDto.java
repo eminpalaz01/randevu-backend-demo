@@ -2,6 +2,9 @@ package com.dershaneproject.randevu.dto;
 
 import java.io.Serializable;
 import java.util.Date;
+
+import com.dershaneproject.randevu.entities.concretes.SystemWorker;
+
 import lombok.Data;
 
 @Data
@@ -20,14 +23,14 @@ public class ScheduleDto implements Serializable {
 
 	private long studentId;
 
-	private long lastUpdateDateSystemWorkerId;
+	private SystemWorkerDto lastUpdateDateSystemWorker;
 
 	private Date createDate;
 
 	private Date lastUpdateDate;
 
-	private long dayOfWeekId;
+	private DayOfWeekDto dayOfWeek;
 
-	private long hourId;
+	private HourDto hour;
 
 }

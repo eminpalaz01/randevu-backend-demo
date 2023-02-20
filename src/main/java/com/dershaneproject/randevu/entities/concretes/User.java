@@ -1,5 +1,6 @@
 package com.dershaneproject.randevu.entities.concretes;
 
+import java.io.Serializable;
 import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -23,7 +24,12 @@ import lombok.ToString;
 @Entity
 @Table(name = "users")
 @Inheritance(strategy = InheritanceType.JOINED)
-public class User {
+public class User implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6635335373357059844L;
 
 	@Id
 	@SequenceGenerator(name = "user_id_seq", allocationSize = 1)

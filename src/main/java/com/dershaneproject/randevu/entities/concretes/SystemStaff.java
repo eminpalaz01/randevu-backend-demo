@@ -14,6 +14,11 @@ import lombok.ToString;
 @Table(name = "system_staffs")
 public class SystemStaff extends SystemWorker {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5203546077615288543L;
+
 	public SystemStaff() {
 		// TODO Auto-generated constructor stub
 		super();

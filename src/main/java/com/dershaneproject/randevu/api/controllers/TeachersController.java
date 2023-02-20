@@ -39,7 +39,7 @@ public class TeachersController {
 
 		return ResponseEntity.ok(teacherService.findAll());
 	}
-
+	
 	@GetMapping("/department/{departmentId}")
 	public ResponseEntity<DataResult<List<TeacherDto>>> getByDepartmentId(@PathVariable long departmentId) {
 
@@ -56,6 +56,12 @@ public class TeachersController {
 	public ResponseEntity<DataResult<TeacherDto>> findById(@PathVariable long id) {
 
 		return ResponseEntity.ok(teacherService.findById(id));
+	}
+	
+	@GetMapping("/schedules/{id}")
+	public ResponseEntity<DataResult<TeacherDto>> findByIdWithSchedules(@PathVariable long id) {
+
+		return ResponseEntity.ok(teacherService.findByIdWithSchedules(id));
 	}
 
 	@DeleteMapping("/{id}")

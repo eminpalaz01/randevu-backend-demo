@@ -2,6 +2,8 @@ package com.dershaneproject.randevu.entities.concretes;
 
 import java.util.Date;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -20,10 +22,15 @@ import lombok.ToString;
 @Table(name = "students")
 public class Student extends User {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8412857069251001759L;
+
 	@Column(name = "student_number", length = 20)
 	private String studentNumber;
 
-	@JsonManagedReference(value = "studentSchedulesReference")
+	@JsonBackReference(value = "studentSchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.REFRESH)
 	private List<Schedule> schedules;
 

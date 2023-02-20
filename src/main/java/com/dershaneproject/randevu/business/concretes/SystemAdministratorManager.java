@@ -98,6 +98,42 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 			return new DataResult<List<SystemAdministratorDto>>(false, e.getMessage());
 		}
 	}
+	
+	@Override
+	public DataResult<List<SystemAdministratorDto>> findAllWithSchedules() {
+		// TODO Auto-generated method stub
+		try {
+			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
+			if (systemAdministrators.size() != 0) {
+				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
+
+				systemAdministrators.forEach(systemAdministrator -> {
+					SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+
+					systemAdministratorDto.setId(systemAdministrator.getId());
+					systemAdministratorDto.setUserName(systemAdministrator.getUserName());
+					systemAdministratorDto.setPassword(systemAdministrator.getPassword());
+					systemAdministratorDto.setEmail(systemAdministrator.getEmail());
+					systemAdministratorDto.setAuthority(systemAdministrator.getAuthority());
+					systemAdministratorDto.setCreateDate(systemAdministrator.getCreateDate());
+					systemAdministratorDto.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
+					systemAdministratorDto.setSchedules(systemAdministrator.getSchedules());
+
+					systemAdministratorsDto.add(systemAdministratorDto);
+				});
+
+				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
+						"Sistem yöneticileri getirildi.");
+
+			} else {
+
+				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<List<SystemAdministratorDto>>(false, e.getMessage());
+		}
+	}
 
 	@Override
 	public DataResult<SystemAdministratorDto> findById(long id) {
@@ -125,6 +161,36 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
 		}
 	}
+	
+	@Override
+	public DataResult<SystemAdministratorDto> findByIdWithSchedules(long id) {
+		// TODO Auto-generated method stub
+		try {
+			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
+
+			if (!(systemAdministrator.equals(Optional.empty()))) {
+				SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+
+				systemAdministratorDto.setId(systemAdministrator.get().getId());
+				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
+				systemAdministratorDto.setEmail(systemAdministrator.get().getEmail());
+				systemAdministratorDto.setPassword(systemAdministrator.get().getPassword());
+				systemAdministratorDto.setCreateDate(systemAdministrator.get().getCreateDate());
+				systemAdministratorDto.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
+				systemAdministratorDto.setAuthority(systemAdministrator.get().getAuthority());
+				systemAdministratorDto.setSchedules(systemAdministrator.get().getSchedules());
+
+				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
+						id + " id'li sistem yöneticisi getirildi.");
+			}
+			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
+		}
+	}
+
+
 
 	@Override
 	public DataResult<SystemAdministratorDto> updateUserNameById(long id, String userName) {
@@ -223,9 +289,10 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 	public DataResult<Long> getCount() {
 		// TODO Auto-generated method stub
 		try {
-			return new DataResult<Long>(systemAdministratorDao.count(), true, "Günlerin sayısı getirildi.");
+			return new DataResult<Long>(systemAdministratorDao.count(), true, "Sistem yöneticilerinin sayısı getirildi.");
 		} catch (Exception e) {
 			return new DataResult<Long>(false, e.getMessage());
-		}	}
+		}	
+	}
 
 }

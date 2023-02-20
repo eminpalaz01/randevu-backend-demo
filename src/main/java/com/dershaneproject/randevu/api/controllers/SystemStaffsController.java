@@ -38,6 +38,12 @@ public class SystemStaffsController {
 
 		return ResponseEntity.ok(systemStaffService.findAll());
 	}
+	
+	@GetMapping("/schedules")
+	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAllWithSchedules() {
+
+		return ResponseEntity.ok(systemStaffService.findAllWithSchedules());
+	}
 
 	@GetMapping("/count")
 	public ResponseEntity<DataResult<Long>> getCount() {
@@ -49,6 +55,12 @@ public class SystemStaffsController {
 	public ResponseEntity<DataResult<SystemStaffDto>> findById(@PathVariable long id) {
 
 		return ResponseEntity.ok(systemStaffService.findById(id));
+	}
+	
+	@GetMapping("/schedules/{id}")
+	public ResponseEntity<DataResult<SystemStaffDto>> findByIdWithSchedules(@PathVariable long id) {
+
+		return ResponseEntity.ok(systemStaffService.findByIdWithSchedules(id));
 	}
 
 	@DeleteMapping("/{id}")
