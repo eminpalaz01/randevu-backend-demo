@@ -50,6 +50,12 @@ public class StudentsController {
 
 		return ResponseEntity.ok(studentService.findById(id));
 	}
+	
+	@GetMapping("/schedules/{id}")
+	public ResponseEntity<DataResult<StudentDto>> findByIdWithSchedules(@PathVariable long id) {
+
+		return ResponseEntity.ok(studentService.findByIdWithSchedules(id));
+	}
 
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Result> deleteById(@PathVariable long id) {

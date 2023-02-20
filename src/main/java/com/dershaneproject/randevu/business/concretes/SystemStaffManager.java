@@ -96,6 +96,43 @@ public class SystemStaffManager implements SystemStaffService {
 			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
 		}
 	}
+	
+	@Override
+	public DataResult<List<SystemStaffDto>> findAllWithSchedules() {
+		// TODO Auto-generated method stub
+		try {
+			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
+			if (systemStaffs.size() != 0) {
+				List<SystemStaffDto> systemStaffsDto = new ArrayList<SystemStaffDto>();
+
+				systemStaffs.forEach(systemStaff -> {
+					SystemStaffDto systemStaffDto = new SystemStaffDto();
+
+					systemStaffDto.setId(systemStaff.getId());
+					systemStaffDto.setUserName(systemStaff.getUserName());
+					systemStaffDto.setPassword(systemStaff.getPassword());
+					systemStaffDto.setEmail(systemStaff.getEmail());
+					systemStaffDto.setAuthority(systemStaff.getAuthority());
+					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
+					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
+					systemStaffDto.setSchedules(systemStaff.getSchedules());
+
+					systemStaffsDto.add(systemStaffDto);
+				});
+
+				return new DataResult<List<SystemStaffDto>>(systemStaffsDto, true, "Sistem çalışanları getirildi.");
+
+			} else {
+
+				return new DataResult<List<SystemStaffDto>>(false, "Sistem çalışanı bulunamadı.");
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
+		}
+	}
+
+
 
 	@Override
 	public DataResult<SystemStaffDto> findById(long id) {
@@ -113,6 +150,33 @@ public class SystemStaffManager implements SystemStaffService {
 				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
 				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
 				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+
+				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
+			}
+			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<SystemStaffDto>(false, e.getMessage());
+		}
+	}
+	
+	@Override
+	public DataResult<SystemStaffDto> findByIdWithSchedules(long id) {
+		// TODO Auto-generated method stub
+		try {
+			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
+
+			if (!(systemStaff.equals(Optional.empty()))) {
+				SystemStaffDto systemStaffDto = new SystemStaffDto();
+
+				systemStaffDto.setId(systemStaff.get().getId());
+				systemStaffDto.setUserName(systemStaff.get().getUserName());
+				systemStaffDto.setEmail(systemStaff.get().getEmail());
+				systemStaffDto.setPassword(systemStaff.get().getPassword());
+				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
+				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
+				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+				systemStaffDto.setSchedules(systemStaff.get().getSchedules());
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
 			}
@@ -220,9 +284,10 @@ public class SystemStaffManager implements SystemStaffService {
 	public DataResult<Long> getCount() {
 		// TODO Auto-generated method stub
 		try {
-			return new DataResult<Long>(systemStaffDao.count(), true, "Günlerin sayısı getirildi.");
+			return new DataResult<Long>(systemStaffDao.count(), true, "Sistem çalışanlarının sayısı getirildi.");
 		} catch (Exception e) {
 			return new DataResult<Long>(false, e.getMessage());
-		}	}
+		}	
+	}
 
 }

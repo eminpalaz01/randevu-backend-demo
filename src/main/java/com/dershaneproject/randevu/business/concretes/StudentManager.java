@@ -116,6 +116,7 @@ public class StudentManager implements StudentService {
 				studentDto.setCreateDate(student.get().getCreateDate());
 				studentDto.setLastUpdateDate(student.get().getLastUpdateDate());
 				studentDto.setStudentNumber(student.get().getStudentNumber());
+				studentDto.setSchedules(null);
 
 				return new DataResult<StudentDto>(studentDto, true, id + " id'li öğrenci getirildi.");
 			}
@@ -125,6 +126,33 @@ public class StudentManager implements StudentService {
 			return new DataResult<StudentDto>(false, e.getMessage());
 		}
 
+	}
+
+	@Override
+	public DataResult<StudentDto> findByIdWithSchedules(long id) {
+		// TODO Auto-generated method stub
+		try {
+			Optional<Student> student = studentDao.findById(id);
+
+			if (!(student.equals(Optional.empty()))) {
+				StudentDto studentDto = new StudentDto();
+
+				studentDto.setId(student.get().getId());
+				studentDto.setUserName(student.get().getUserName());
+				studentDto.setEmail(student.get().getEmail());
+				studentDto.setPassword(student.get().getPassword());
+				studentDto.setCreateDate(student.get().getCreateDate());
+				studentDto.setLastUpdateDate(student.get().getLastUpdateDate());
+				studentDto.setStudentNumber(student.get().getStudentNumber());
+				studentDto.setSchedules(student.get().getSchedules());
+
+				return new DataResult<StudentDto>(studentDto, true, id + " id'li öğrenci getirildi.");
+			}
+			return new DataResult<StudentDto>(false, id + " id'li öğrenci bulunamadı.");
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<StudentDto>(false, e.getMessage());
+		}
 	}
 
 	@Override
@@ -253,9 +281,10 @@ public class StudentManager implements StudentService {
 	public DataResult<Long> getCount() {
 		// TODO Auto-generated method stub
 		try {
-			return new DataResult<Long>(studentDao.count(), true, "Günlerin sayısı getirildi.");
+			return new DataResult<Long>(studentDao.count(), true, "Öğrencilerin sayısı getirildi.");
 		} catch (Exception e) {
 			return new DataResult<Long>(false, e.getMessage());
-		}	}
+		}
+	}
 
 }

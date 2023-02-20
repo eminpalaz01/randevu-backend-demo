@@ -1,5 +1,8 @@
 package com.dershaneproject.randevu;
 
+import java.util.List;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,15 +19,20 @@ import com.dershaneproject.randevu.entities.concretes.SystemWorker;
 import java.time.LocalTime;
 import java.util.Optional;*/
 import org.springframework.context.annotation.Bean;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.annotations.OpenAPI30;
+import io.swagger.v3.oas.models.annotations.OpenAPI31;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+
+
 
 
 @EnableAutoConfiguration
-@EnableSwagger2
+@OpenAPI31
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
 public class RandevuApplication {
 
@@ -105,13 +113,14 @@ public class RandevuApplication {
 	 * 
 	 */
 
+	
 	public static void main(String[] args) {
 
 		// Uygulama çalışınca oluşan classları daha doğrusu
 		// beanleri kullanmak için instence oluşturdum
 
 	//	ConfigurableApplicationContext configurableApplicationContext = 
-		SpringApplication.run(RandevuApplication.class,args);
+		SpringApplication.run(RandevuApplication.class, args);
 		
 		/* Veriyon kontrolleri */
 		System.out.println(" My jdk version " + System.getProperty("java.version"));
@@ -130,13 +139,33 @@ public class RandevuApplication {
 
 	}
 	
+	@Bean
+	public OpenAPI customOpenAPI(@Value("not: "
+			+ "'Authorization' "
+			+ "parametresine ne verirseniz verin swaggerda tanımladığımız tokenı gönderiyor.")
+	        String description,
+			                     @Value("v1") String version) {
+	    final String securitySchemeName = "bearerAuth";						
+		return new OpenAPI()
+	            .components(
+	                    new Components()
+	                            .addSecuritySchemes(securitySchemeName,
+	                                    new SecurityScheme()
+	                                            .type(SecurityScheme.Type.HTTP)
+	                                            .scheme("bearer")
+	                                            .bearerFormat("JWT")
+	                            )
+	            )
+	            .security(List.of(new SecurityRequirement().addList(securitySchemeName))).info(new Info()
+				.title("Dershane Randevu Api")
+				.version(version)
+				.description(description)
+				.license(new License().name("Randevu Api Licence")));	
+	}
+    
     @Bean
-    public Docket api() {
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.basePackage("com.dershaneproject.randevu.api.controllers"))
-                .paths(PathSelectors.any())
-                .build();
+    public ModelMapper getModelMapper() {
+    	return new ModelMapper();
     }
 
 }

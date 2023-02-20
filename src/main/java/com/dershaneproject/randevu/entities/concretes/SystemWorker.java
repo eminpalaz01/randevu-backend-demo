@@ -2,7 +2,6 @@ package com.dershaneproject.randevu.entities.concretes;
 
 import java.util.Date;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -10,6 +9,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -20,10 +20,15 @@ import lombok.ToString;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class SystemWorker extends User {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3262452977633729181L;
+
 	@Column(name = "authority")
 	private int authority;
 
-	@JsonManagedReference("systemWorkerSchedulesReference")
+	@JsonBackReference("systemWorkerSchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "lastUpdateDateSystemWorker")
 	private List<Schedule> schedules;
 

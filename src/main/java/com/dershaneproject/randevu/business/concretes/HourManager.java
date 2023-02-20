@@ -133,7 +133,7 @@ public class HourManager implements HourService {
 	public DataResult<Long> getCount() {
 		// TODO Auto-generated method stub
 		try {
-			return new DataResult<Long>(hourDao.count(), true, "Günlerin sayısı getirildi.");
+			return new DataResult<Long>(hourDao.count(), true, "Saatlerin sayısı getirildi.");
 		} catch (Exception e) {
 			return new DataResult<Long>(false, e.getMessage());
 		}	}

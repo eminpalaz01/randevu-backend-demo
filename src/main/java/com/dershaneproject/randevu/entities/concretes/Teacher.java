@@ -23,6 +23,11 @@ import lombok.ToString;
 @Table(name = "teachers")
 public class Teacher extends User {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2438081625053399401L;
+
 	@JsonBackReference(value = "departmentTeachersReference")
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "department_id")
@@ -31,7 +36,7 @@ public class Teacher extends User {
 	@Column(name = "teacher_number", length = 20)
 	private String teacherNumber;
 
-    @JsonManagedReference(value = "teacherSchedulesReference")
+    @JsonBackReference(value = "teacherSchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "teacher", cascade = CascadeType.REMOVE)
 	private List<Schedule> schedules;
 

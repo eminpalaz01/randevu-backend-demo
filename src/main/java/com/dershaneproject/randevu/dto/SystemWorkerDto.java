@@ -9,12 +9,12 @@ import com.dershaneproject.randevu.entities.concretes.Schedule;
 import lombok.Data;
 
 @Data
-public class SystemStaffDto implements Serializable {
-
-	/*
-	 * Default
+public class SystemWorkerDto implements Serializable{
+	
+	/**
+	 * 
 	 */
-	private static final long serialVersionUID = -7601987594451826218L;
+	private static final long serialVersionUID = -8157975018805476832L;
 
 	private long id;
 

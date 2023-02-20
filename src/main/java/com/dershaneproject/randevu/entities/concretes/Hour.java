@@ -1,5 +1,6 @@
 package com.dershaneproject.randevu.entities.concretes;
 
+import java.io.Serializable;
 import java.time.LocalTime;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -16,7 +17,12 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "hours")
-public class Hour {
+public class Hour implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6977120390546533101L;
 
 	@Id
 	@SequenceGenerator(name = "hour_id_seq", allocationSize = 1)
@@ -27,8 +33,4 @@ public class Hour {
 	@Column(name = "time")
 	private LocalTime time;
 	
-	@JsonManagedReference(value = "hourSchedulesReference")
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "hour")
-	private List<Schedule> schedules;
-
 }

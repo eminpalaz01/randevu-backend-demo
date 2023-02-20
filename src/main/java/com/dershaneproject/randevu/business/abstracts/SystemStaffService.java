@@ -12,8 +12,12 @@ public interface SystemStaffService {
 	Result deleteById(long id);
 
 	DataResult<List<SystemStaffDto>> findAll();
-
+	
+    DataResult<List<SystemStaffDto>> findAllWithSchedules();
+    
 	DataResult<SystemStaffDto> findById(long id);
+	
+	DataResult<SystemStaffDto> findByIdWithSchedules(long id);
 
 	DataResult<SystemStaffDto> updateUserNameById(long id, String userName);
 
