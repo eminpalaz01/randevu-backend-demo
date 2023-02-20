@@ -3,8 +3,6 @@ package com.dershaneproject.randevu.dto;
 import java.io.Serializable;
 import java.util.Date;
 
-import com.dershaneproject.randevu.entities.concretes.SystemWorker;
-
 import lombok.Data;
 
 @Data

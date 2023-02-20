@@ -21,7 +21,6 @@ import java.util.Optional;*/
 import org.springframework.context.annotation.Bean;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.annotations.OpenAPI30;
 import io.swagger.v3.oas.models.annotations.OpenAPI31;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
