@@ -1,2 +1,2 @@
-# Randevu Application Backend ( Spring Boot )
+# Randevu Application Backend ( Spring Boot, Hibernate )
 It's a demo application
