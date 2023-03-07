@@ -34,6 +34,10 @@ public class Student extends User {
 	@JsonBackReference(value = "studentSchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.REFRESH)
 	private List<Schedule> schedules;
+	
+	@JsonBackReference(value = "studentWeeklySchedulesReference")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.REFRESH)
+	private List<WeeklySchedule> weeklySchedules;
 
 	public Student() {
 	}

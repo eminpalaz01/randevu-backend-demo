@@ -41,6 +41,10 @@ public class Teacher extends User {
     @JsonBackReference(value = "teacherSchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "teacher", cascade = CascadeType.REMOVE)
 	private List<Schedule> schedules;
+    
+    @JsonBackReference(value = "teacherWeeklySchedulesReference")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "teacher", cascade = CascadeType.REMOVE)
+	private List<WeeklySchedule> weeklySchedules;
 
 	public Teacher() {
 	}

@@ -56,7 +56,7 @@ public class TeacherManager implements TeacherService {
 				teacher.setUserName(teacherDto.getUserName());
 				teacher.setPassword(teacherDto.getPassword());
 				teacher.setEmail(teacherDto.getEmail());
-
+				
 				teacher.setDepartment(department.get());
 				teacher.setTeacherNumber(teacherDto.getTeacherNumber());
 

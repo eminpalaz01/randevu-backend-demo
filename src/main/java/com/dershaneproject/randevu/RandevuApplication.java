@@ -27,9 +27,6 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
-
-
-
 @EnableAutoConfiguration
 @OpenAPI31
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
@@ -121,7 +118,7 @@ public class RandevuApplication {
 	//	ConfigurableApplicationContext configurableApplicationContext = 
 		SpringApplication.run(RandevuApplication.class, args);
 		
-		/* Veriyon kontrolleri */
+		/* Versiyon kontrolleri */
 		System.out.println(" My jdk version " + System.getProperty("java.version"));
 		System.out.println(" Hibernate version " + org.hibernate.Version.getVersionString());
 
@@ -143,7 +140,7 @@ public class RandevuApplication {
 			+ "'Authorization' "
 			+ "parametresine ne verirseniz verin swaggerda tanımladığımız tokenı gönderiyor.")
 	        String description,
-			                     @Value("v1") String version) {
+			@Value("v1") String version) {
 	    final String securitySchemeName = "bearerAuth";						
 		return new OpenAPI()
 	            .components(

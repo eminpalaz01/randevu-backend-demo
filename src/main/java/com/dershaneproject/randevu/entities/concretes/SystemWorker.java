@@ -31,6 +31,10 @@ public class SystemWorker extends User {
 	@JsonBackReference("systemWorkerSchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "lastUpdateDateSystemWorker")
 	private List<Schedule> schedules;
+	
+	@JsonBackReference("systemWorkerWeeklySchedulesReference")
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "lastUpdateDateSystemWorker")
+	private List<WeeklySchedule> weeklySchedules;
 
 	public SystemWorker() {
 		// TODO Auto-generated constructor stub
