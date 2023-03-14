@@ -12,10 +12,12 @@ public interface StudentService {
 	Result deleteById(long id);
 
 	DataResult<List<StudentDto>> findAll();
+	
+	DataResult<List<StudentDto>> findAllWithWeeklySchedules();
 
 	DataResult<StudentDto> findById(long id);
 	
-	DataResult<StudentDto> findByIdWithSchedules(long id);
+	DataResult<StudentDto> findByIdWithWeeklySchedules(long id);
 
 	DataResult<StudentDto> updateUserNameById(long id, String userName);
 

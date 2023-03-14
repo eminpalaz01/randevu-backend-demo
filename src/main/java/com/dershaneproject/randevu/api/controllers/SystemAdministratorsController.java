@@ -40,10 +40,23 @@ public class SystemAdministratorsController {
 		return ResponseEntity.ok(systemAdministratorService.findAll());
 	}
 	
+	// Sadece 2 tip schedule olduğu için all dedim gerçek projede and ile kullanırdım
+	@GetMapping("/schedules-and-weekly-schedules")
+	public ResponseEntity<DataResult<List<SystemAdministratorDto>>> findAllWithAllSchedules() {
+
+		return ResponseEntity.ok(systemAdministratorService.findAllWithAllSchedules());
+	}
+	
 	@GetMapping("/schedules")
 	public ResponseEntity<DataResult<List<SystemAdministratorDto>>> findAllWithSchedules() {
 
 		return ResponseEntity.ok(systemAdministratorService.findAllWithSchedules());
+	}
+	
+	@GetMapping("/weekly-schedules")
+	public ResponseEntity<DataResult<List<SystemAdministratorDto>>> findAllWithWeeklySchedules() {
+
+		return ResponseEntity.ok(systemAdministratorService.findAllWithWeeklySchedules());
 	}
 
 	@GetMapping("/count")
@@ -58,10 +71,22 @@ public class SystemAdministratorsController {
 		return ResponseEntity.ok(systemAdministratorService.findById(id));
 	}
 	
+	@GetMapping("/schedules-and-weekly-schedules/{id}")
+	public ResponseEntity<DataResult<SystemAdministratorDto>> findByIdWithAllSchedules(@PathVariable long id) {
+
+		return ResponseEntity.ok(systemAdministratorService.findByIdWithAllSchedules(id));
+	}
+	
 	@GetMapping("/schedules/{id}")
 	public ResponseEntity<DataResult<SystemAdministratorDto>> findByIdWithSchedules(@PathVariable long id) {
 
 		return ResponseEntity.ok(systemAdministratorService.findByIdWithSchedules(id));
+	}
+	
+	@GetMapping("/weekly-schedules/{id}")
+	public ResponseEntity<DataResult<SystemAdministratorDto>> findByIdWithWeeklySchedules(@PathVariable long id) {
+
+		return ResponseEntity.ok(systemAdministratorService.findByIdWithWeeklySchedules(id));
 	}
 
 	@DeleteMapping("/{id}")

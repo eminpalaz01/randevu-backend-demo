@@ -30,6 +30,6 @@ public class StudentDto implements Serializable {
 
 	private String studentNumber;
 	
-	private List<Schedule> schedules;
+	private List<WeeklyScheduleDto> weeklySchedules;
 
 }

@@ -23,7 +23,6 @@ public class SystemWorker extends User {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 3262452977633729181L;
 
 	@Column(name = "authority")
 	private int authority;

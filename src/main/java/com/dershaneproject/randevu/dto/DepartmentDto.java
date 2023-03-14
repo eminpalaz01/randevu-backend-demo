@@ -20,6 +20,6 @@ public class DepartmentDto implements Serializable {
 
 	private String compressing;
 
-	private List<Teacher> teachers;
+	private List<TeacherDto> teachers;
 
 }

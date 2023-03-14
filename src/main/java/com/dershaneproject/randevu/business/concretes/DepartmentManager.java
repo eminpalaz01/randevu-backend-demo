@@ -6,20 +6,25 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.DepartmentService;
+import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.DepartmentDao;
 import com.dershaneproject.randevu.dto.DepartmentDto;
+import com.dershaneproject.randevu.dto.TeacherDto;
 import com.dershaneproject.randevu.entities.concretes.Department;
+import com.dershaneproject.randevu.entities.concretes.Teacher;
 
 @Service
 public class DepartmentManager implements DepartmentService {
 
 	private DepartmentDao departmentDao;
+	private ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Autowired
-	public DepartmentManager(DepartmentDao departmentDao) {
+	public DepartmentManager(DepartmentDao departmentDao, ModelMapperServiceWithTypeMappingConfigs modelMapperService) {
 		this.departmentDao = departmentDao;
+		this.modelMapperService = modelMapperService;
 	}
 
 	@Override
@@ -68,11 +73,20 @@ public class DepartmentManager implements DepartmentService {
 		try {
 			Optional<Department> department = departmentDao.findById(id);
 			if (!(department.equals(Optional.empty()))) {
+				
+				List<Teacher> teachers = department.get().getTeachers();
+				List<TeacherDto> teachersDto = new ArrayList<>();
+				
+				teachers.forEach(teacher -> {
+					TeacherDto teacherDto = modelMapperService.forResponse().map(teacher, TeacherDto.class);
+					teachersDto.add(teacherDto);
+				});
+				
 				DepartmentDto departmentDto = new DepartmentDto();
 				departmentDto.setId(department.get().getId());
 				departmentDto.setName(department.get().getName());
 				departmentDto.setCompressing(department.get().getCompressing());
-				departmentDto.setTeachers(department.get().getTeachers());
+				departmentDto.setTeachers(teachersDto);
 
 				return new DataResult<DepartmentDto>(departmentDto, true, id + " id'li departman bulundu.");
 			}
@@ -118,10 +132,19 @@ public class DepartmentManager implements DepartmentService {
 
 				departments.forEach(department -> {
 					DepartmentDto departmentDto = new DepartmentDto();
+					
+					List<Teacher> teachers = department.getTeachers();
+					List<TeacherDto> teachersDto = new ArrayList<>();
+					
+					teachers.forEach(teacher -> {
+						TeacherDto teacherDto = modelMapperService.forResponse().map(teacher, TeacherDto.class);
+						teachersDto.add(teacherDto);
+					});
+					
 					departmentDto.setId(department.getId());
 					departmentDto.setName(department.getName());
 					departmentDto.setCompressing(department.getCompressing());
-					departmentDto.setTeachers(department.getTeachers());
+					departmentDto.setTeachers(teachersDto);
 
 					departmentsDto.add(departmentDto);
 				});

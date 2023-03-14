@@ -6,21 +6,28 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.SystemStaffService;
+import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.SystemStaffDao;
+import com.dershaneproject.randevu.dto.ScheduleDto;
 import com.dershaneproject.randevu.dto.SystemStaffDto;
+import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
+import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.SystemStaff;
+import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 
 @Service
 public class SystemStaffManager implements SystemStaffService {
 
 	private SystemStaffDao systemStaffDao;
+	private ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Autowired
-	public SystemStaffManager(SystemStaffDao systemStaffDao) {
+	public SystemStaffManager(SystemStaffDao systemStaffDao, ModelMapperServiceWithTypeMappingConfigs modelMapperService) {
 		// TODO Auto-generated constructor stub
 		this.systemStaffDao = systemStaffDao;
+		this.modelMapperService = modelMapperService;
 	}
 
 	@Override
@@ -64,6 +71,144 @@ public class SystemStaffManager implements SystemStaffService {
 	}
 
 	@Override
+	public DataResult<SystemStaffDto> findById(long id) {
+		// TODO Auto-generated method stub
+		try {
+			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
+
+			if (!(systemStaff.equals(Optional.empty()))) {
+				SystemStaffDto systemStaffDto = new SystemStaffDto();
+
+				systemStaffDto.setId(systemStaff.get().getId());
+				systemStaffDto.setUserName(systemStaff.get().getUserName());
+				systemStaffDto.setEmail(systemStaff.get().getEmail());
+				systemStaffDto.setPassword(systemStaff.get().getPassword());
+				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
+				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
+				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+
+				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
+			}
+			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<SystemStaffDto>(false, e.getMessage());
+		}
+	}
+
+	@Override
+	public DataResult<SystemStaffDto> findByIdWithAllSchedules(long id) {
+		// TODO Auto-generated method stub
+		try {
+			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
+
+			if (!(systemStaff.equals(Optional.empty()))) {
+				SystemStaffDto systemStaffDto = new SystemStaffDto();
+				
+				List<Schedule> schedules = systemStaff.get().getSchedules();
+				List<ScheduleDto> schedulesDto = new ArrayList<>();
+				schedules.forEach(schedule -> {
+					ScheduleDto scheduleDto = modelMapperService.forResponse().map(schedule, ScheduleDto.class);
+					schedulesDto.add(scheduleDto);
+				});
+
+				List<WeeklySchedule> weeklySchedules = systemStaff.get().getWeeklySchedules();
+				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+				weeklySchedules.forEach(weeklySchedule -> {
+					WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
+							WeeklyScheduleDto.class);
+					weeklySchedulesDto.add(weeklyScheduleDto);
+				});
+
+				systemStaffDto.setId(systemStaff.get().getId());
+				systemStaffDto.setUserName(systemStaff.get().getUserName());
+				systemStaffDto.setEmail(systemStaff.get().getEmail());
+				systemStaffDto.setPassword(systemStaff.get().getPassword());
+				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
+				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
+				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+				systemStaffDto.setSchedules(schedulesDto);
+				systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
+
+				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
+			}
+			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<SystemStaffDto>(false, e.getMessage());
+		}
+	}
+
+	@Override
+	public DataResult<SystemStaffDto> findByIdWithWeeklySchedules(long id) {
+		// TODO Auto-generated method stub
+		try {
+			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
+
+			if (!(systemStaff.equals(Optional.empty()))) {
+				SystemStaffDto systemStaffDto = new SystemStaffDto();
+
+				List<WeeklySchedule> weeklySchedules = systemStaff.get().getWeeklySchedules();
+				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+				weeklySchedules.forEach(weeklySchedule -> {
+					WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
+							WeeklyScheduleDto.class);
+					weeklySchedulesDto.add(weeklyScheduleDto);
+				});
+
+				systemStaffDto.setId(systemStaff.get().getId());
+				systemStaffDto.setUserName(systemStaff.get().getUserName());
+				systemStaffDto.setEmail(systemStaff.get().getEmail());
+				systemStaffDto.setPassword(systemStaff.get().getPassword());
+				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
+				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
+				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+				systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
+
+				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
+			}
+			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<SystemStaffDto>(false, e.getMessage());
+		}
+	}
+
+	@Override
+	public DataResult<SystemStaffDto> findByIdWithSchedules(long id) {
+		// TODO Auto-generated method stub
+		try {
+			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
+
+			if (!(systemStaff.equals(Optional.empty()))) {
+				SystemStaffDto systemStaffDto = new SystemStaffDto();
+				
+				List<Schedule> schedules = systemStaff.get().getSchedules();
+				List<ScheduleDto> schedulesDto = new ArrayList<>();
+				schedules.forEach(schedule -> {
+					ScheduleDto scheduleDto = modelMapperService.forResponse().map(schedule, ScheduleDto.class);
+					schedulesDto.add(scheduleDto);
+				});
+
+				systemStaffDto.setId(systemStaff.get().getId());
+				systemStaffDto.setUserName(systemStaff.get().getUserName());
+				systemStaffDto.setEmail(systemStaff.get().getEmail());
+				systemStaffDto.setPassword(systemStaff.get().getPassword());
+				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
+				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
+				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+				systemStaffDto.setSchedules(schedulesDto);
+
+				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
+			}
+			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<SystemStaffDto>(false, e.getMessage());
+		}
+	}
+
+	@Override
 	public DataResult<List<SystemStaffDto>> findAll() {
 		// TODO Auto-generated method stub
 		try {
@@ -96,9 +241,9 @@ public class SystemStaffManager implements SystemStaffService {
 			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
 		}
 	}
-	
+
 	@Override
-	public DataResult<List<SystemStaffDto>> findAllWithSchedules() {
+	public DataResult<List<SystemStaffDto>> findAllWithAllSchedules() {
 		// TODO Auto-generated method stub
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
@@ -108,6 +253,21 @@ public class SystemStaffManager implements SystemStaffService {
 				systemStaffs.forEach(systemStaff -> {
 					SystemStaffDto systemStaffDto = new SystemStaffDto();
 
+					List<Schedule> schedules = systemStaff.getSchedules();
+					List<ScheduleDto> schedulesDto = new ArrayList<>();
+					schedules.forEach(schedule -> {
+						ScheduleDto scheduleDto = modelMapperService.forResponse().map(schedule, ScheduleDto.class);
+						schedulesDto.add(scheduleDto);
+					});
+
+					List<WeeklySchedule> weeklySchedules = systemStaff.getWeeklySchedules();
+					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+					weeklySchedules.forEach(weeklySchedule -> {
+						WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
+								WeeklyScheduleDto.class);
+						weeklySchedulesDto.add(weeklyScheduleDto);
+					});
+
 					systemStaffDto.setId(systemStaff.getId());
 					systemStaffDto.setUserName(systemStaff.getUserName());
 					systemStaffDto.setPassword(systemStaff.getPassword());
@@ -115,7 +275,8 @@ public class SystemStaffManager implements SystemStaffService {
 					systemStaffDto.setAuthority(systemStaff.getAuthority());
 					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
 					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
-					systemStaffDto.setSchedules(systemStaff.getSchedules());
+					systemStaffDto.setSchedules(schedulesDto);
+					systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
 				});
@@ -132,58 +293,88 @@ public class SystemStaffManager implements SystemStaffService {
 		}
 	}
 
-
-
 	@Override
-	public DataResult<SystemStaffDto> findById(long id) {
+	public DataResult<List<SystemStaffDto>> findAllWithSchedules() {
 		// TODO Auto-generated method stub
 		try {
-			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
+			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
+			if (systemStaffs.size() != 0) {
+				List<SystemStaffDto> systemStaffsDto = new ArrayList<SystemStaffDto>();
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
+				systemStaffs.forEach(systemStaff -> {
+					SystemStaffDto systemStaffDto = new SystemStaffDto();
 
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+					List<Schedule> schedules = systemStaff.getSchedules();
+					List<ScheduleDto> schedulesDto = new ArrayList<>();
+					schedules.forEach(schedule -> {
+						ScheduleDto scheduleDto = modelMapperService.forResponse().map(schedule, ScheduleDto.class);
+						schedulesDto.add(scheduleDto);
+					});
 
-				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
+					systemStaffDto.setId(systemStaff.getId());
+					systemStaffDto.setUserName(systemStaff.getUserName());
+					systemStaffDto.setPassword(systemStaff.getPassword());
+					systemStaffDto.setEmail(systemStaff.getEmail());
+					systemStaffDto.setAuthority(systemStaff.getAuthority());
+					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
+					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
+					systemStaffDto.setSchedules(schedulesDto);
+
+					systemStaffsDto.add(systemStaffDto);
+				});
+
+				return new DataResult<List<SystemStaffDto>>(systemStaffsDto, true, "Sistem çalışanları getirildi.");
+
+			} else {
+
+				return new DataResult<List<SystemStaffDto>>(false, "Sistem çalışanı bulunamadı.");
 			}
-			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
 			// TODO: handle exception
-			return new DataResult<SystemStaffDto>(false, e.getMessage());
+			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
 		}
 	}
-	
+
 	@Override
-	public DataResult<SystemStaffDto> findByIdWithSchedules(long id) {
+	public DataResult<List<SystemStaffDto>> findAllWithWeeklySchedules() {
 		// TODO Auto-generated method stub
 		try {
-			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
+			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
+			if (systemStaffs.size() != 0) {
+				List<SystemStaffDto> systemStaffsDto = new ArrayList<SystemStaffDto>();
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
+				systemStaffs.forEach(systemStaff -> {
+					SystemStaffDto systemStaffDto = new SystemStaffDto();
 
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
-				systemStaffDto.setSchedules(systemStaff.get().getSchedules());
+					List<WeeklySchedule> weeklySchedules = systemStaff.getWeeklySchedules();
+					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+					weeklySchedules.forEach(weeklySchedule -> {
+						WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
+								WeeklyScheduleDto.class);
+						weeklySchedulesDto.add(weeklyScheduleDto);
+					});
 
-				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
+					systemStaffDto.setId(systemStaff.getId());
+					systemStaffDto.setUserName(systemStaff.getUserName());
+					systemStaffDto.setPassword(systemStaff.getPassword());
+					systemStaffDto.setEmail(systemStaff.getEmail());
+					systemStaffDto.setAuthority(systemStaff.getAuthority());
+					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
+					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
+					systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
+
+					systemStaffsDto.add(systemStaffDto);
+				});
+
+				return new DataResult<List<SystemStaffDto>>(systemStaffsDto, true, "Sistem çalışanları getirildi.");
+
+			} else {
+
+				return new DataResult<List<SystemStaffDto>>(false, "Sistem çalışanı bulunamadı.");
 			}
-			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
 			// TODO: handle exception
-			return new DataResult<SystemStaffDto>(false, e.getMessage());
+			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
 		}
 	}
 
@@ -287,7 +478,7 @@ public class SystemStaffManager implements SystemStaffService {
 			return new DataResult<Long>(systemStaffDao.count(), true, "Sistem çalışanlarının sayısı getirildi.");
 		} catch (Exception e) {
 			return new DataResult<Long>(false, e.getMessage());
-		}	
+		}
 	}
 
 }

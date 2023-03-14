@@ -13,9 +13,19 @@ public interface SystemAdministratorService {
 
 	DataResult<List<SystemAdministratorDto>> findAll();
 	
+	DataResult<List<SystemAdministratorDto>> findAllWithAllSchedules();
+	
 	DataResult<List<SystemAdministratorDto>> findAllWithSchedules();
+	
+	DataResult<List<SystemAdministratorDto>> findAllWithWeeklySchedules();
 
 	DataResult<SystemAdministratorDto> findById(long id);
+	
+	DataResult<SystemAdministratorDto> findByIdWithAllSchedules(long id);
+	
+	DataResult<SystemAdministratorDto> findByIdWithSchedules(long id);
+	
+	DataResult<SystemAdministratorDto> findByIdWithWeeklySchedules(long id);
 
 	DataResult<SystemAdministratorDto> updateUserNameById(long id, String userName);
 
@@ -24,7 +34,5 @@ public interface SystemAdministratorService {
 	DataResult<SystemAdministratorDto> updateEmailById(long id, String email);
 	
 	DataResult<Long> getCount();
-
-	DataResult<SystemAdministratorDto> findByIdWithSchedules(long id);
 	
 }

@@ -31,7 +31,9 @@ public class TeacherDto implements Serializable {
 	private long departmentId;
 
 	private String teacherNumber;
+		
+	private List<ScheduleDto> schedules;
 	
-	private List<Schedule> schedules;
+	private List<WeeklyScheduleDto> weeklySchedules;
 
 }

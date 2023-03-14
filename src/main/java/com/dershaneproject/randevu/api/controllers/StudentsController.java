@@ -38,6 +38,12 @@ public class StudentsController {
 
 		return ResponseEntity.ok(studentService.findAll());
 	}
+	
+	@GetMapping("/weekly-schedules")
+	public ResponseEntity<DataResult<List<StudentDto>>> findAllWithWeeklySchedules() {
+
+		return ResponseEntity.ok(studentService.findAllWithWeeklySchedules());
+	}
 
 	@GetMapping("/count")
 	public ResponseEntity<DataResult<Long>> getCount() {
@@ -51,10 +57,10 @@ public class StudentsController {
 		return ResponseEntity.ok(studentService.findById(id));
 	}
 	
-	@GetMapping("/schedules/{id}")
+	@GetMapping("/weekly-schedules/{id}")
 	public ResponseEntity<DataResult<StudentDto>> findByIdWithSchedules(@PathVariable long id) {
 
-		return ResponseEntity.ok(studentService.findByIdWithSchedules(id));
+		return ResponseEntity.ok(studentService.findByIdWithWeeklySchedules(id));
 	}
 
 	@DeleteMapping("/{id}")

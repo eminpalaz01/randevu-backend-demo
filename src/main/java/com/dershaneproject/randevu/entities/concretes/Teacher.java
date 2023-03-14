@@ -1,5 +1,6 @@
 package com.dershaneproject.randevu.entities.concretes;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -23,13 +24,12 @@ import lombok.ToString;
 @ToString
 @Entity
 @Table(name = "teachers")
-public class Teacher extends User {
+public class Teacher extends User{
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2438081625053399401L;
-
+	
 	@JsonBackReference(value = "departmentTeachersReference")
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "department_id")

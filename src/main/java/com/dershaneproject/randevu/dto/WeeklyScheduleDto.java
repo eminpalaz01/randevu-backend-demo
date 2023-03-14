@@ -17,10 +17,14 @@ public class WeeklyScheduleDto implements Serializable{
 	private long id;
 
 	private Boolean full;
+	
+	private String description;
 
 	private long teacherId;
-
+	
 	private long studentId;
+	
+	/*private long lastUpdateDateSystemWorkerId;*/
 
 	private SystemWorkerDto lastUpdateDateSystemWorker;
 

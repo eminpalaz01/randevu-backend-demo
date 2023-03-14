@@ -99,7 +99,10 @@ public class RandevuApplication {
 	 * 5 Şubat 2023: Bugün tüm servisler test edilip başarılı olduklarına dair not edilecek.
 	 * 
 	 *  
-	 *  
+	 * 11 Mart 2023: Sistem mantığı komple değiştirildi şuanda Teacherda schedullar düzgün verilince herhangi bir sorun olmuyor
+	 * ama onlar kaydedilmesede teacherı kaydediyor onlara teacher id yi vermek için önce teacherı kaydetmiştim bu sorun 
+	 * çözülecek.(Önce schedullerı gönderdim burada bi hata oluşmaz ise teacher kaydedilip o schedulların teacherId leri 
+	 * güncellenebilir buna bak) Birde modelMapperlara bakılacak oradada sorunlar var.
 	 * 
 	 * 
 	 * 
@@ -161,7 +164,10 @@ public class RandevuApplication {
     
     @Bean
     public ModelMapper getModelMapper() {
-    	return new ModelMapper();
+    	ModelMapper modelMapper = new ModelMapper();
+    	return modelMapper;
+    	
+    	
     }
 
 }

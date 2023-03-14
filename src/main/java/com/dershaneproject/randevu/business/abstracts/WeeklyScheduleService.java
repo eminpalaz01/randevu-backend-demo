@@ -8,7 +8,9 @@ import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 
 public interface WeeklyScheduleService {
 
-	DataResult<WeeklyScheduleDto> save(WeeklySchedule weeklySchedule);
+	DataResult<WeeklyScheduleDto> save(WeeklyScheduleDto weeklyScheduleDto);
+	
+	DataResult<List<WeeklyScheduleDto>> saveAll(List<WeeklyScheduleDto> weeklySchedulesDto);
 
 	Result deleteById(long id);
 
@@ -21,6 +23,8 @@ public interface WeeklyScheduleService {
 	DataResult<WeeklyScheduleDto> updateTeacherById(long id, long teacherId);
 
 	DataResult<WeeklyScheduleDto> updateStudentById(long id, long studentId);
+	
+	DataResult<WeeklyScheduleDto> updateDescriptionById(long id, String description);
 
 	DataResult<WeeklyScheduleDto> updateLastUpdateDateSystemWorkerById(long id, long lastUpdateDateSystemWorkerId);
 

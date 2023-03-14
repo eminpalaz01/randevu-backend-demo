@@ -4,10 +4,13 @@ import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.ScheduleDto;
+import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 
 public interface ScheduleService {
 
 	DataResult<ScheduleDto> save(ScheduleDto scheduleDto);
+
+	DataResult<List<ScheduleDto>> saveAll(List<ScheduleDto> schedulesDto);
 
 	Result deleteById(long id);
 
@@ -19,7 +22,7 @@ public interface ScheduleService {
 
 	DataResult<ScheduleDto> updateTeacherById(long id, long teacherId);
 
-	DataResult<ScheduleDto> updateStudentById(long id, long studentId);
+	DataResult<ScheduleDto> updateDescriptionById(long id, String description);
 
 	DataResult<ScheduleDto> updateLastUpdateDateSystemWorkerById(long id, long lastUpdateDateSystemWorkerId);
 

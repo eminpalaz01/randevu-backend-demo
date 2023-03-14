@@ -6,26 +6,32 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.StudentService;
+import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.StudentDao;
 import com.dershaneproject.randevu.dto.StudentDto;
+import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.entities.concretes.Student;
+import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 
 @Service
 public class StudentManager implements StudentService {
 
 	private StudentDao studentDao;
+	private ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Autowired
-	public StudentManager(StudentDao studentDao) {
+	public StudentManager(StudentDao studentDao, ModelMapperServiceWithTypeMappingConfigs modelMapperService) {
 		this.studentDao = studentDao;
+		this.modelMapperService = modelMapperService;
 	}
 
 	@Override
 	public DataResult<StudentDto> save(StudentDto studentDto) {
 		// TODO Auto-generated method stub
 		try {
+			
 			Student student = new Student();
 
 			student.setUserName(studentDto.getUserName());
@@ -99,6 +105,50 @@ public class StudentManager implements StudentService {
 		}
 
 	}
+	
+	@Override
+	public DataResult<List<StudentDto>> findAllWithWeeklySchedules() {
+		// TODO Auto-generated method stub
+		try {
+			List<Student> students = studentDao.findAll();
+			if (students.size() != 0) {
+				List<StudentDto> studentsDto = new ArrayList<StudentDto>();
+
+				students.forEach(student -> {
+					StudentDto studentDto = new StudentDto();
+					
+					List<WeeklySchedule> weeklySchedules = student.getWeeklySchedules();
+					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+					weeklySchedules.forEach(weeklySchedule -> {
+						WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
+								WeeklyScheduleDto.class);
+						weeklySchedulesDto.add(weeklyScheduleDto);
+					});
+
+					studentDto.setId(student.getId());
+					studentDto.setUserName(student.getUserName());
+					studentDto.setPassword(student.getPassword());
+					studentDto.setEmail(student.getEmail());
+					studentDto.setCreateDate(student.getCreateDate());
+					studentDto.setLastUpdateDate(student.getLastUpdateDate());
+					studentDto.setStudentNumber(student.getStudentNumber());
+					studentDto.setWeeklySchedules(weeklySchedulesDto);
+
+					studentsDto.add(studentDto);
+				});
+
+				return new DataResult<List<StudentDto>>(studentsDto, true, "Öğrenciler getirildi.");
+
+			} else {
+
+				return new DataResult<List<StudentDto>>(false, "Öğrenci bulunamadı.");
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<List<StudentDto>>(false, e.getMessage());
+		}
+
+	}
 
 	@Override
 	public DataResult<StudentDto> findById(long id) {
@@ -116,7 +166,7 @@ public class StudentManager implements StudentService {
 				studentDto.setCreateDate(student.get().getCreateDate());
 				studentDto.setLastUpdateDate(student.get().getLastUpdateDate());
 				studentDto.setStudentNumber(student.get().getStudentNumber());
-				studentDto.setSchedules(null);
+				studentDto.setWeeklySchedules(null);
 
 				return new DataResult<StudentDto>(studentDto, true, id + " id'li öğrenci getirildi.");
 			}
@@ -127,15 +177,23 @@ public class StudentManager implements StudentService {
 		}
 
 	}
-
+	
 	@Override
-	public DataResult<StudentDto> findByIdWithSchedules(long id) {
+	public DataResult<StudentDto> findByIdWithWeeklySchedules(long id) {
 		// TODO Auto-generated method stub
 		try {
 			Optional<Student> student = studentDao.findById(id);
 
 			if (!(student.equals(Optional.empty()))) {
 				StudentDto studentDto = new StudentDto();
+				
+				List<WeeklySchedule> weeklySchedules = student.get().getWeeklySchedules();
+				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+				weeklySchedules.forEach(weeklySchedule -> {
+					WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
+							WeeklyScheduleDto.class);
+					weeklySchedulesDto.add(weeklyScheduleDto);
+				});
 
 				studentDto.setId(student.get().getId());
 				studentDto.setUserName(student.get().getUserName());
@@ -144,7 +202,7 @@ public class StudentManager implements StudentService {
 				studentDto.setCreateDate(student.get().getCreateDate());
 				studentDto.setLastUpdateDate(student.get().getLastUpdateDate());
 				studentDto.setStudentNumber(student.get().getStudentNumber());
-				studentDto.setSchedules(student.get().getSchedules());
+				studentDto.setWeeklySchedules(weeklySchedulesDto);
 
 				return new DataResult<StudentDto>(studentDto, true, id + " id'li öğrenci getirildi.");
 			}
@@ -154,7 +212,6 @@ public class StudentManager implements StudentService {
 			return new DataResult<StudentDto>(false, e.getMessage());
 		}
 	}
-
 	@Override
 	public DataResult<StudentDto> updateStudentNumberById(long id, String studentNumber) {
 		// TODO Auto-generated method stub
@@ -286,5 +343,7 @@ public class StudentManager implements StudentService {
 			return new DataResult<Long>(false, e.getMessage());
 		}
 	}
+
+
 
 }

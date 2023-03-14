@@ -30,5 +30,7 @@ public class SystemWorkerDto implements Serializable{
 
 	private String email;
 	
-	private List<Schedule> schedules;
+	private List<ScheduleDto> schedules;
+	
+	private List<WeeklyScheduleDto> weeklySchedules;
 }

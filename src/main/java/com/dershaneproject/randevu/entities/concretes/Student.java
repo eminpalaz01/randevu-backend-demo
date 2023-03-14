@@ -26,14 +26,9 @@ public class Student extends User {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 8412857069251001759L;
 
 	@Column(name = "student_number", length = 20)
 	private String studentNumber;
-
-	@JsonBackReference(value = "studentSchedulesReference")
-	@OneToMany(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.REFRESH)
-	private List<Schedule> schedules;
 	
 	@JsonBackReference(value = "studentWeeklySchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.REFRESH)

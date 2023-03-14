@@ -93,11 +93,11 @@ public class SchedulesController {
 				scheduleDto.getLastUpdateDateSystemWorker().getId()));
 	}
 
-	@PutMapping("/{id}/student")
-	public ResponseEntity<DataResult<ScheduleDto>> updateStudentById(@PathVariable long id,
+	@PutMapping("/{id}/description")
+	public ResponseEntity<DataResult<ScheduleDto>> updateDescriptionById(@PathVariable long id,
 			@RequestBody ScheduleDto scheduleDto) {
 
-		return ResponseEntity.ok(scheduleService.updateStudentById(id, scheduleDto.getStudentId()));
+		return ResponseEntity.ok(scheduleService.updateDescriptionById(id, scheduleDto.getDescription()));
 	}
 
 }

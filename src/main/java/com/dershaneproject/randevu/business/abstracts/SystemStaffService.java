@@ -13,11 +13,19 @@ public interface SystemStaffService {
 
 	DataResult<List<SystemStaffDto>> findAll();
 	
+    DataResult<List<SystemStaffDto>> findAllWithAllSchedules();
+    
     DataResult<List<SystemStaffDto>> findAllWithSchedules();
+    
+    DataResult<List<SystemStaffDto>> findAllWithWeeklySchedules();
     
 	DataResult<SystemStaffDto> findById(long id);
 	
+	DataResult<SystemStaffDto> findByIdWithAllSchedules(long id);
+	
 	DataResult<SystemStaffDto> findByIdWithSchedules(long id);
+	
+	DataResult<SystemStaffDto> findByIdWithWeeklySchedules(long id);
 
 	DataResult<SystemStaffDto> updateUserNameById(long id, String userName);
 

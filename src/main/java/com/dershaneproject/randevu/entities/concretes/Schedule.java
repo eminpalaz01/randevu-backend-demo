@@ -28,7 +28,7 @@ public class Schedule implements Serializable{
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1842211956651011224L;
+	private static final long serialVersionUID = -2247732292469828441L;
 
 	@Id
 	@SequenceGenerator(name = "schedule_id_seq", allocationSize = 1)
@@ -39,17 +39,15 @@ public class Schedule implements Serializable{
 	// Default olarak false olmasını sağla.
 	@Column(name = "full")
 	private Boolean full;
-
+	
+	@Column(name = "description", nullable = true)
+	private String description;
+	
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "teacher_id")
 	@JsonManagedReference(value = "teacherSchedulesReference")
 	private Teacher teacher;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "student_id", nullable = true)
-	@JsonManagedReference(value = "studentSchedulesReference")
-	private Student student;
-
+	
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "last_update_date_system_worker_id")
 	@JsonManagedReference(value = "systemWorkerSchedulesReference")
@@ -62,7 +60,7 @@ public class Schedule implements Serializable{
 	@UpdateTimestamp
 	@Column(name = "last_update_date")
 	private Date lastUpdateDate;
-
+    
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "day_of_week_id")
 	@JsonManagedReference(value = "dayOfWeekSchedulesReference")

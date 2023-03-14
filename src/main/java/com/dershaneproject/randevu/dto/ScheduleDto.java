@@ -2,7 +2,6 @@ package com.dershaneproject.randevu.dto;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import lombok.Data;
 
 @Data
@@ -17,9 +16,9 @@ public class ScheduleDto implements Serializable {
 
 	private Boolean full;
 
+	private String description;
+    
 	private long teacherId;
-
-	private long studentId;
 
 	private SystemWorkerDto lastUpdateDateSystemWorker;
 
