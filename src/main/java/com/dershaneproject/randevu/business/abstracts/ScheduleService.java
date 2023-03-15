@@ -11,6 +11,8 @@ public interface ScheduleService {
 	DataResult<ScheduleDto> save(ScheduleDto scheduleDto);
 
 	DataResult<List<ScheduleDto>> saveAll(List<ScheduleDto> schedulesDto);
+	
+	DataResult<List<ScheduleDto>> saveAllForCreateTeacher(List<ScheduleDto> schedulesDto);
 
 	Result deleteById(long id);
 

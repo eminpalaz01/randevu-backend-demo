@@ -5,9 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import javax.transaction.Transactional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
@@ -16,7 +14,6 @@ import com.dershaneproject.randevu.business.abstracts.WeeklyScheduleService;
 import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
-import com.dershaneproject.randevu.core.utilities.concretes.ScheduleDtoComparator;
 import com.dershaneproject.randevu.dataAccess.abstracts.DayOfWeekDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.DepartmentDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.HourDao;
@@ -34,6 +31,7 @@ import com.dershaneproject.randevu.entities.concretes.Hour;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
 
 @Service
 public class TeacherManager implements TeacherService {
@@ -43,6 +41,7 @@ public class TeacherManager implements TeacherService {
 	private HourDao hourDao;
 	private DayOfWeekDao dayOfWeekDao;
 	private ScheduleService scheduleService;
+	private ScheduleValidationService scheduleValidationService;
 	private WeeklyScheduleService weeklyScheduleService;
 	private SystemWorkerDao systemWorkerDao;
 	private ModelMapperServiceWithTypeMappingConfigs modelMapperService;
@@ -50,12 +49,14 @@ public class TeacherManager implements TeacherService {
 	@Autowired
 	public TeacherManager(TeacherDao teacherDao, DepartmentDao departmentDao, HourDao hourDao,
 			DayOfWeekDao dayOfWeekDao, ScheduleService scheduleService, WeeklyScheduleService weeklyScheduleService,
-			ModelMapperServiceWithTypeMappingConfigs modelMapperService, SystemWorkerDao systemWorkerDao) {
+			ModelMapperServiceWithTypeMappingConfigs modelMapperService, SystemWorkerDao systemWorkerDao,
+			ScheduleValidationService scheduleValidationService) {
 		this.teacherDao = teacherDao;
 		this.departmentDao = departmentDao;
 		this.hourDao = hourDao;
 		this.dayOfWeekDao = dayOfWeekDao;
 		this.scheduleService = scheduleService;
+		this.scheduleValidationService = scheduleValidationService;
 		this.weeklyScheduleService = weeklyScheduleService;
 		this.modelMapperService = modelMapperService;
 		this.systemWorkerDao = systemWorkerDao;
@@ -85,34 +86,52 @@ public class TeacherManager implements TeacherService {
 				teacher.setTeacherNumber(teacherDto.getTeacherNumber());
 
 				Teacher teacherDb = teacherDao.save(teacher);
-				if(teacherDb != null) {
-				 teacherDto.setId(teacherDb.getId());
-				 teacherDto.setCreateDate(teacherDb.getCreateDate());
-				 teacherDto.setLastUpdateDate(teacherDb.getLastUpdateDate());
-
-	             DataResult<List<ScheduleDto>> resultUpdateSchedules = 
-	            		updateSchedulesDtoForTeacher(schedulesDto, teacherDb.getId());
-	            
-	            if(resultUpdateSchedules.isSuccess()) {	
-	              DataResult<List<ScheduleDto>> resultSchedules = scheduleService.saveAll(resultUpdateSchedules.getData());	
-	              
-	              	 if(resultSchedules.isSuccess()) {
-					   teacherDto.setSchedules(resultSchedules.getData());
-					   return new DataResult<TeacherDto>(teacherDto, true, "Öğretmen veritabanına eklendi.");
-					  
-				  }  else {
-					   return new DataResult<TeacherDto>(false, resultSchedules.getMessage());
-				  }
-	             
-	            } else {
-	            	return new DataResult<TeacherDto>(false, resultUpdateSchedules.getMessage());
-	            }
-	            
-			} else {
-				return new DataResult<TeacherDto>(false, "Öğretmen veritabanına kaydedilirken bir sorun ile karşılaşıldı.");
-			}
 				
-          }
+				// if teacherDb is not null set id, dates and save schedulesDto of teacherDto
+				if (teacherDb != null) {
+					
+					teacherDto.setId(teacherDb.getId());
+					teacherDto.setCreateDate(teacherDb.getCreateDate());
+					teacherDto.setLastUpdateDate(teacherDb.getLastUpdateDate());
+
+					// schedulesDto are updating for register
+					DataResult<List<ScheduleDto>> resultUpdateSchedulesDto = updateSchedulesDtoForTeacher(schedulesDto,
+							teacherDb.getId());
+
+					if (resultUpdateSchedulesDto.isSuccess()) {
+						// schedulesDto are validating
+						Result resultValidationSchedulesDto = scheduleValidationService
+								.areValidateForCreateTeacherResult(resultUpdateSchedulesDto.getData());
+
+						if (resultValidationSchedulesDto.isSuccess()) {
+							// schedulesDto are saving and updating
+							DataResult<List<ScheduleDto>> resultResponseSchedulesDto = scheduleService
+									.saveAllForCreateTeacher(resultUpdateSchedulesDto.getData());
+							
+							if (resultResponseSchedulesDto.isSuccess()) {
+								teacherDto.setSchedules(resultResponseSchedulesDto.getData());
+								return new DataResult<TeacherDto>(teacherDto, true, "Öğretmen veritabanına eklendi.");
+							} else {
+								teacherDao.deleteById(teacherDb.getId());
+								return new DataResult<TeacherDto>(false, resultResponseSchedulesDto.getMessage());
+							}
+
+						} else {
+							teacherDao.deleteById(teacherDb.getId());
+							return new DataResult<TeacherDto>(false, resultValidationSchedulesDto.getMessage());
+						}
+
+					} else {
+						teacherDao.deleteById(teacherDb.getId());
+						return new DataResult<TeacherDto>(false, resultUpdateSchedulesDto.getMessage());
+					}
+
+				} else {
+					return new DataResult<TeacherDto>(false,
+							"Öğretmen veritabanına kaydedilirken bir sorun ile karşılaşıldı.");
+				}
+
+			}
 
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -542,55 +561,51 @@ public class TeacherManager implements TeacherService {
 
 	}
 
-	private DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, long teacherId) {
-		
-		// Eklerken hiç schedules verilmeme olasılığı olduğu için önce onu kontrol ediyorum ve
-		// ScheduleValidationService de sadece create edilirken kullanılması için system çalışanı olmayan halini
-		// yazdım bu arada. Eğerki eklenmişse Schedule bununda sistem çalışanı kontrol ediliyor var mı yok mu diye. 
-		// ve de teacher oluşturulurken tüm programların sistem çalışanı aynı olmalı ondan buraya özel 
+	public DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, long teacherId) {
+
+		// Eklerken hiç schedules verilmeme olasılığı olduğu için önce onu kontrol
+		// ediyorum ve
+		// ScheduleValidationService de sadece create edilirken kullanılması için system
+		// çalışanı olmayan halini
+		// yazdım bu arada. Eğerki eklenmişse Schedule bununda sistem çalışanı kontrol
+		// ediliyor var mı yok mu diye.
+		// ve de teacher oluşturulurken tüm programların sistem çalışanı aynı olmalı
+		// ondan buraya özel
 		// kontrol yazdım. ( private )
 		boolean systemWorkersAreAllTheSame = schedulesDto.stream()
-		        .filter(schedule -> schedule.getLastUpdateDateSystemWorker() != null)
-				.map(schedule -> schedule.getLastUpdateDateSystemWorker())
-		        .distinct()
-		        .count() <= 1;
-		
+				.filter(schedule -> schedule.getLastUpdateDateSystemWorker() != null)
+				.map(schedule -> schedule.getLastUpdateDateSystemWorker()).distinct().count() <= 1;
+
 		if (systemWorkersAreAllTheSame == false) {
 			return new DataResult<List<ScheduleDto>>(false,
-			"Programlarınızda eklediğiniz sistem çalışanlarının bazıları birbiriyle farklı dikkat ediniz. "
-			+ "(Bu istekte tek bir sistem çalışanı gönderilebilir.)");
+					"Programlarınızda eklediğiniz sistem çalışanlarının bazıları birbiriyle farklı dikkat ediniz. "
+							+ "(Bu istekte tek bir sistem çalışanı gönderilebilir.)");
 		}
-		
-		SystemWorkerDto systemWorker = schedulesDto.stream()
-				.filter(schedule -> schedule.getLastUpdateDateSystemWorker() != null)
-				.findAny().get().getLastUpdateDateSystemWorker();
-		
-		if(systemWorker != null){
-			if(!(systemWorkerDao.existsById(systemWorker.getId()))) {
-				return new DataResult<List<ScheduleDto>>(false,
-					"Eklediğiniz programlardaki sistem çalışanı bulunamadı kontrol ediniz.");	
-			}		
-		}
-		// SystemWorker kontrolü tamamlandı. En başta yapmamın sebebi aşağıdakiler sistemi yorucak işler olabilir.
 
+		SystemWorkerDto systemWorker = schedulesDto.stream()
+				.filter(schedule -> schedule.getLastUpdateDateSystemWorker() != null).findAny().get()
+				.getLastUpdateDateSystemWorker();
+
+		if (systemWorker != null) {
+			if (!(systemWorkerDao.existsById(systemWorker.getId()))) {
+				return new DataResult<List<ScheduleDto>>(false,
+						"Eklediğiniz programlardaki sistem çalışanı bulunamadı kontrol ediniz.");
+			}
+		}
+		// SystemWorker kontrolü tamamlandı. En başta yapmamın sebebi aşağıdakiler
+		// sistemi yorucak işler olabilir.
+
+		// Dao dan toplam sayılarını getiriyor.
 		long dayOfWeekCount = dayOfWeekDao.count();
 		long hourCount = hourDao.count();
-		
-		List<ScheduleDto> willSaveSchedulesDto = new ArrayList<>();
-		
 
+		List<ScheduleDto> willSaveSchedulesDto = new ArrayList<>();
 
 		for (int i = 0; i < dayOfWeekCount; i++) {
 
 			for (int k = 0; k < hourCount; k++) {
 				final int dayId = i + 1;
 				final int hourId = k + 1;
-
-				Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById((long) dayId);
-				Optional<Hour> hour = hourDao.findById((long) hourId);
-
-				HourDto hourDto = modelMapperService.forResponse().map(hour, HourDto.class);
-				DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(dayOfWeek, DayOfWeekDto.class);
 
 				List<ScheduleDto> scheduleDto = schedulesDto.stream().filter(
 						schedule -> schedule.getDayOfWeek().getId() == dayId && schedule.getHour().getId() == hourId)
@@ -604,12 +619,19 @@ public class TeacherManager implements TeacherService {
 						willSaveSchedulesDto.add(scheduleDto.get(0));
 					} else {
 						ScheduleDto emptyscheduleDto = new ScheduleDto();
+						
+						HourDto hourDto = new HourDto();
+						DayOfWeekDto dayOfWeekDto = new DayOfWeekDto();						
+						
+						hourDto.setId(hourId);
+						dayOfWeekDto.setId(dayId);
+						
 						emptyscheduleDto.setDayOfWeek(dayOfWeekDto);
 						emptyscheduleDto.setHour(hourDto);
 						emptyscheduleDto.setTeacherId(teacherId);
 						emptyscheduleDto.setLastUpdateDateSystemWorker(systemWorker);
-						emptyscheduleDto.setDescription(
-								"Oluşturan: " + systemWorker.getUserName() + " ** Sistem tarafından oluşturulmuştur. **");
+						emptyscheduleDto.setDescription("Oluşturan: " + systemWorker.getUserName()
+								+ " ** Sistem tarafından oluşturulmuştur. **");
 						emptyscheduleDto.setFull(false);
 
 						willSaveSchedulesDto.add(emptyscheduleDto);
@@ -621,7 +643,7 @@ public class TeacherManager implements TeacherService {
 
 			}
 		}
-			
+
 		return new DataResult<List<ScheduleDto>>(willSaveSchedulesDto, true, "Öğretmenin programları ayarlandı.");
 	}
 

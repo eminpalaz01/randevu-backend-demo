@@ -109,9 +109,9 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 			fieldErrorMessage.append(" değerleri sistemde bulunamadı kontrol ediniz.");
 
 			return new Result(false, fieldErrorMessage.toString());
-		}	
-	   }
-
+		}
+		
+	  }
 
 		return new Result(true, messageSuccess);
 

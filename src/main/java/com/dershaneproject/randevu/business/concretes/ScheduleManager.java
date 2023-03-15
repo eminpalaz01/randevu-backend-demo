@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import javax.validation.constraints.Size;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
 import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
-import com.dershaneproject.randevu.core.utilities.concretes.ScheduleComparator;
-import com.dershaneproject.randevu.core.utilities.concretes.ScheduleDtoComparator;
 import com.dershaneproject.randevu.dataAccess.abstracts.DayOfWeekDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.HourDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.ScheduleDao;
@@ -21,6 +22,7 @@ import com.dershaneproject.randevu.dto.DayOfWeekDto;
 import com.dershaneproject.randevu.dto.HourDto;
 import com.dershaneproject.randevu.dto.ScheduleDto;
 import com.dershaneproject.randevu.dto.SystemWorkerDto;
+import com.dershaneproject.randevu.dto.TeacherDto;
 import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
 import com.dershaneproject.randevu.entities.concretes.Hour;
@@ -57,6 +59,7 @@ public class ScheduleManager implements ScheduleService {
 	public DataResult<ScheduleDto> save(ScheduleDto scheduleDto) {
 		// TODO Auto-generated method stub
 		try {
+			String description = "DEFAULT DESCRİPTİON";
 			Result validateResult = scheduleValidationService.isValidateResult(scheduleDto);
 
 			if (validateResult.isSuccess()) {
@@ -68,6 +71,11 @@ public class ScheduleManager implements ScheduleService {
 				Schedule schedule = new Schedule();
 				schedule.setFull(false);
 				schedule.setLastUpdateDateSystemWorker(null);
+				
+				// if description is null set default description
+				if(scheduleDto.getDescription() == null) {
+					scheduleDto.setDescription(description);
+				}
 				schedule.setDescription(scheduleDto.getDescription());
 
 				schedule.setTeacher(teacher.get());
@@ -97,63 +105,222 @@ public class ScheduleManager implements ScheduleService {
 	@Override
 	public DataResult<List<ScheduleDto>> saveAll(List<ScheduleDto> schedulesDto) {
 		// TODO Auto-generated method stub
+		
+		// Firstly, schedulesDto is validating one by one
+		for (ScheduleDto scheduleDto : schedulesDto) {
+			Result resultValidation = scheduleValidationService.isValidateResult(scheduleDto);
+			if(!(resultValidation.isSuccess())) {
+				return new DataResult<List<ScheduleDto>>(false, resultValidation.getMessage());
+			}			
+		}
+
 		List<Schedule> schedules = new ArrayList<>();
-		Collections.sort(schedulesDto, new ScheduleDtoComparator());
+
+		// SchedulesDto are sorting here
+		Collections.sort(schedulesDto, (s1, s2) -> {
+			Integer s1DayOfWeekId = (int) (s1.getDayOfWeek().getId());
+			int dayOfWeekCompare = s1DayOfWeekId.compareTo((int) (s2.getDayOfWeek().getId()));
+
+			if (dayOfWeekCompare == 0) {
+				Integer s1HourId = (int) (s1.getHour().getId());
+				int hourCompare = s1HourId.compareTo((int) (s2.getHour().getId()));
+				return hourCompare;
+			}
+			return dayOfWeekCompare;
+		});
+		// SchedulesDto sorted
 
 		try {
-
-			Result resultValidate = scheduleValidationService.areValidateForCreateTeacherResult(schedulesDto);
-
-			if (resultValidate.isSuccess()) {
+			 String description = "DEFAULT DESCRİPTİON";
+				// Schedules will create and add to list
 				for (int i = 0; i < schedulesDto.size(); i++) {
 					ScheduleDto scheduleDto = schedulesDto.get(i);
 					Optional<SystemWorker> systemWorker = Optional.empty();
 					SystemWorkerDto systemWorkerDto = null;
 
+					// if systemWorker of current schedule is not null it is translating to dto for response
 					if (scheduleDto.getLastUpdateDateSystemWorker() != null) {
 						systemWorker = systemWorkerDao.findById(scheduleDto.getLastUpdateDateSystemWorker().getId());
 						systemWorkerDto = modelMapperService.forResponse().map(systemWorker.get(),
 								SystemWorkerDto.class);
 					}
+					
+					// if description is null set default description
+					if(scheduleDto.getDescription() == null) {
+						scheduleDto.setDescription(description);
+					}
 
+					// finding the objects of scheduleDto with id from Databases
 					Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(scheduleDto.getDayOfWeek().getId());
 					Optional<Hour> hour = hourDao.findById(scheduleDto.getHour().getId());
-					Optional<Teacher> teacher = teacherDao.findById(scheduleDto.getTeacherId());
 
+					// objects are translating to dto
 					HourDto hourDto = modelMapperService.forResponse().map(hour, HourDto.class);
 					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(dayOfWeek, DayOfWeekDto.class);
 
 					scheduleDto.setHour(hourDto);
 					scheduleDto.setDayOfWeek(dayOfWeekDto);
+					
 					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 					Schedule schedule = new Schedule();
 					schedule.setFull(scheduleDto.getFull());
 
-					schedule.setLastUpdateDateSystemWorker(systemWorker.get());
 
 					schedule.setDescription(scheduleDto.getDescription());
 
-					schedule.setTeacher(teacher.get());
+					// if I get the teacher it is really expensive and unuseful for system 
+					schedule.getTeacher().setId(scheduleDto.getTeacherId());
+					
+					// objects are setting to schedule 
+					schedule.setLastUpdateDateSystemWorker(systemWorker.get());
 					schedule.setDayOfWeek(dayOfWeek.get());
 					schedule.setHour(hour.get());
 
+					// schedule adding to list here
 					schedules.add(schedule);
-
 				}
-			}
+				// Schedules created and added to list
 
-			List<Schedule> schedulesDb = scheduleDao.saveAll(schedules);
-			Collections.sort(schedulesDb, new ScheduleComparator());
-			for (int i = 0; i < schedulesDb.size(); i++) {
+				// Schedule's id and dates return to list
+				List<Schedule> schedulesDb = scheduleDao.saveAll(schedules);
 
-				schedulesDto.get(i).setId(schedulesDb.get(i).getId());
-				schedulesDto.get(i).setCreateDate(schedulesDb.get(i).getCreateDate());
-				schedulesDto.get(i).setLastUpdateDate(schedulesDb.get(i).getLastUpdateDate());
+				// Schedules are sorting here
+				Collections.sort(schedulesDb, (o1, o2) -> {
+					Integer s1DayOfWeekId = (int) (o1.getDayOfWeek().getId());
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo((int) (o2.getDayOfWeek().getId()));
+
+					if (dayOfWeekCompare == 0) {
+						Integer s1HourId = (int) (o1.getHour().getId());
+						int hourCompare = s1HourId.compareTo((int) (o2.getHour().getId()));
+						return hourCompare;
+					}
+					return dayOfWeekCompare;
+				});
+				// Schedules sorted
+
+				// Schedule's id and dates are set for schedulesDto
+				int schedulesDblength = schedulesDb.size();
+				for (int i = 0; i < schedulesDblength; i++) {
+					ScheduleDto scheduleDto = schedulesDto.get(i);
+
+					scheduleDto.setId(schedulesDb.get(i).getId());
+					scheduleDto.setCreateDate(schedulesDb.get(i).getCreateDate());
+					scheduleDto.setLastUpdateDate(schedulesDb.get(i).getLastUpdateDate());
+				}
+
+				// Schedules are saving here
+				return new DataResult<List<ScheduleDto>>(schedulesDto, true, "Programlar veritabanına eklendi.");
+
+			
+
+		} catch (Exception e) {
+			// TODO: handle exception
+			return new DataResult<List<ScheduleDto>>(false, e.getMessage());
+
+		}
+
+	}
+	
+	@Override
+	public DataResult<List<ScheduleDto>> saveAllForCreateTeacher(List<ScheduleDto> schedulesDto){
+		// TODO Auto-generated method stub
+		List<Schedule> schedules = new ArrayList<>();
+
+		// SchedulesDto are sorting here
+		Collections.sort(schedulesDto, (s1, s2) -> {
+			Integer s1DayOfWeekId = (int) (s1.getDayOfWeek().getId());
+			int dayOfWeekCompare = s1DayOfWeekId.compareTo((int) (s2.getDayOfWeek().getId()));
+
+			if (dayOfWeekCompare == 0) {
+				Integer s1HourId = (int) (s1.getHour().getId());
+				int hourCompare = s1HourId.compareTo((int) (s2.getHour().getId()));
+				return hourCompare;
 			}
+			return dayOfWeekCompare;
+		});
+		// SchedulesDto sorted
+
+		try {
+				// Schedules will create and add to list
+				for (int i = 0; i < schedulesDto.size(); i++) {
+					ScheduleDto scheduleDto = schedulesDto.get(i);
+					Optional<SystemWorker> systemWorker = Optional.empty();
+					SystemWorkerDto systemWorkerDto = null;
+
+					// if systemWorker of current schedule is not null it is translating to dto for response
+					if (scheduleDto.getLastUpdateDateSystemWorker() != null) {
+						systemWorker = systemWorkerDao.findById(scheduleDto.getLastUpdateDateSystemWorker().getId());
+						systemWorkerDto = modelMapperService.forResponse().map(systemWorker.get(),
+						SystemWorkerDto.class);
+					}
+
+					// finding the objects of scheduleDto with id from Databases
+					Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(scheduleDto.getDayOfWeek().getId());
+					Optional<Hour> hour = hourDao.findById(scheduleDto.getHour().getId());
+
+					// objects are translating to dto
+					HourDto hourDto = modelMapperService.forResponse().map(hour, HourDto.class);
+					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(dayOfWeek, DayOfWeekDto.class);
+
+					scheduleDto.setHour(hourDto);
+					scheduleDto.setDayOfWeek(dayOfWeekDto);
+					
+					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+
+					Schedule schedule = new Schedule();
+					schedule.setFull(scheduleDto.getFull());
+
+
+					schedule.setDescription(scheduleDto.getDescription());
+
+					// if I get the teacher it is really expensive and unuseful for system 
+					Teacher teacher = new Teacher();
+					teacher.setId(scheduleDto.getTeacherId());
+					schedule.setTeacher(teacher);
+					
+					// objects are setting to schedule 
+					schedule.setLastUpdateDateSystemWorker(systemWorker.get());
+					schedule.setDayOfWeek(dayOfWeek.get());
+					schedule.setHour(hour.get());
+
+					// schedule adding to list here
+					schedules.add(schedule);
+				}
+				// Schedules created and added to list
+
+				// Schedule's id and dates return to list
+				List<Schedule> schedulesDb = scheduleDao.saveAll(schedules);
+
+				// Schedules are sorting here
+				Collections.sort(schedulesDb, (o1, o2) -> {
+					Integer s1DayOfWeekId = (int) (o1.getDayOfWeek().getId());
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo((int) (o2.getDayOfWeek().getId()));
+
+					if (dayOfWeekCompare == 0) {
+						Integer s1HourId = (int) (o1.getHour().getId());
+						int hourCompare = s1HourId.compareTo((int) (o2.getHour().getId()));
+						return hourCompare;
+					}
+					return dayOfWeekCompare;
+				});
+				// Schedules sorted
+
+				// Schedule's id and dates are set for schedulesDto
+				int schedulesDblength = schedulesDb.size();
+				for (int i = 0; i < schedulesDblength; i++) {
+					ScheduleDto scheduleDto = schedulesDto.get(i);
+
+					scheduleDto.setId(schedulesDb.get(i).getId());
+					scheduleDto.setCreateDate(schedulesDb.get(i).getCreateDate());
+					scheduleDto.setLastUpdateDate(schedulesDb.get(i).getLastUpdateDate());
+				}
+
+				// Schedules are saving here
+				return new DataResult<List<ScheduleDto>>(schedulesDto, true, "Programlar veritabanına eklendi.");
+
 			
-			return new DataResult<List<ScheduleDto>>(schedulesDto, true, "Programlar veritabanına eklendi.");
-			
+
 		} catch (Exception e) {
 			// TODO: handle exception
 			return new DataResult<List<ScheduleDto>>(false, e.getMessage());
