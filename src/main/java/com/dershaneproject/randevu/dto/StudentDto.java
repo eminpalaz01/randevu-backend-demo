@@ -16,7 +16,7 @@ public class StudentDto implements Serializable {
 	 */
 	private static final long serialVersionUID = 2596060541103685317L;
 
-	private long id;
+	private Long id;
 
 	private String userName;
 

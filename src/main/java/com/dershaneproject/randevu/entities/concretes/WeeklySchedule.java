@@ -35,7 +35,7 @@ public class WeeklySchedule implements Serializable{
 	@SequenceGenerator(name = "weekly_schedule_id_seq", allocationSize = 1)
 	@GeneratedValue(generator = "weekly_schedule_id_seq")
 	@Column(name = "id")
-	private long id;
+	private Long id;
 
 	// Default olarak false olmasını sağla.
 	@Column(name = "full")

@@ -2,6 +2,7 @@ package com.dershaneproject.randevu.business.concretes;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -117,13 +118,13 @@ public class ScheduleManager implements ScheduleService {
 		List<Schedule> schedules = new ArrayList<>();
 
 		// SchedulesDto are sorting here
-		Collections.sort(schedulesDto, (s1, s2) -> {
-			Integer s1DayOfWeekId = (int) (s1.getDayOfWeek().getId());
-			int dayOfWeekCompare = s1DayOfWeekId.compareTo((int) (s2.getDayOfWeek().getId()));
+		Collections.sort(schedulesDto, (o1, o2) -> {
+			Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+			int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 
 			if (dayOfWeekCompare == 0) {
-				Integer s1HourId = (int) (s1.getHour().getId());
-				int hourCompare = s1HourId.compareTo((int) (s2.getHour().getId()));
+				Long s1HourId = o1.getHour().getId();
+				int hourCompare = s1HourId.compareTo(o2.getHour().getId());
 				return hourCompare;
 			}
 			return dayOfWeekCompare;
@@ -187,12 +188,12 @@ public class ScheduleManager implements ScheduleService {
 
 				// Schedules are sorting here
 				Collections.sort(schedulesDb, (o1, o2) -> {
-					Integer s1DayOfWeekId = (int) (o1.getDayOfWeek().getId());
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo((int) (o2.getDayOfWeek().getId()));
+					Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 
 					if (dayOfWeekCompare == 0) {
-						Integer s1HourId = (int) (o1.getHour().getId());
-						int hourCompare = s1HourId.compareTo((int) (o2.getHour().getId()));
+						Long s1HourId = o1.getHour().getId();
+						int hourCompare = s1HourId.compareTo(o2.getHour().getId());
 						return hourCompare;
 					}
 					return dayOfWeekCompare;
@@ -228,13 +229,13 @@ public class ScheduleManager implements ScheduleService {
 		List<Schedule> schedules = new ArrayList<>();
 
 		// SchedulesDto are sorting here
-		Collections.sort(schedulesDto, (s1, s2) -> {
-			Integer s1DayOfWeekId = (int) (s1.getDayOfWeek().getId());
-			int dayOfWeekCompare = s1DayOfWeekId.compareTo((int) (s2.getDayOfWeek().getId()));
+		Collections.sort(schedulesDto, (o1, o2) -> {
+			Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+			int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 
 			if (dayOfWeekCompare == 0) {
-				Integer s1HourId = (int) (s1.getHour().getId());
-				int hourCompare = s1HourId.compareTo((int) (s2.getHour().getId()));
+				Long s1HourId = o1.getHour().getId();
+				int hourCompare = s1HourId.compareTo(o2.getHour().getId());
 				return hourCompare;
 			}
 			return dayOfWeekCompare;
@@ -270,8 +271,6 @@ public class ScheduleManager implements ScheduleService {
 
 					Schedule schedule = new Schedule();
 					schedule.setFull(scheduleDto.getFull());
-
-
 					schedule.setDescription(scheduleDto.getDescription());
 
 					// if I get the teacher it is really expensive and unuseful for system 
@@ -290,16 +289,17 @@ public class ScheduleManager implements ScheduleService {
 				// Schedules created and added to list
 
 				// Schedule's id and dates return to list
+				Date scheduleFakeDate = new Date(); // saveAll don't return dates
 				List<Schedule> schedulesDb = scheduleDao.saveAll(schedules);
 
 				// Schedules are sorting here
 				Collections.sort(schedulesDb, (o1, o2) -> {
-					Integer s1DayOfWeekId = (int) (o1.getDayOfWeek().getId());
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo((int) (o2.getDayOfWeek().getId()));
+					Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 
 					if (dayOfWeekCompare == 0) {
-						Integer s1HourId = (int) (o1.getHour().getId());
-						int hourCompare = s1HourId.compareTo((int) (o2.getHour().getId()));
+						Long s1HourId = o1.getHour().getId();
+						int hourCompare = s1HourId.compareTo(o2.getHour().getId());
 						return hourCompare;
 					}
 					return dayOfWeekCompare;
@@ -312,8 +312,8 @@ public class ScheduleManager implements ScheduleService {
 					ScheduleDto scheduleDto = schedulesDto.get(i);
 
 					scheduleDto.setId(schedulesDb.get(i).getId());
-					scheduleDto.setCreateDate(schedulesDb.get(i).getCreateDate());
-					scheduleDto.setLastUpdateDate(schedulesDb.get(i).getLastUpdateDate());
+					scheduleDto.setCreateDate(scheduleFakeDate);
+					scheduleDto.setLastUpdateDate(scheduleFakeDate);
 				}
 
 				// Schedules are saving here

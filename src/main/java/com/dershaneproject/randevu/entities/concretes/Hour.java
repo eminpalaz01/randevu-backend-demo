@@ -24,7 +24,7 @@ public class Hour implements Serializable{
 	@SequenceGenerator(name = "hour_id_seq", allocationSize = 1)
 	@GeneratedValue(generator = "hour_id_seq")
 	@Column(name = "id")
-	private long id;
+	private Long id;
 
 	@Column(name = "time")
 	private LocalTime time;

@@ -1,8 +1,8 @@
 package com.dershaneproject.randevu.dto;
 
+import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 @Data
 public class WeeklyScheduleDto implements Serializable{
@@ -12,19 +12,16 @@ public class WeeklyScheduleDto implements Serializable{
 	 * Default
 	 */
 	private static final long serialVersionUID = 1030523203526064259L;
-	
 
-	private long id;
+	private Long id;
 
 	private Boolean full;
 	
 	private String description;
 
-	private long teacherId;
+	private Long teacherId;
 	
-	private long studentId;
-	
-	/*private long lastUpdateDateSystemWorkerId;*/
+	private Long studentId;
 
 	private SystemWorkerDto lastUpdateDateSystemWorker;
 

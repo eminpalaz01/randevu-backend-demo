@@ -35,7 +35,7 @@ public class User implements Serializable{
 	@SequenceGenerator(name = "user_id_seq", allocationSize = 1)
 	@GeneratedValue(generator = "user_id_seq")
 	@Column(name = "user_id")
-	private long id;
+	private Long id;
 
 	@Column(name = "username", length = 30)
 	private String userName;
@@ -57,7 +57,7 @@ public class User implements Serializable{
 	public User() {
 	}
 
-	public User(long id, String userName, String password, Date createDate, Date lastUpdateDate, String email) {
+	public User(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email) {
 		super();
 		this.id = id;
 		this.userName = userName;

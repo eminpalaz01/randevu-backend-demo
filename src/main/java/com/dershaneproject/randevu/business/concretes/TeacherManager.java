@@ -89,10 +89,6 @@ public class TeacherManager implements TeacherService {
 				
 				// if teacherDb is not null set id, dates and save schedulesDto of teacherDto
 				if (teacherDb != null) {
-					
-					teacherDto.setId(teacherDb.getId());
-					teacherDto.setCreateDate(teacherDb.getCreateDate());
-					teacherDto.setLastUpdateDate(teacherDb.getLastUpdateDate());
 
 					// schedulesDto are updating for register
 					DataResult<List<ScheduleDto>> resultUpdateSchedulesDto = updateSchedulesDtoForTeacher(schedulesDto,
@@ -109,8 +105,39 @@ public class TeacherManager implements TeacherService {
 									.saveAllForCreateTeacher(resultUpdateSchedulesDto.getData());
 							
 							if (resultResponseSchedulesDto.isSuccess()) {
-								teacherDto.setSchedules(resultResponseSchedulesDto.getData());
-								return new DataResult<TeacherDto>(teacherDto, true, "Öğretmen veritabanına eklendi.");
+								List<ScheduleDto> schedulesDtoResult = resultResponseSchedulesDto.getData();
+								List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+
+								// schedulesDto mapping to weeklySchedulesDto
+								schedulesDtoResult.forEach(scheduleDto -> {
+									WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse()
+											.map(scheduleDto,  WeeklyScheduleDto.class);
+									weeklyScheduleDto.setStudentId(null);
+									weeklyScheduleDto.setDescription(scheduleDto.getDescription());
+									weeklySchedulesDto.add(weeklyScheduleDto);
+								});
+
+								// weeklySchedulesDto are saving and updating
+								DataResult<List<WeeklyScheduleDto>> resultResponseWeeklySchedulesDto
+										= weeklyScheduleService.saveAll(weeklySchedulesDto);
+								 if(resultResponseWeeklySchedulesDto.isSuccess()){
+
+									 teacherDto.setSchedules(schedulesDtoResult);
+									 teacherDto.setWeeklySchedules(resultResponseWeeklySchedulesDto.getData());
+
+									 teacherDto.setId(teacherDb.getId());
+									 teacherDto.setCreateDate(teacherDb.getCreateDate());
+									 teacherDto.setLastUpdateDate(teacherDb.getLastUpdateDate());
+									 return new DataResult<TeacherDto>(teacherDto, true, "Öğretmen veritabanına eklendi.(Gelen response'da"
+											 + " schedule ların date lerinde 1 2 saniye yanılma payı vardır "
+											 + "sadece oluşturulurken date leri getirmediği için tekrar istek atmak yerine "
+											 + "database e kendim anlık tarihi koydum tüm schedule larda ama database de tamamen doğru"
+											 + " şekildedir bir dahaki isteklerde yanılma payı yoktur.) null olmasıda tercih edilebilirdi.");
+								 }else{
+									 teacherDao.deleteById(teacherDb.getId());
+									 return new DataResult<TeacherDto>(false, resultResponseWeeklySchedulesDto.getMessage());
+								 }
+
 							} else {
 								teacherDao.deleteById(teacherDb.getId());
 								return new DataResult<TeacherDto>(false, resultResponseSchedulesDto.getMessage());
@@ -563,15 +590,10 @@ public class TeacherManager implements TeacherService {
 
 	public DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, long teacherId) {
 
-		// Eklerken hiç schedules verilmeme olasılığı olduğu için önce onu kontrol
-		// ediyorum ve
-		// ScheduleValidationService de sadece create edilirken kullanılması için system
-		// çalışanı olmayan halini
-		// yazdım bu arada. Eğerki eklenmişse Schedule bununda sistem çalışanı kontrol
-		// ediliyor var mı yok mu diye.
-		// ve de teacher oluşturulurken tüm programların sistem çalışanı aynı olmalı
-		// ondan buraya özel
-		// kontrol yazdım. ( private )
+		// Eklerken hiç schedules verilmeme olasılığı olduğu için önce onu kontrol ediyorum ve
+		// ScheduleValidationService de sadece create edilirken kullanılması için system çalışanı olmayan halini
+		// yazdım bu arada. Eğerki eklenmişse Schedule bununda sistem çalışanı kontrol ediliyor var mı yok mu diye.
+		// ve de teacher oluşturulurken tüm programların sistem çalışanı aynı olmalı ondan buraya özel kontrol yazdım.
 		boolean systemWorkersAreAllTheSame = schedulesDto.stream()
 				.filter(schedule -> schedule.getLastUpdateDateSystemWorker() != null)
 				.map(schedule -> schedule.getLastUpdateDateSystemWorker()).distinct().count() <= 1;
@@ -623,15 +645,14 @@ public class TeacherManager implements TeacherService {
 						HourDto hourDto = new HourDto();
 						DayOfWeekDto dayOfWeekDto = new DayOfWeekDto();						
 						
-						hourDto.setId(hourId);
-						dayOfWeekDto.setId(dayId);
+						hourDto.setId((long) hourId);
+						dayOfWeekDto.setId((long) dayId);
 						
 						emptyscheduleDto.setDayOfWeek(dayOfWeekDto);
 						emptyscheduleDto.setHour(hourDto);
 						emptyscheduleDto.setTeacherId(teacherId);
 						emptyscheduleDto.setLastUpdateDateSystemWorker(systemWorker);
-						emptyscheduleDto.setDescription("Oluşturan: " + systemWorker.getUserName()
-								+ " ** Sistem tarafından oluşturulmuştur. **");
+						emptyscheduleDto.setDescription(null);
 						emptyscheduleDto.setFull(false);
 
 						willSaveSchedulesDto.add(emptyscheduleDto);

@@ -3,6 +3,7 @@ package com.dershaneproject.randevu.business.abstracts;
 import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
+import com.dershaneproject.randevu.dto.ScheduleDto;
 import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 

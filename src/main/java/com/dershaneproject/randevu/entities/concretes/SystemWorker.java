@@ -25,7 +25,7 @@ public class SystemWorker extends User {
 	 */
 
 	@Column(name = "authority")
-	private int authority;
+	private Integer authority;
 
 	@JsonBackReference("systemWorkerSchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "lastUpdateDateSystemWorker")
@@ -40,11 +40,11 @@ public class SystemWorker extends User {
 		super();
 	}
 
-	public SystemWorker(long id, String userName, String password, Date createDate, Date lastUpdateDate, String email) {
+	public SystemWorker(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email) {
 		super(id, userName, password, createDate, lastUpdateDate, email);
 	}
 
-	protected void setAuthority(int authority) {
+	protected void setAuthority(Integer authority) {
 		this.authority = authority;
 	}
 }

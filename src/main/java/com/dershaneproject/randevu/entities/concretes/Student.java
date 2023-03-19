@@ -37,7 +37,7 @@ public class Student extends User {
 	public Student() {
 	}
 
-	public Student(long id, String userName, String password, Date createDate, Date lastUpdateDate, String email,
+	public Student(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email,
 			String studentNumber) {
 		super(id, userName, password, createDate, lastUpdateDate, email);
 		this.studentNumber = studentNumber;

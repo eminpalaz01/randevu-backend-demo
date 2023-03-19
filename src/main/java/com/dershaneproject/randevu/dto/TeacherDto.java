@@ -16,7 +16,7 @@ public class TeacherDto implements Serializable {
 	 */
 	private static final long serialVersionUID = 2675692157198241702L;
 
-	private long id;
+	private Long id;
 
 	private String userName;
 
@@ -28,7 +28,7 @@ public class TeacherDto implements Serializable {
 
 	private String email;
 
-	private long departmentId;
+	private Long departmentId;
 
 	private String teacherNumber;
 		

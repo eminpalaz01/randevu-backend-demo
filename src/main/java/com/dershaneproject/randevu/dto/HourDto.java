@@ -13,7 +13,7 @@ public class HourDto implements Serializable {
 	 */
 	private static final long serialVersionUID = -527663666737550753L;
 
-	private long id;
+	private Long id;
 
 	private LocalTime time;
 }

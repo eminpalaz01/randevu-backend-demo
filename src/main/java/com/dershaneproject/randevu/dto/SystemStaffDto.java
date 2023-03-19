@@ -16,7 +16,7 @@ public class SystemStaffDto implements Serializable {
 	 */
 	private static final long serialVersionUID = -7601987594451826218L;
 
-	private long id;
+	private Long id;
 
 	private String userName;
 
@@ -24,7 +24,7 @@ public class SystemStaffDto implements Serializable {
 
 	private Date createDate;
 
-	private int authority;
+	private Integer authority;
 
 	private Date lastUpdateDate;
 

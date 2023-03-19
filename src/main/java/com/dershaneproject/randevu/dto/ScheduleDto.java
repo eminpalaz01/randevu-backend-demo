@@ -12,13 +12,13 @@ public class ScheduleDto implements Serializable {
 	 */
 	private static final long serialVersionUID = -4030124069348513301L;
 
-	private long id;
+	private Long id;
 
 	private Boolean full;
 
 	private String description;
     
-	private long teacherId;
+	private Long teacherId;
 
 	private SystemWorkerDto lastUpdateDateSystemWorker;
 

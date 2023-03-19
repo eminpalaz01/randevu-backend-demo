@@ -28,7 +28,7 @@ public class Department implements Serializable{
 	@SequenceGenerator(name = "department_id_seq", allocationSize = 1)
 	@GeneratedValue(generator = "department_id_seq")
 	@Column(name = "id")
-	private long id;
+	private Long id;
 
 	@Column(name = "name", length = 50)
 	private String name;
@@ -43,7 +43,7 @@ public class Department implements Serializable{
 	public Department() {
 	}
 
-	public Department(long id, String name, String compressing) {
+	public Department(Long id, String name, String compressing) {
 		super();
 		this.id = id;
 		this.name = name;

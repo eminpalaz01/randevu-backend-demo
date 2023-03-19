@@ -49,7 +49,7 @@ public class Teacher extends User{
 	public Teacher() {
 	}
 
-	public Teacher(long id, String userName, String password, Date createDate, Date lastUpdateDate, String email,
+	public Teacher(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email,
 			Department department, String teacherNumber) {
 		// TODO Auto-generated constructor stub
 		super(id, userName, password, createDate, lastUpdateDate, email);

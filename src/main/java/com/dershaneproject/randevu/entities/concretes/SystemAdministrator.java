@@ -24,7 +24,7 @@ public class SystemAdministrator extends SystemWorker {
 		super.setAuthority(Authority.ADMINISTRATOR.getValue());
 	}
 
-	public SystemAdministrator(long id, String userName, String password, Date createDate, int authority,
+	public SystemAdministrator(Long id, String userName, String password, Date createDate, Integer authority,
 			Date lastUpdateDate, String email) {
 		super(id, userName, password, createDate, lastUpdateDate, email);
 		super.setAuthority(Authority.ADMINISTRATOR.getValue());

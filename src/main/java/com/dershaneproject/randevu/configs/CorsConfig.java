@@ -15,12 +15,13 @@ public class CorsConfig implements WebMvcConfigurer {
 				
 				@Override
 				public void addCorsMappings(CorsRegistry registery) {
-					registery.addMapping("/**").allowedMethods("*")
-					.allowedOrigins("http://127.0.0.1:5500") // Burada birden fazla adres girilebilir mi?
+					registery.addMapping("/**")
+					.allowedMethods("*")
+					.allowedOrigins("*") // Burada birden fazla adres girilebilir mi?
 					.allowedHeaders("*")
 					.allowCredentials(false)
-					.maxAge(-1)
-					;
+					.maxAge(-1);
+					
 				}
 				
 				

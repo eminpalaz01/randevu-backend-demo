@@ -11,7 +11,7 @@ public class DayOfWeekDto implements Serializable {
 	 */
 	private static final long serialVersionUID = 1030833002895429287L;
 
-	private long id;
+	private Long id;
 
 	private String name;
 }

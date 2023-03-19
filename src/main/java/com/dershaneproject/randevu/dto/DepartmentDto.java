@@ -14,7 +14,7 @@ public class DepartmentDto implements Serializable {
 	 */
 	private static final long serialVersionUID = 6735949193159436033L;
 
-	private long id;
+	private Long id;
 
 	private String name;
 

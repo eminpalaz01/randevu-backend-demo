@@ -2,9 +2,9 @@ package com.dershaneproject.randevu.entities.concretes;
 
 public enum Authority {
     ADMINISTRATOR(1), STAFF(2);
-    private int value;
+    private Integer value;
 
-    Authority(int value) {
+    Authority(Integer value) {
         this.value = value;
     }
 

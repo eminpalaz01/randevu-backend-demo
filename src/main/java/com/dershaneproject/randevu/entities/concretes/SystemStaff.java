@@ -24,7 +24,7 @@ public class SystemStaff extends SystemWorker {
 		super.setAuthority(Authority.STAFF.getValue());
 	}
 
-	public SystemStaff(long id, String userName, String password, Date createDate, int authority, Date lastUpdateDate,
+	public SystemStaff(Long id, String userName, String password, Date createDate, Integer authority, Date lastUpdateDate,
 			String email) {
 		
 		super(id, userName, password, createDate, lastUpdateDate, email);

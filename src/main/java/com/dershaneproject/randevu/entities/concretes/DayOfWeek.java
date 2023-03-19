@@ -23,7 +23,7 @@ public class DayOfWeek implements Serializable {
 	@SequenceGenerator(name = "day_of_week_id_seq", allocationSize = 1)
 	@GeneratedValue(generator = "day_of_week_id_seq")
 	@Column(name = "id")
-	private long id;
+	private Long id;
 
 	@Column(name = "name", length = 10)
 	private String name;
