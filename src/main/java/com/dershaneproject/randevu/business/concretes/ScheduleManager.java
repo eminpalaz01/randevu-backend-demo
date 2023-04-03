@@ -65,13 +65,17 @@ public class ScheduleManager implements ScheduleService {
 
 			if (validateResult.isSuccess()) {
 
-				Optional<Teacher> teacher = teacherDao.findById(scheduleDto.getTeacherId());
 				Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(scheduleDto.getDayOfWeek().getId());
 				Optional<Hour> hour = hourDao.findById(scheduleDto.getHour().getId());
+				Optional<SystemWorker> systemWorker = systemWorkerDao.findById(scheduleDto.getLastUpdateDateSystemWorker().getId());
+
+				HourDto hourDto = modelMapperService.forResponse().map(hour.get(), HourDto.class);
+				DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(dayOfWeek.get(), DayOfWeekDto.class);
 
 				Schedule schedule = new Schedule();
-				schedule.setFull(false);
-				schedule.setLastUpdateDateSystemWorker(null);
+				schedule.setFull(scheduleDto.getFull());
+
+				schedule.setLastUpdateDateSystemWorker(systemWorker.get());
 				
 				// if description is null set default description
 				if(scheduleDto.getDescription() == null) {
@@ -79,7 +83,10 @@ public class ScheduleManager implements ScheduleService {
 				}
 				schedule.setDescription(scheduleDto.getDescription());
 
-				schedule.setTeacher(teacher.get());
+				Teacher teacher = new Teacher();
+				teacher.setId(scheduleDto.getTeacherId());
+
+				schedule.setTeacher(teacher);
 				schedule.setDayOfWeek(dayOfWeek.get());
 				schedule.setHour(hour.get());
 
@@ -88,6 +95,15 @@ public class ScheduleManager implements ScheduleService {
 				scheduleDto.setId(scheduleDb.getId());
 				scheduleDto.setCreateDate(scheduleDb.getCreateDate());
 				scheduleDto.setLastUpdateDate(scheduleDb.getLastUpdateDate());
+				scheduleDto.setDayOfWeek(dayOfWeekDto);
+				scheduleDto.setHour(hourDto);
+
+				SystemWorkerDto systemWorkerDto = modelMapperService.forResponse().map(
+						systemWorker, SystemWorkerDto.class);
+				systemWorkerDto.setSchedules(null);
+				systemWorkerDto.setWeeklySchedules(null);
+
+                scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 				return new DataResult<ScheduleDto>(scheduleDto, true, "Program veritabanına eklendi.");
 
@@ -142,8 +158,16 @@ public class ScheduleManager implements ScheduleService {
 					// if systemWorker of current schedule is not null it is translating to dto for response
 					if (scheduleDto.getLastUpdateDateSystemWorker() != null) {
 						systemWorker = systemWorkerDao.findById(scheduleDto.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto = modelMapperService.forResponse().map(systemWorker.get(),
-								SystemWorkerDto.class);
+
+						systemWorkerDto = new SystemWorkerDto();
+						systemWorkerDto.setId(systemWorker.get().getId());
+						systemWorkerDto.setUserName(systemWorker.get().getUserName());
+						systemWorkerDto.setEmail(systemWorker.get().getEmail());
+						systemWorkerDto.setPassword(systemWorker.get().getPassword());
+						systemWorkerDto.setCreateDate(systemWorker.get().getCreateDate());
+						systemWorkerDto.setLastUpdateDate(systemWorker.get().getLastUpdateDate());
+						systemWorkerDto.setAuthority(systemWorker.get().getAuthority());
+
 					}
 					
 					// if description is null set default description
@@ -170,10 +194,12 @@ public class ScheduleManager implements ScheduleService {
 
 					schedule.setDescription(scheduleDto.getDescription());
 
-					// if I get the teacher it is really expensive and unuseful for system 
-					schedule.getTeacher().setId(scheduleDto.getTeacherId());
+					// if I get the teacher it is really expensive and unuseful for system
+					Teacher teacher = new Teacher();
+					teacher.setId(scheduleDto.getTeacherId());
+					schedule.setTeacher(teacher);
 					
-					// objects are setting to schedule 
+					// objects are setting to schedule
 					schedule.setLastUpdateDateSystemWorker(systemWorker.get());
 					schedule.setDayOfWeek(dayOfWeek.get());
 					schedule.setHour(hour.get());
@@ -183,10 +209,11 @@ public class ScheduleManager implements ScheduleService {
 				}
 				// Schedules created and added to list
 
-				// Schedule's id and dates return to list
+				// Schedule saved and id and dates return to list
+			    Date fakeDate = new Date();
 				List<Schedule> schedulesDb = scheduleDao.saveAll(schedules);
 
-				// Schedules are sorting here
+				// SchedulesDb are sorting here
 				Collections.sort(schedulesDb, (o1, o2) -> {
 					Long s1DayOfWeekId = o1.getDayOfWeek().getId();
 					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
@@ -198,19 +225,18 @@ public class ScheduleManager implements ScheduleService {
 					}
 					return dayOfWeekCompare;
 				});
-				// Schedules sorted
+				// SchedulesDb sorted
 
 				// Schedule's id and dates are set for schedulesDto
-				int schedulesDblength = schedulesDb.size();
-				for (int i = 0; i < schedulesDblength; i++) {
+				for (int i = 0; i < schedulesDb.size(); i++) {
 					ScheduleDto scheduleDto = schedulesDto.get(i);
 
 					scheduleDto.setId(schedulesDb.get(i).getId());
-					scheduleDto.setCreateDate(schedulesDb.get(i).getCreateDate());
-					scheduleDto.setLastUpdateDate(schedulesDb.get(i).getLastUpdateDate());
+					scheduleDto.setCreateDate(fakeDate);
+					scheduleDto.setLastUpdateDate(fakeDate);
 				}
 
-				// Schedules are saving here
+				// Schedules are sending here
 				return new DataResult<List<ScheduleDto>>(schedulesDto, true, "Programlar veritabanına eklendi.");
 
 			
@@ -349,13 +375,13 @@ public class ScheduleManager implements ScheduleService {
 	@Override
 	public DataResult<List<ScheduleDto>> findAll() {
 		// TODO Auto-generated method stub
-		// TODO Auto-generated method stub
-		try {
 			List<Schedule> schedules = scheduleDao.findAll();
+
 			if (schedules.size() != 0) {
+
 				List<ScheduleDto> schedulesDto = new ArrayList<ScheduleDto>();
 
-				schedules.forEach(schedule -> {
+				for(Schedule schedule:schedules) {
 					SystemWorker lastUpdateDateSystemWorker = schedule.getLastUpdateDateSystemWorker();
 
 					HourDto hourDto = modelMapperService.forResponse().map(schedule.getHour(), HourDto.class);
@@ -363,27 +389,36 @@ public class ScheduleManager implements ScheduleService {
 							DayOfWeekDto.class);
 
 					ScheduleDto scheduleDto = new ScheduleDto();
+
 					scheduleDto.setId(schedule.getId());
-					scheduleDto.setTeacherId(schedule.getTeacher().getId());
-					scheduleDto.setDayOfWeek(dayOfWeekDto);
-					scheduleDto.setHour(hourDto);
 					scheduleDto.setFull(schedule.getFull());
+					scheduleDto.setDescription(schedule.getDescription());
+					scheduleDto.setTeacherId(schedule.getTeacher().getId());
 					scheduleDto.setCreateDate(schedule.getCreateDate());
 					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDescription(schedule.getDescription());
+					scheduleDto.setDayOfWeek(dayOfWeekDto);
+					scheduleDto.setHour(hourDto);
 
 					if (lastUpdateDateSystemWorker == null) {
 						scheduleDto.setLastUpdateDateSystemWorker(null);
 
 					} else {
-						SystemWorkerDto systemWorkerDto = modelMapperService.forResponse()
-								.map(schedule.getLastUpdateDateSystemWorker(), SystemWorkerDto.class);
+						// if I use the mapper it get schedules PERFORMANCE PROBLEM
+						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+						systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
+						systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
+						systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
+						systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
+						systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
+						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
+
 						scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 					}
 
 					schedulesDto.add(scheduleDto);
-				});
+				}
 
 				return new DataResult<List<ScheduleDto>>(schedulesDto, true, "Programlar getirildi.");
 
@@ -391,12 +426,6 @@ public class ScheduleManager implements ScheduleService {
 
 				return new DataResult<List<ScheduleDto>>(false, "Program bulunamadı.");
 			}
-
-		} catch (Exception e) {
-			// TODO: handle exception
-			return new DataResult<List<ScheduleDto>>(false, e.getMessage());
-		}
-
 	}
 
 	@Override
@@ -426,8 +455,16 @@ public class ScheduleManager implements ScheduleService {
 					scheduleDto.setLastUpdateDateSystemWorker(null);
 
 				} else {
-					SystemWorkerDto systemWorkerDto = modelMapperService.forResponse()
-							.map(schedule.get().getLastUpdateDateSystemWorker(), SystemWorkerDto.class);
+
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(schedule.get().getLastUpdateDateSystemWorker().getId());
+					systemWorkerDto.setUserName(schedule.get().getLastUpdateDateSystemWorker().getUserName());
+					systemWorkerDto.setEmail(schedule.get().getLastUpdateDateSystemWorker().getEmail());
+					systemWorkerDto.setPassword(schedule.get().getLastUpdateDateSystemWorker().getPassword());
+					systemWorkerDto.setCreateDate(schedule.get().getLastUpdateDateSystemWorker().getCreateDate());
+					systemWorkerDto.setLastUpdateDate(schedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
+					systemWorkerDto.setAuthority(schedule.get().getLastUpdateDateSystemWorker().getAuthority());
+
 					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 				}
@@ -459,6 +496,7 @@ public class ScheduleManager implements ScheduleService {
 						DayOfWeekDto.class);
 
 				ScheduleDto scheduleDto = new ScheduleDto();
+
 				scheduleDto.setId(schedule.get().getId());
 				scheduleDto.setTeacherId(schedule.get().getTeacher().getId());
 				scheduleDto.setDayOfWeek(dayOfWeekDto);
@@ -472,8 +510,15 @@ public class ScheduleManager implements ScheduleService {
 					scheduleDto.setLastUpdateDateSystemWorker(null);
 
 				} else {
-					SystemWorkerDto systemWorkerDto = modelMapperService.forResponse()
-							.map(schedule.get().getLastUpdateDateSystemWorker(), SystemWorkerDto.class);
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(lastUpdateDateSystemWorker.getId());
+					systemWorkerDto.setUserName(lastUpdateDateSystemWorker.getUserName());
+					systemWorkerDto.setEmail(lastUpdateDateSystemWorker.getEmail());
+					systemWorkerDto.setPassword(lastUpdateDateSystemWorker.getPassword());
+					systemWorkerDto.setCreateDate(lastUpdateDateSystemWorker.getCreateDate());
+					systemWorkerDto.setLastUpdateDate(lastUpdateDateSystemWorker.getLastUpdateDate());
+					systemWorkerDto.setAuthority(lastUpdateDateSystemWorker.getAuthority());
+
 					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 				}
@@ -505,6 +550,7 @@ public class ScheduleManager implements ScheduleService {
 						DayOfWeekDto.class);
 
 				ScheduleDto scheduleDto = new ScheduleDto();
+
 				scheduleDto.setId(schedule.get().getId());
 				scheduleDto.setTeacherId(schedule.get().getTeacher().getId());
 				scheduleDto.setDayOfWeek(dayOfWeekDto);
@@ -518,8 +564,15 @@ public class ScheduleManager implements ScheduleService {
 					scheduleDto.setLastUpdateDateSystemWorker(null);
 
 				} else {
-					SystemWorkerDto systemWorkerDto = modelMapperService.forResponse()
-							.map(schedule.get().getLastUpdateDateSystemWorker(), SystemWorkerDto.class);
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(lastUpdateDateSystemWorker.getId());
+					systemWorkerDto.setUserName(lastUpdateDateSystemWorker.getUserName());
+					systemWorkerDto.setEmail(lastUpdateDateSystemWorker.getEmail());
+					systemWorkerDto.setPassword(lastUpdateDateSystemWorker.getPassword());
+					systemWorkerDto.setCreateDate(lastUpdateDateSystemWorker.getCreateDate());
+					systemWorkerDto.setLastUpdateDate(lastUpdateDateSystemWorker.getLastUpdateDate());
+					systemWorkerDto.setAuthority(lastUpdateDateSystemWorker.getAuthority());
+
 					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 				}
@@ -570,8 +623,15 @@ public class ScheduleManager implements ScheduleService {
 					scheduleDto.setLastUpdateDateSystemWorker(null);
 
 				} else {
-					SystemWorkerDto systemWorkerDto = modelMapperService.forResponse()
-							.map(lastUpdateDateSystemWorkerCurrent, SystemWorkerDto.class);
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(lastUpdateDateSystemWorkerCurrent.getId());
+					systemWorkerDto.setUserName(lastUpdateDateSystemWorkerCurrent.getUserName());
+					systemWorkerDto.setEmail(lastUpdateDateSystemWorkerCurrent.getEmail());
+					systemWorkerDto.setPassword(lastUpdateDateSystemWorkerCurrent.getPassword());
+					systemWorkerDto.setCreateDate(lastUpdateDateSystemWorkerCurrent.getCreateDate());
+					systemWorkerDto.setLastUpdateDate(lastUpdateDateSystemWorkerCurrent.getLastUpdateDate());
+					systemWorkerDto.setAuthority(lastUpdateDateSystemWorkerCurrent.getAuthority());
+
 					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 				}
@@ -624,8 +684,15 @@ public class ScheduleManager implements ScheduleService {
 					scheduleDto.setLastUpdateDateSystemWorker(null);
 
 				} else {
-					SystemWorkerDto systemWorkerDto = modelMapperService.forResponse()
-							.map(schedule.get().getLastUpdateDateSystemWorker(), SystemWorkerDto.class);
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(lastUpdateDateSystemWorker.getId());
+					systemWorkerDto.setUserName(lastUpdateDateSystemWorker.getUserName());
+					systemWorkerDto.setEmail(lastUpdateDateSystemWorker.getEmail());
+					systemWorkerDto.setPassword(lastUpdateDateSystemWorker.getPassword());
+					systemWorkerDto.setCreateDate(lastUpdateDateSystemWorker.getCreateDate());
+					systemWorkerDto.setLastUpdateDate(lastUpdateDateSystemWorker.getLastUpdateDate());
+					systemWorkerDto.setAuthority(lastUpdateDateSystemWorker.getAuthority());
+
 					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 				}
@@ -677,8 +744,15 @@ public class ScheduleManager implements ScheduleService {
 					scheduleDto.setLastUpdateDateSystemWorker(null);
 
 				} else {
-					SystemWorkerDto systemWorkerDto = modelMapperService.forResponse()
-							.map(schedule.get().getLastUpdateDateSystemWorker(), SystemWorkerDto.class);
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(lastUpdateDateSystemWorker.getId());
+					systemWorkerDto.setUserName(lastUpdateDateSystemWorker.getUserName());
+					systemWorkerDto.setEmail(lastUpdateDateSystemWorker.getEmail());
+					systemWorkerDto.setPassword(lastUpdateDateSystemWorker.getPassword());
+					systemWorkerDto.setCreateDate(lastUpdateDateSystemWorker.getCreateDate());
+					systemWorkerDto.setLastUpdateDate(lastUpdateDateSystemWorker.getLastUpdateDate());
+					systemWorkerDto.setAuthority(lastUpdateDateSystemWorker.getAuthority());
+
 					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 				}
@@ -729,8 +803,15 @@ public class ScheduleManager implements ScheduleService {
 					scheduleDto.setLastUpdateDateSystemWorker(null);
 
 				} else {
-					SystemWorkerDto systemWorkerDto = modelMapperService.forResponse()
-							.map(schedule.get().getLastUpdateDateSystemWorker(), SystemWorkerDto.class);
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(lastUpdateDateSystemWorker.getId());
+					systemWorkerDto.setUserName(lastUpdateDateSystemWorker.getUserName());
+					systemWorkerDto.setEmail(lastUpdateDateSystemWorker.getEmail());
+					systemWorkerDto.setPassword(lastUpdateDateSystemWorker.getPassword());
+					systemWorkerDto.setCreateDate(lastUpdateDateSystemWorker.getCreateDate());
+					systemWorkerDto.setLastUpdateDate(lastUpdateDateSystemWorker.getLastUpdateDate());
+					systemWorkerDto.setAuthority(lastUpdateDateSystemWorker.getAuthority());
+
 					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 
 				}

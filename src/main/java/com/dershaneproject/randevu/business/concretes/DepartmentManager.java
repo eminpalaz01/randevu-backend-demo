@@ -3,6 +3,9 @@ package com.dershaneproject.randevu.business.concretes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.DepartmentService;
@@ -78,7 +81,10 @@ public class DepartmentManager implements DepartmentService {
 				List<TeacherDto> teachersDto = new ArrayList<>();
 				
 				teachers.forEach(teacher -> {
+					teacher.setSchedules(null);
+					teacher.setWeeklySchedules(null);
 					TeacherDto teacherDto = modelMapperService.forResponse().map(teacher, TeacherDto.class);
+
 					teachersDto.add(teacherDto);
 				});
 				
@@ -130,24 +136,27 @@ public class DepartmentManager implements DepartmentService {
 			if (departments.size() != 0) {
 				List<DepartmentDto> departmentsDto = new ArrayList<DepartmentDto>();
 
-				departments.forEach(department -> {
+				for (Department department : departments) {
 					DepartmentDto departmentDto = new DepartmentDto();
-					
+
 					List<Teacher> teachers = department.getTeachers();
 					List<TeacherDto> teachersDto = new ArrayList<>();
-					
+
 					teachers.forEach(teacher -> {
+						teacher.setSchedules(null);
+						teacher.setWeeklySchedules(null);
 						TeacherDto teacherDto = modelMapperService.forResponse().map(teacher, TeacherDto.class);
+
 						teachersDto.add(teacherDto);
 					});
-					
+
 					departmentDto.setId(department.getId());
 					departmentDto.setName(department.getName());
 					departmentDto.setCompressing(department.getCompressing());
 					departmentDto.setTeachers(teachersDto);
 
 					departmentsDto.add(departmentDto);
-				});
+				}
 				return new DataResult<List<DepartmentDto>>(departmentsDto, true, "Tüm departmanlar getirildi.");
 			} else {
 				return new DataResult<List<DepartmentDto>>(false, "Departman bulunamadı.");

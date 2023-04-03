@@ -3,6 +3,8 @@ package com.dershaneproject.randevu.business.concretes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.dershaneproject.randevu.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.StudentService;
@@ -10,8 +12,6 @@ import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWi
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.StudentDao;
-import com.dershaneproject.randevu.dto.StudentDto;
-import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.entities.concretes.Student;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 
@@ -120,10 +120,54 @@ public class StudentManager implements StudentService {
 					List<WeeklySchedule> weeklySchedules = student.getWeeklySchedules();
 					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
 					weeklySchedules.forEach(weeklySchedule -> {
-						WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
-								WeeklyScheduleDto.class);
+						WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+
+						HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
+						DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
+
+						weeklyScheduleDto.setId(weeklySchedule.getId());
+						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
+						weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
+						weeklyScheduleDto.setHour(hourDto);
+						weeklyScheduleDto.setFull(weeklySchedule.getFull());
+						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
+						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
+						weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
+
+						if (student == null) {
+							weeklyScheduleDto.setStudentId(null);
+
+						} else {
+							weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
+
+						}
+
+						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
+						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+						systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
+						systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
+						systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
+						systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
+						systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
+						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
+
+						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
+
+					// WeeklySchedulesDto are sorting here
+					weeklySchedulesDto.sort((o1, o2) -> {
+						Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+						int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
+						if (dayOfWeekCompare == 0) {
+							Long s1HourId = o1.getHour().getId();
+							int hourCompare = s1HourId.compareTo(o2.getHour().getId());
+							return hourCompare;
+						}
+						return dayOfWeekCompare;
+					});
+					// WeeklySchedulesDto sorted
 
 					studentDto.setId(student.getId());
 					studentDto.setUserName(student.getUserName());
@@ -189,11 +233,56 @@ public class StudentManager implements StudentService {
 				
 				List<WeeklySchedule> weeklySchedules = student.get().getWeeklySchedules();
 				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+
 				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
-							WeeklyScheduleDto.class);
+					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+
+					HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
+					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
+
+					weeklyScheduleDto.setId(weeklySchedule.getId());
+					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
+					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
+					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setFull(weeklySchedule.getFull());
+					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
+					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
+					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
+
+					if (student == null) {
+						weeklyScheduleDto.setStudentId(null);
+
+					} else {
+						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
+
+					}
+
+					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
+					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
+					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
+					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
+					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
+					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
+
+					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
+
+				// WeeklySchedulesDto are sorting here
+				weeklySchedulesDto.sort((o1, o2) -> {
+					Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
+					if (dayOfWeekCompare == 0) {
+						Long s1HourId = o1.getHour().getId();
+						int hourCompare = s1HourId.compareTo(o2.getHour().getId());
+						return hourCompare;
+					}
+					return dayOfWeekCompare;
+				});
+				// WeeklySchedulesDto sorted
 
 				studentDto.setId(student.get().getId());
 				studentDto.setUserName(student.get().getUserName());

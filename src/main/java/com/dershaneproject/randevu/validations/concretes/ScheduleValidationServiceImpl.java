@@ -35,13 +35,14 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 		StringBuffer fieldErrorMessage = new StringBuffer("Program oluşturulamaz girdiğiniz");
 		String messageSuccess = "Program ın oluşturulmasında bir sorun yok.";
 
+		Boolean isFullEmpty = scheduleDto.getFull();
 		boolean isExistsTeacher = teacherDao.existsById(scheduleDto.getTeacherId());
 		boolean isExistsDayOfWeek = dayOfWeekDao.existsById(scheduleDto.getDayOfWeek().getId());
 		boolean isExistsHour = hourDao.existsById(scheduleDto.getHour().getId());
 		boolean isExistsSystemWorker = systemWorkerDao.existsById(scheduleDto.getLastUpdateDateSystemWorker().getId());
 
-		if (!isExistsTeacher || !isExistsDayOfWeek || !isExistsHour || !isExistsSystemWorker) {
-			List<String> errorFields = new ArrayList<>(4);
+		if (!isExistsTeacher || !isExistsDayOfWeek || !isExistsHour || !isExistsSystemWorker || isFullEmpty == null) {
+			List<String> errorFields = new ArrayList<>(5);
 
 			if (!isExistsTeacher) {
 				errorFields.add("Öğretmen");
@@ -55,11 +56,15 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 			if (!isExistsSystemWorker) {
 				errorFields.add("Sistem Çalışanı");
 			}
+			if (isFullEmpty == null) {
+				errorFields.add("Doluluk değeri");
+			}
 
 			// This algorithm writes in a readable form
 			for (int i = 0; i < errorFields.size(); i++) {
 				if (errorFields.size() - 1 == i) {
 					fieldErrorMessage.append(" " + errorFields.get(i));
+					break;
 				}
 				fieldErrorMessage.append(" " + errorFields.get(i) + ",");
 			}

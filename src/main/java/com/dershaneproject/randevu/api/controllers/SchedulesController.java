@@ -33,6 +33,12 @@ public class SchedulesController {
 		return ResponseEntity.ok(scheduleService.save(scheduleDto));
 	}
 
+	@PostMapping("/all")
+	public ResponseEntity<DataResult<List<ScheduleDto>>> saveAll(@RequestBody List<ScheduleDto> schedulesDto) {
+
+		return ResponseEntity.ok(scheduleService.saveAll(schedulesDto));
+	}
+
 	@GetMapping
 	public ResponseEntity<DataResult<List<ScheduleDto>>> findAll() {
 

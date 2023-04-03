@@ -33,6 +33,12 @@ public class WeeklySchedulesController {
 		return ResponseEntity.ok(weeklyScheduleService.save(weeklyScheduleDto));
 	}
 
+	@PostMapping("/all")
+	public ResponseEntity<DataResult<List<WeeklyScheduleDto>>> saveAll(@RequestBody List<WeeklyScheduleDto> weeklySchedulesDto) {
+
+		return ResponseEntity.ok(weeklyScheduleService.saveAll(weeklySchedulesDto));
+	}
+
 	@GetMapping
 	public ResponseEntity<DataResult<List<WeeklyScheduleDto>>> findAll() {
 
@@ -89,7 +95,7 @@ public class WeeklySchedulesController {
 	public ResponseEntity<DataResult<WeeklyScheduleDto>> updateStudentById(@PathVariable long id,
 			@RequestBody WeeklyScheduleDto weeklyScheduleDto) {
 
-		return ResponseEntity.ok(weeklyScheduleService.updateStudentById(id, weeklyScheduleDto.getTeacherId()));
+		return ResponseEntity.ok(weeklyScheduleService.updateStudentById(id, weeklyScheduleDto.getStudentId()));
 	}
 
 	@PutMapping("/{id}/last-update-date-system-worker")

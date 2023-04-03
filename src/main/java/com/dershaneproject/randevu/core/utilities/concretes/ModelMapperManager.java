@@ -16,8 +16,9 @@ public class ModelMapperManager implements ModelMapperServiceWithTypeMappingConf
 	@Autowired
 	public ModelMapperManager(ModelMapper modelMapper) {
 		this.modelMapper = modelMapper;
-		
-		//typeMappingConfigForResponse();
+
+		//  adding typeMaps
+		// typeMappingConfigForResponse();
 	}
 
 	@Override
@@ -33,17 +34,19 @@ public class ModelMapperManager implements ModelMapperServiceWithTypeMappingConf
 		this.modelMapper.getConfiguration().setAmbiguityIgnored(true).setMatchingStrategy(MatchingStrategies.STANDARD);
 		return this.modelMapper;
 	}
-	
+
+	// while we adding typeMap we should add all of fields
 	public void typeMappingConfigForResponse() {
 		
        // Schedule
        this.modelMapper.createTypeMap(Schedule.class, ScheduleDto.class)
-                .addMappings(mapper -> mapper.map(Schedule::getLastUpdateDateSystemWorker, ScheduleDto::setLastUpdateDateSystemWorker))
-                .addMappings(mapper -> mapper.map(Schedule::getDayOfWeek, ScheduleDto::setDayOfWeek))
-                .addMappings(mapper -> mapper.map(Schedule::getHour, ScheduleDto::setHour))
-                .addMappings(mapper -> mapper.map(Schedule::getLastUpdateDateSystemWorker, ScheduleDto::setLastUpdateDateSystemWorker))
-                .addMappings(mapper -> mapper.map(src -> src.getTeacher().getId(), ScheduleDto::setTeacherId));
-        
+                .addMappings(mapper -> {
+					mapper.map(Schedule::getLastUpdateDateSystemWorker, ScheduleDto::setLastUpdateDateSystemWorker);
+					mapper.map(Schedule::getDayOfWeek, ScheduleDto::setDayOfWeek);
+					mapper.map(Schedule::getHour, ScheduleDto::setHour);
+					mapper.map(Schedule::getLastUpdateDateSystemWorker, ScheduleDto::setLastUpdateDateSystemWorker);
+					mapper.map(src -> src.getTeacher().getId(), ScheduleDto::setTeacherId);
+				});
         
         // DayOfWeek
         // Şuanda bir nesnesi yok o yüzden eklenmedi.  
@@ -54,48 +57,60 @@ public class ModelMapperManager implements ModelMapperServiceWithTypeMappingConf
         
         
         // Department
-        modelMapper.createTypeMap(Department.class, DepartmentDto.class)
+		this.modelMapper.createTypeMap(Department.class, DepartmentDto.class)
                 .addMappings(mapper -> mapper.map(Department::getTeachers, DepartmentDto::setTeachers));
 
         
         // Teacher
-        modelMapper.createTypeMap(Teacher.class, TeacherDto.class)
-                .addMapping(src -> src.getDepartment().getId(), TeacherDto::setDepartmentId)
-                .addMappings(mapper -> mapper.map(Teacher::getSchedules, TeacherDto::setSchedules))
-                .addMappings(mapper -> mapper.map(Teacher::getWeeklySchedules, TeacherDto::setWeeklySchedules));
+		this.modelMapper.createTypeMap(Teacher.class, TeacherDto.class)
+                .addMappings(mapper -> {
+					mapper.map(Teacher::getSchedules, TeacherDto::setSchedules);
+					mapper.map(Teacher::getWeeklySchedules, TeacherDto::setWeeklySchedules);
+				});
 
 
         
         // WeeklySchedule
-        modelMapper.createTypeMap(WeeklySchedule.class, WeeklyScheduleDto.class)
-                .addMappings(mapper -> mapper.map(WeeklySchedule::getLastUpdateDateSystemWorker, WeeklyScheduleDto::setLastUpdateDateSystemWorker))
-                .addMappings(mapper -> mapper.map(WeeklySchedule::getDayOfWeek, WeeklyScheduleDto::setDayOfWeek))
-                .addMappings(mapper -> mapper.map(WeeklySchedule::getHour, WeeklyScheduleDto::setHour))
-                .addMappings(mapper -> mapper.map(WeeklySchedule::getLastUpdateDateSystemWorker, WeeklyScheduleDto::setLastUpdateDateSystemWorker))
-                .addMappings(mapper -> mapper.map(src -> src.getStudent().getId(), WeeklyScheduleDto::setStudentId))
-                .addMappings(mapper -> mapper.map(src -> src.getTeacher().getId(), WeeklyScheduleDto::setTeacherId));
+		this.modelMapper.createTypeMap(WeeklySchedule.class, WeeklyScheduleDto.class)
+                .addMappings(mapper -> {
+					mapper.map(WeeklySchedule::getLastUpdateDateSystemWorker, WeeklyScheduleDto::setLastUpdateDateSystemWorker);
+					mapper.map(WeeklySchedule::getDayOfWeek, WeeklyScheduleDto::setDayOfWeek);
+					mapper.map(WeeklySchedule::getHour, WeeklyScheduleDto::setHour);
+					mapper.map(WeeklySchedule::getLastUpdateDateSystemWorker, WeeklyScheduleDto::setLastUpdateDateSystemWorker);
+					mapper.map(src -> src.getStudent().getId(), WeeklyScheduleDto::setStudentId);
+					mapper.map(src -> src.getTeacher().getId(), WeeklyScheduleDto::setTeacherId);
+				});
+
         
         // Student
-        modelMapper.createTypeMap(Student.class, StudentDto.class)
-                .addMappings(mapper -> mapper.map(Student::getWeeklySchedules, StudentDto::setWeeklySchedules));
+		this.modelMapper.createTypeMap(Student.class, StudentDto.class)
+                .addMappings(mapper -> {
+					mapper.map(Student::getWeeklySchedules, StudentDto::setWeeklySchedules);
+				});
 
         
         // SystemAdministrator
-        modelMapper.createTypeMap(SystemAdministrator.class, SystemAdministratorDto.class)
-                .addMappings(mapper -> mapper.map(SystemAdministrator::getSchedules, SystemAdministratorDto::setSchedules))
-                .addMappings(mapper -> mapper.map(SystemAdministrator::getWeeklySchedules, SystemAdministratorDto::setWeeklySchedules));
+		this.modelMapper.createTypeMap(SystemAdministrator.class, SystemAdministratorDto.class)
+                .addMappings(mapper -> {
+					mapper.map(SystemAdministrator::getSchedules, SystemAdministratorDto::setSchedules);
+					mapper.map(SystemAdministrator::getWeeklySchedules, SystemAdministratorDto::setWeeklySchedules);
+				});
 	
         
         // SystemStaff
-        modelMapper.createTypeMap(SystemStaff.class, SystemStaffDto.class)
-                .addMappings(mapper -> mapper.map(SystemStaff::getSchedules, SystemStaffDto::setSchedules))
-                .addMappings(mapper -> mapper.map(SystemStaff::getWeeklySchedules, SystemStaffDto::setWeeklySchedules));
+		this.modelMapper.createTypeMap(SystemStaff.class, SystemStaffDto.class)
+                .addMappings(mapper -> {
+					mapper.map(SystemStaff::getSchedules, SystemStaffDto::setSchedules);
+					mapper.map(SystemStaff::getWeeklySchedules, SystemStaffDto::setWeeklySchedules);
+				});
 	
         
         // SystemWorker
-        modelMapper.createTypeMap(SystemWorker.class, SystemWorkerDto.class)
-                .addMappings(mapper -> mapper.map(SystemWorker::getSchedules, SystemWorkerDto::setSchedules))
-                .addMappings(mapper -> mapper.map(SystemWorker::getWeeklySchedules, SystemWorkerDto::setWeeklySchedules));
+		this.modelMapper.createTypeMap(SystemWorker.class, SystemWorkerDto.class)
+                .addMappings(mapper -> {
+					mapper.map(SystemWorker::getSchedules, SystemWorkerDto::setSchedules);
+					mapper.map(SystemWorker::getWeeklySchedules, SystemWorkerDto::setWeeklySchedules);
+				});
 	}
 
 }

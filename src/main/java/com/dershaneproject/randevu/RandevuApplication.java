@@ -45,45 +45,13 @@ public class RandevuApplication {
 	 * şifrelerin hashlanmesi vs. devreye sokulacaktır. Özetle Performans Güvenlik
 	 * vs En son yapılacak Hash alg = SHA-1 ( Araştırılacak ) Şifreleme = RSA (
 	 * Araştırılacak )
-	 * 
-	 * 
-	 * 
-	 * - 5 Ocak 2023 not: Sistemin en temel nesneleri yazıldı aralarındaki ilişkiler
-	 * kontrol edilmeden diğerleri yazılmayacak. Mantıkta bir problem yoksa
-	 * Nesnelerin türevleri eklenip tekrar denen icek. Bugün testleri yapılmadı hata
-	 * olma olasılığı var dikkatli ol.
-	 * 
-	 * -24 ocak 2023 not: şuanda TeacherControllerda getall isteğimi
-	 * gerçekleşitirdim ve userdaki sütünlarımıda sorunsuz bir şekilde çekiyor ve id
-	 * ye göre birinide getiriyor extend edilmiş classımıda getirdi otomatik olarak
-	 * yarın diğer metotlar denenecek ve bir sorunla karşılaşılmaz ise de yeni
-	 * classlar eklenecek (Department ı bitir).
-	 * 
-	 * -1 Şubat 2023 not: Projenin alt yapısı genel olarak oluşturuldu bundan sonra
-	 * altyapısını düzgün kafayla gözden geçir. sonra iş kurallarını yaz. Dto lar
-	 * yazıldı ama bağlantılarda sorun olabilir.
-	 * 
-	 * -2 Şubat 2023: şuanda son tabloların managerları yazılıyor haftasonu bitene
-	 * kadar çalışır hale getir.
+	 *
 	 * 
 	 * Kendime not: Başka nesnelerle ilişkisi olan Nesne ni managerı yazarken diğer
 	 * ilişkiler ile alakalı bir güncelleme silme gibi vs. dataAccess katmanını
 	 * kullan ama değişiklik falan yapılacak o değişiklik yapılacak classın managerı
 	 * üzerinden işlemlerini yap.
-	 * 
-	 * 
-	 * 
-	 * 
-	 *   //// BUNDAN SONRASI ÇOK ÖNEMLİ ////
-	 * 
-	 * 4 Şubat 2023: An itibariyle bir öğretmen oluşturulduğunda otomatik olarak ders saatleride 
-	 * oluşturuluyor ve güncellenebiliyor temel randevu olayında bir sorun yok şu anda ama saatleri ilişkisel olarak
-	 * çektiğimizde sadece full olup olmadığı ve yaratıla güncellenme tarihleri geliyor bu yüzden bunlar ile ilgili
-	 * detaylı bilgiler için üstünde tıklandığında onun id si üzerinden tekrar çağır ve veriler getir
-	 * Mesela en son güncelleyen sistem çalışanı, hangi gün veya hangi saat gibi bilgiler için 
-	 * ilk geldiğinde id si üzerinde tabloda iki boyutlo array ile yerleştir ( Sırayla geliyor id leri bunu kullan )
-	 * 
-	 * 
+	 *
 	 * 
 	 * !!! not: Şuanda haftanın 7 günü sabah 8 akşam 10 a kadar ayarlandı !!! Önemli
 	 * 
@@ -94,17 +62,7 @@ public class RandevuApplication {
 	 * 
 	 * Önemli özellikler eklenicek girilen değerlerin sınırlandırılması mesela parola da sınırlamalar olucak null
 	 * verilemeyecek gibi şeyler bunlaru bitir taslaktan sonra.
-	 * 
-	 * 
-	 * 5 Şubat 2023: Bugün tüm servisler test edilip başarılı olduklarına dair not edilecek.
-	 * 
-	 *  
-	 * 11 Mart 2023: Sistem mantığı komple değiştirildi şuanda Teacherda schedullar düzgün verilince herhangi bir sorun olmuyor
-	 * ama onlar kaydedilmesede teacherı kaydediyor onlara teacher id yi vermek için önce teacherı kaydetmiştim bu sorun 
-	 * çözülecek.(Önce schedullerı gönderdim burada bi hata oluşmaz ise teacher kaydedilip o schedulların teacherId leri 
-	 * güncellenebilir buna bak) Birde modelMapperlara bakılacak oradada sorunlar var.
-	 * 
-	 * 
+	 *
 	 * 
 	 * Bu projenin taslağı çalışır hale geldiğinde öğrenmek için unit testlerini
 	 * yaz. ( Acelesi yok amaç tecrübe etmek ondan düzgün ve sakin ve de emin bir
