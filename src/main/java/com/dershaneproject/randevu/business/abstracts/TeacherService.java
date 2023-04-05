@@ -32,9 +32,9 @@ public interface TeacherService {
 
 	DataResult<TeacherDto> updateTeacherNumberById(long id, String teacherNumber);
 
-	DataResult<TeacherDto> updateDepartmentById(long id, long departmentId);
+	DataResult<TeacherDto> updateDepartmentById(long id, Long departmentId);
 	
-	DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, long teacherId);
+	DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, Long teacherId);
 	
 	DataResult<Long> getCount();
 

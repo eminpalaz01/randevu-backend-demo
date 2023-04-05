@@ -3,6 +3,8 @@ package com.dershaneproject.randevu.business.concretes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import com.dershaneproject.randevu.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.SystemAdministratorService;
@@ -10,9 +12,6 @@ import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWi
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.SystemAdministratorDao;
-import com.dershaneproject.randevu.dto.ScheduleDto;
-import com.dershaneproject.randevu.dto.SystemAdministratorDto;
-import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.SystemAdministrator;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
@@ -105,11 +104,6 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 	public DataResult<SystemAdministratorDto> findByIdWithAllSchedules(long id) {
 		// TODO Auto-generated method stub
 		try {
-			 modelMapperService.forResponse().createTypeMap(Schedule.class, ScheduleDto.class)
-			.addMapping(src -> src.getLastUpdateDateSystemWorker(), ScheduleDto::setLastUpdateDateSystemWorker)
-			.addMapping(src -> src.getDayOfWeek(), ScheduleDto::setDayOfWeek)
-			.addMapping(src -> src.getHour(), ScheduleDto::setHour);
-			
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
 			if (!(systemAdministrator.equals(Optional.empty()))) {
@@ -118,15 +112,64 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				List<Schedule> schedules = systemAdministrator.get().getSchedules();
 				List<ScheduleDto> schedulesDto = new ArrayList<>();
 				schedules.forEach(schedule -> {
-					ScheduleDto scheduleDto = modelMapperService.forResponse().map(schedule, ScheduleDto.class);
-					schedulesDto.add(scheduleDto);
-				});
+					ScheduleDto scheduleDto = new ScheduleDto();
+
+					scheduleDto.setId(schedule.getId());
+					scheduleDto.setTeacherId(schedule.getTeacher().getId());
+					scheduleDto.setFull(schedule.getFull());
+					scheduleDto.setDescription(schedule.getDescription());
+
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
+					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
+					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
+					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
+					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
+					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
+
+					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					scheduleDto.setCreateDate(schedule.getCreateDate());
+					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
+					scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+					scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+
+					schedulesDto.add(scheduleDto);});
 
 				List<WeeklySchedule> weeklySchedules = systemAdministrator.get().getWeeklySchedules();
 				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
 				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
-							WeeklyScheduleDto.class);
+					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+
+					HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
+					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
+
+					weeklyScheduleDto.setId(weeklySchedule.getId());
+					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
+					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
+					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setFull(weeklySchedule.getFull());
+					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
+					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
+					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
+
+					if(weeklySchedule.getStudent() == null){
+						weeklyScheduleDto.setStudentId(null);
+					}else{
+						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
+					}
+
+					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
+					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
+					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
+					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
+					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
+					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
+
+					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 				
@@ -162,8 +205,37 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				List<WeeklySchedule> weeklySchedules = systemAdministrator.get().getWeeklySchedules();
 				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
 				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
-							WeeklyScheduleDto.class);
+					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+
+					HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
+					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
+
+					weeklyScheduleDto.setId(weeklySchedule.getId());
+					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
+					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
+					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setFull(weeklySchedule.getFull());
+					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
+					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
+					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
+
+					if(weeklySchedule.getStudent() == null){
+						weeklyScheduleDto.setStudentId(null);
+					}else{
+						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
+					}
+
+					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
+					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
+					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
+					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
+					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
+					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
+
+					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 				
@@ -198,9 +270,29 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				List<Schedule> schedules = systemAdministrator.get().getSchedules();
 				List<ScheduleDto> schedulesDto = new ArrayList<>();
 				schedules.forEach(schedule -> {
-					ScheduleDto scheduleDto = modelMapperService.forResponse().map(schedule, ScheduleDto.class);
-					schedulesDto.add(scheduleDto);
-				});
+					ScheduleDto scheduleDto = new ScheduleDto();
+
+					scheduleDto.setId(schedule.getId());
+					scheduleDto.setTeacherId(schedule.getTeacher().getId());
+					scheduleDto.setFull(schedule.getFull());
+					scheduleDto.setDescription(schedule.getDescription());
+
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
+					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
+					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
+					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
+					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
+					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
+
+					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					scheduleDto.setCreateDate(schedule.getCreateDate());
+					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
+					scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+					scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+
+					schedulesDto.add(scheduleDto);});
 				
 				systemAdministratorDto.setId(systemAdministrator.get().getId());
 				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
@@ -270,9 +362,29 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					List<Schedule> schedules = systemAdministrator.getSchedules();
 					List<ScheduleDto> schedulesDto = new ArrayList<>();
 					schedules.forEach(schedule -> {
-						ScheduleDto scheduleDto = modelMapperService.forResponse().map(schedule, ScheduleDto.class);
-						schedulesDto.add(scheduleDto);
-					});
+						ScheduleDto scheduleDto = new ScheduleDto();
+
+						scheduleDto.setId(schedule.getId());
+						scheduleDto.setTeacherId(schedule.getTeacher().getId());
+						scheduleDto.setFull(schedule.getFull());
+						scheduleDto.setDescription(schedule.getDescription());
+
+						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+						systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
+						systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
+						systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
+						systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
+						systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
+						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
+
+						scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						scheduleDto.setCreateDate(schedule.getCreateDate());
+						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
+						scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+						scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+
+						schedulesDto.add(scheduleDto);});
 					
 					systemAdministratorDto.setId(systemAdministrator.getId());
 					systemAdministratorDto.setUserName(systemAdministrator.getUserName());
@@ -313,15 +425,64 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					List<Schedule> schedules = systemAdministrator.getSchedules();
 					List<ScheduleDto> schedulesDto = new ArrayList<>();
 					schedules.forEach(schedule -> {
-						ScheduleDto scheduleDto = modelMapperService.forResponse().map(schedule, ScheduleDto.class);
-						schedulesDto.add(scheduleDto);
-					});
+						ScheduleDto scheduleDto = new ScheduleDto();
+
+						scheduleDto.setId(schedule.getId());
+						scheduleDto.setTeacherId(schedule.getTeacher().getId());
+						scheduleDto.setFull(schedule.getFull());
+						scheduleDto.setDescription(schedule.getDescription());
+
+						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+						systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
+						systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
+						systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
+						systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
+						systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
+						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
+
+						scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						scheduleDto.setCreateDate(schedule.getCreateDate());
+						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
+						scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+						scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+
+						schedulesDto.add(scheduleDto);});
 
 					List<WeeklySchedule> weeklySchedules = systemAdministrator.getWeeklySchedules();
 					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
 					weeklySchedules.forEach(weeklySchedule -> {
-						WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
-								WeeklyScheduleDto.class);
+						WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+
+						HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
+						DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
+
+						weeklyScheduleDto.setId(weeklySchedule.getId());
+						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
+						weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
+						weeklyScheduleDto.setHour(hourDto);
+						weeklyScheduleDto.setFull(weeklySchedule.getFull());
+						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
+						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
+						weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
+
+						if(weeklySchedule.getStudent() == null){
+							weeklyScheduleDto.setStudentId(null);
+						}else{
+							weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
+						}
+
+						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
+						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+						systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
+						systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
+						systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
+						systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
+						systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
+						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
+
+						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 					
@@ -365,8 +526,37 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					List<WeeklySchedule> weeklySchedules = systemAdministrator.getWeeklySchedules();
 					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
 					weeklySchedules.forEach(weeklySchedule -> {
-						WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse().map(weeklySchedule,
-								WeeklyScheduleDto.class);
+						WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+
+						HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
+						DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
+
+						weeklyScheduleDto.setId(weeklySchedule.getId());
+						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
+						weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
+						weeklyScheduleDto.setHour(hourDto);
+						weeklyScheduleDto.setFull(weeklySchedule.getFull());
+						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
+						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
+						weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
+
+						if(weeklySchedule.getStudent() == null){
+							weeklyScheduleDto.setStudentId(null);
+						}else{
+							weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
+						}
+
+						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
+						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+						systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
+						systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
+						systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
+						systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
+						systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
+						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
+
+						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 					
@@ -497,7 +687,6 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 			return new DataResult<Long>(false, e.getMessage());
 		}	
 	}
-
 
 
 }

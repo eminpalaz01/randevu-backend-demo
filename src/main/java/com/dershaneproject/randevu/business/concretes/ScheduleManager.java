@@ -5,9 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
 import javax.validation.constraints.Size;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
@@ -533,9 +531,12 @@ public class ScheduleManager implements ScheduleService {
 	}
 
 	@Override
-	public DataResult<ScheduleDto> updateTeacherById(long id, long teacherId) {
+	public DataResult<ScheduleDto> updateTeacherById(long id, Long teacherId) {
 		// TODO Auto-generated method stub
 		try {
+			if(teacherId == null){
+				return new DataResult<ScheduleDto>(false, "Öğretmen Boş olamaz.");
+			}
 			Optional<Schedule> schedule = scheduleDao.findById(id);
 			Optional<Teacher> teacher = teacherDao.findById(teacherId);
 
@@ -593,8 +594,12 @@ public class ScheduleManager implements ScheduleService {
 	}
 
 	@Override
-	public DataResult<ScheduleDto> updateLastUpdateDateSystemWorkerById(long id, long lastUpdateDateSystemWorkerId) {
+	public DataResult<ScheduleDto> updateLastUpdateDateSystemWorkerById(long id, Long lastUpdateDateSystemWorkerId) {
 		// TODO Auto-generated method stub
+
+		if (lastUpdateDateSystemWorkerId == null){
+			return new DataResult<ScheduleDto>(false, "Son güncelleme yapan sistem çalışanı boş bırakılamaz.");
+		}
 		try {
 			Optional<Schedule> schedule = scheduleDao.findById(id);
 			Optional<SystemWorker> systemWorker = systemWorkerDao.findById(lastUpdateDateSystemWorkerId);
@@ -654,8 +659,12 @@ public class ScheduleManager implements ScheduleService {
 	}
 
 	@Override
-	public DataResult<ScheduleDto> updateDayOfWeekById(long id, long dayOfWeekId) {
+	public DataResult<ScheduleDto> updateDayOfWeekById(long id, Long dayOfWeekId) {
 		// TODO Auto-generated method stub
+
+		if (dayOfWeekId == null) {
+			return new DataResult<ScheduleDto>(false, "Gün boş bırakılamaz.");
+		}
 		try {
 			Optional<Schedule> schedule = scheduleDao.findById(id);
 			Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(dayOfWeekId);
@@ -714,8 +723,13 @@ public class ScheduleManager implements ScheduleService {
 	}
 
 	@Override
-	public DataResult<ScheduleDto> updateHourById(long id, long hourId) {
+	public DataResult<ScheduleDto> updateHourById(long id, Long hourId) {
 		// TODO Auto-generated method stub
+
+		if (hourId == null) {
+			return new DataResult<ScheduleDto>(Boolean.FALSE, "Saat boş bırakılamaz.");
+		}
+
 		try {
 			Optional<Schedule> schedule = scheduleDao.findById(id);
 			Optional<Hour> hour = hourDao.findById(hourId);

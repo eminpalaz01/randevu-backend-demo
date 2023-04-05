@@ -22,15 +22,15 @@ public interface ScheduleService {
 
 	DataResult<ScheduleDto> updateFullById(long id, Boolean full);
 
-	DataResult<ScheduleDto> updateTeacherById(long id, long teacherId);
+	DataResult<ScheduleDto> updateTeacherById(long id, Long teacherId);
 
 	DataResult<ScheduleDto> updateDescriptionById(long id, String description);
 
-	DataResult<ScheduleDto> updateLastUpdateDateSystemWorkerById(long id, long lastUpdateDateSystemWorkerId);
+	DataResult<ScheduleDto> updateLastUpdateDateSystemWorkerById(long id, Long lastUpdateDateSystemWorkerId);
 
-	DataResult<ScheduleDto> updateDayOfWeekById(long id, long dayOfWeekId);
+	DataResult<ScheduleDto> updateDayOfWeekById(long id, Long dayOfWeekId);
 	
-	DataResult<ScheduleDto> updateHourById(long id, long hourId);
+	DataResult<ScheduleDto> updateHourById(long id, Long hourId);
 	
 	DataResult<Long> getCount();
 }

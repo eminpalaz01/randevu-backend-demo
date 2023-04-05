@@ -692,8 +692,12 @@ public class TeacherManager implements TeacherService {
 	}
 
 	@Override
-	public DataResult<TeacherDto> updateDepartmentById(long id, long departmentId) {
+	public DataResult<TeacherDto> updateDepartmentById(long id, Long departmentId) {
 		// TODO Auto-generated method stub
+
+		if (departmentId == null) {
+			return new DataResult<TeacherDto>(false, "Departman boş bırakılamaz.");
+		}
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 			Optional<Department> department = departmentDao.findById(departmentId);
@@ -729,7 +733,7 @@ public class TeacherManager implements TeacherService {
 
 	}
 
-	public DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, long teacherId) {
+	public DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, Long teacherId) {
 
 		// Eklerken hiç schedules verilmeme olasılığı olduğu için önce onu kontrol ediyorum ve
 		// ScheduleValidationService de sadece create edilirken kullanılması için system çalışanı olmayan halini

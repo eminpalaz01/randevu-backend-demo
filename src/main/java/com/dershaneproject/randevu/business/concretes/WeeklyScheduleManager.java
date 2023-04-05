@@ -466,17 +466,25 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 	}
 
 	@Override
-	public DataResult<WeeklyScheduleDto> updateTeacherById(long id, long teacherId) {
+	public DataResult<WeeklyScheduleDto> updateTeacherById(long id, Long teacherId) {
 		// TODO Auto-generated method stub
-		if(!teacherDao.existsById(teacherId)){
-			return new DataResult<WeeklyScheduleDto>(false, teacherId
-					+ " id li öğretmen bulunamadı.");
+		if(teacherId != null){
+			if(!teacherDao.existsById(teacherId)){
+				return new DataResult<WeeklyScheduleDto>(false, teacherId
+						+ " id li öğretmen bulunamadı.");
+			}
 		}
+
 		try {
 			Optional<WeeklySchedule> weeklySchedule = weeklyScheduleDao.findById(id);
 
 			if (!(weeklySchedule.equals(Optional.empty()))) {
-				weeklySchedule.get().getTeacher().setId(teacherId);
+				 if(teacherId == null){
+					 return new DataResult<WeeklyScheduleDto>(false, "Öğretmen boş olamaz.");
+				 }else{
+					 weeklySchedule.get().getTeacher().setId(teacherId);
+				 }
+
 				weeklyScheduleDao.save(weeklySchedule.get());
 
 				Student student = weeklySchedule.get().getStudent();
@@ -533,12 +541,15 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 	}
 
 	@Override
-	public DataResult<WeeklyScheduleDto> updateStudentById(long id, long studentId) {
+	public DataResult<WeeklyScheduleDto> updateStudentById(long id, Long studentId) {
 		// TODO Auto-generated method stub
-		if(!studentDao.existsById(studentId)){
-			return new DataResult<WeeklyScheduleDto>(false, studentId
-					+ " id li öğrenci bulunamadı.");
+		if(studentId != null){
+			if(!studentDao.existsById(studentId)){
+				return new DataResult<WeeklyScheduleDto>(false, studentId
+						+ " id li öğrenci bulunamadı.");
+			}
 		}
+
 		try {
 			Optional<WeeklySchedule> weeklySchedule = weeklyScheduleDao.findById(id);
 
@@ -546,7 +557,13 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				if(weeklySchedule.get().getStudent() == null){
 					weeklySchedule.get().setStudent(new Student());
 				}
-				weeklySchedule.get().getStudent().setId(studentId);
+
+				if(studentId == null){
+					weeklySchedule.get().setStudent(null);
+				}else{
+					weeklySchedule.get().getStudent().setId(studentId);
+				}
+
 				weeklyScheduleDao.save(weeklySchedule.get());
 
 				Student student = weeklySchedule.get().getStudent();
@@ -556,7 +573,6 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 	            DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.get().getDayOfWeek(), DayOfWeekDto.class);
 				
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-				System.out.println(weeklySchedule.get().getTeacher().getId());
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
 				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
@@ -604,9 +620,12 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 
 	@Override
 	public DataResult<WeeklyScheduleDto> updateLastUpdateDateSystemWorkerById(long id,
-			long lastUpdateDateSystemWorkerId) {
+			Long lastUpdateDateSystemWorkerId) {
 		// TODO Auto-generated method stub
-		if(!systemWorkerDao.existsById(lastUpdateDateSystemWorkerId)){
+		if (lastUpdateDateSystemWorkerId == null) {
+			return new DataResult<WeeklyScheduleDto>(false, "Sistem çalışanı boş bırakılamaz.");
+		}
+		if(!systemWorkerDao.existsById(lastUpdateDateSystemWorkerId) ){
 			return new DataResult<WeeklyScheduleDto>(false, lastUpdateDateSystemWorkerId
 					+ " id li sistem çalışanı bulunamadı.");
 		}
@@ -670,8 +689,12 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 	}
 
 	@Override
-	public DataResult<WeeklyScheduleDto> updateDayOfWeekById(long id, long dayOfWeekId) {
+	public DataResult<WeeklyScheduleDto> updateDayOfWeekById(long id, Long dayOfWeekId) {
 		// TODO Auto-generated method stub
+
+		if (dayOfWeekId == null) {
+			return new DataResult<>(false, "Gün boş bırakılamaz.");
+		}
 		try {
 			Optional<WeeklySchedule> weeklySchedule = weeklyScheduleDao.findById(id);
 
@@ -738,8 +761,12 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 	}
 
 	@Override
-	public DataResult<WeeklyScheduleDto> updateHourById(long id, long hourId) {
+	public DataResult<WeeklyScheduleDto> updateHourById(long id, Long hourId) {
 		// TODO Auto-generated method stub
+
+		if (hourId == null) {
+			return new DataResult<>(false,"Saat boş bırakılamaz.");
+		}
 		try {
 			Optional<WeeklySchedule> weeklySchedule = weeklyScheduleDao.findById(id);
 
