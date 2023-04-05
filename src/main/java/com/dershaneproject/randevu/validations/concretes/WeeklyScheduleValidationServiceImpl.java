@@ -6,20 +6,21 @@ import com.dershaneproject.randevu.dataAccess.abstracts.*;
 import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.validations.abstracts.WeeklyScheduleValidationService;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Component
 public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValidationService {
 
-    private TeacherDao teacherDao;
-    private DayOfWeekDao dayOfWeekDao;
-    private HourDao hourDao;
-    private SystemWorkerDao systemWorkerDao;
-    private StudentDao studentDao;
+    private final TeacherDao teacherDao;
+    private final DayOfWeekDao dayOfWeekDao;
+    private final HourDao hourDao;
+    private final SystemWorkerDao systemWorkerDao;
+    private final StudentDao studentDao;
 
     @Override
     public Result isValidateResult(WeeklyScheduleDto weeklyScheduleDto) {

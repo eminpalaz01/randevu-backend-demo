@@ -1,30 +1,22 @@
 package com.dershaneproject.randevu.entities.concretes;
 
-import java.io.Serializable;
-import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.proxy.HibernateProxy;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Objects;
 
-import lombok.Data;
-
-@Data
+@Getter
+@Setter
+@ToString
 @Entity
 @Table(name = "weekly_schedules")
 public class WeeklySchedule implements Serializable{
-
 
 	/**
 	 * 
@@ -38,23 +30,23 @@ public class WeeklySchedule implements Serializable{
 	private Long id;
 
 	// Default olarak false olmasını sağla.
-	@Column(name = "full")
+	@Column(name = "is_full")
 	private Boolean full;
 	
 	@Column(name = "description", nullable = true)
 	private String description;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "teacher_id")
 	@JsonManagedReference(value = "teacherWeeklySchedulesReference")
 	private Teacher teacher;
 	
-	@OneToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "student_id", nullable = true)
 	@JsonManagedReference(value = "studentWeeklySchedulesReference")
 	private Student student;
 	
-	@OneToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "last_update_date_system_worker_id")
 	@JsonManagedReference(value = "systemWorkerWeeklySchedulesReference")
 	private SystemWorker lastUpdateDateSystemWorker;
@@ -77,4 +69,19 @@ public class WeeklySchedule implements Serializable{
 	@JsonManagedReference(value = "hourWeeklySchedulesReference")
 	private Hour hour;
 
+	@Override
+	public final boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null) return false;
+		Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+		Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+		if (thisEffectiveClass != oEffectiveClass) return false;
+		WeeklySchedule that = (WeeklySchedule) o;
+		return getId() != null && Objects.equals(getId(), that.getId());
+	}
+
+	@Override
+	public final int hashCode() {
+		return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+	}
 }

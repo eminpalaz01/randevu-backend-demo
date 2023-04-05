@@ -3,6 +3,8 @@ package com.dershaneproject.randevu.business.concretes;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.DayOfWeekService;
@@ -13,14 +15,10 @@ import com.dershaneproject.randevu.dto.DayOfWeekDto;
 import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
 
 @Service
+@RequiredArgsConstructor
 public class DayOfWeekManager implements DayOfWeekService {
 
-	private DayOfWeekDao dayOfWeekDao;
-
-	@Autowired
-	public DayOfWeekManager(DayOfWeekDao dayOfWeekDao) {
-		this.dayOfWeekDao = dayOfWeekDao;
-	}
+	private final DayOfWeekDao dayOfWeekDao;
 
 	@Override
 	public DataResult<DayOfWeekDto> save(DayOfWeekDto dayOfWeekDto) {

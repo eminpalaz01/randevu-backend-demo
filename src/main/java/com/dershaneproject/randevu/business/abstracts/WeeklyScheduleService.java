@@ -21,17 +21,17 @@ public interface WeeklyScheduleService {
 
 	DataResult<WeeklyScheduleDto> updateFullById(long id, Boolean full);
 
-	DataResult<WeeklyScheduleDto> updateTeacherById(long id, long teacherId);
+	DataResult<WeeklyScheduleDto> updateTeacherById(long id, Long teacherId);
 
-	DataResult<WeeklyScheduleDto> updateStudentById(long id, long studentId);
+	DataResult<WeeklyScheduleDto> updateStudentById(long id, Long studentId);
 	
 	DataResult<WeeklyScheduleDto> updateDescriptionById(long id, String description);
 
-	DataResult<WeeklyScheduleDto> updateLastUpdateDateSystemWorkerById(long id, long lastUpdateDateSystemWorkerId);
+	DataResult<WeeklyScheduleDto> updateLastUpdateDateSystemWorkerById(long id, Long lastUpdateDateSystemWorkerId);
 
-	DataResult<WeeklyScheduleDto> updateDayOfWeekById(long id, long dayOfWeekId);
+	DataResult<WeeklyScheduleDto> updateDayOfWeekById(long id, Long dayOfWeekId);
 	
-	DataResult<WeeklyScheduleDto> updateHourById(long id, long hourId);
+	DataResult<WeeklyScheduleDto> updateHourById(long id, Long hourId);
 	
 	DataResult<Long> getCount();
 }

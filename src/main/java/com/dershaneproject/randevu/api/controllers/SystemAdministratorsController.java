@@ -1,6 +1,8 @@
 package com.dershaneproject.randevu.api.controllers;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,15 +19,11 @@ import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.SystemAdministratorDto;
 
 @RestController
-@RequestMapping("/api/system-administrator")
+@RequestMapping("/api/v1/system-administrators")
+@RequiredArgsConstructor
 public class SystemAdministratorsController {
 
-	private SystemAdministratorService systemAdministratorService;
-
-	@Autowired
-	public SystemAdministratorsController(SystemAdministratorService systemAdministratorService) {
-		this.systemAdministratorService = systemAdministratorService;
-	}
+	private final SystemAdministratorService systemAdministratorService;
 
 	@PostMapping
 	public ResponseEntity<DataResult<SystemAdministratorDto>> save(

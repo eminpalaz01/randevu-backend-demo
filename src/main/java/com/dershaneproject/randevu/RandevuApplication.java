@@ -1,6 +1,8 @@
 package com.dershaneproject.randevu;
 
 import java.util.List;
+
+import io.github.cdimascio.dotenv.Dotenv;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
@@ -27,9 +29,8 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 
-@EnableAutoConfiguration
 @OpenAPI31
-@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })
+@SpringBootApplication
 public class RandevuApplication {
 
 	/*
@@ -72,7 +73,7 @@ public class RandevuApplication {
 
 	
 	public static void main(String[] args) {
-
+		Dotenv.configure().directory("src/main/resources").systemProperties().load();
 		// Uygulama çalışınca oluşan classları daha doğrusu
 		// beanleri kullanmak için instence oluşturdum
 
@@ -124,8 +125,6 @@ public class RandevuApplication {
     public ModelMapper getModelMapper() {
     	ModelMapper modelMapper = new ModelMapper();
     	return modelMapper;
-    	
-    	
     }
 
 }

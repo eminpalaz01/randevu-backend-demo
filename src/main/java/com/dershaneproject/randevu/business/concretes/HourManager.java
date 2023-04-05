@@ -4,6 +4,8 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.HourService;
@@ -14,14 +16,10 @@ import com.dershaneproject.randevu.dto.HourDto;
 import com.dershaneproject.randevu.entities.concretes.Hour;
 
 @Service
+@RequiredArgsConstructor
 public class HourManager implements HourService {
 
-	private HourDao hourDao;
-
-	@Autowired
-	public HourManager(HourDao hourDao) {
-		this.hourDao = hourDao;
-	}
+	private final HourDao hourDao;
 
 	@Override
 	public DataResult<HourDto> save(HourDto hourDto) {

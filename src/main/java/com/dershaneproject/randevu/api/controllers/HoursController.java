@@ -1,6 +1,8 @@
 package com.dershaneproject.randevu.api.controllers;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,15 +20,11 @@ import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.HourDto;
 
 @RestController
-@RequestMapping("/api/hour")
+@RequestMapping("/api/v1/hours")
+@RequiredArgsConstructor
 public class HoursController {
 
-	private HourService hourService;
-
-	@Autowired
-	public HoursController(com.dershaneproject.randevu.business.abstracts.HourService hourService) {
-		this.hourService = hourService;
-	}
+	private final HourService hourService;
 
 	@PostMapping
 	public ResponseEntity<DataResult<HourDto>> save(@RequestBody HourDto hourDto) {

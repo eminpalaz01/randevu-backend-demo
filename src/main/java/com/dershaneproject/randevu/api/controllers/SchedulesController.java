@@ -1,6 +1,8 @@
 package com.dershaneproject.randevu.api.controllers;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,15 +19,11 @@ import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.ScheduleDto;
 
 @RestController
-@RequestMapping("/api/schedule")
+@RequestMapping("/api/v1/schedules")
+@RequiredArgsConstructor
 public class SchedulesController {
 
-	private ScheduleService scheduleService;
-
-	@Autowired
-	public SchedulesController(ScheduleService scheduleService) {
-		this.scheduleService = scheduleService;
-	}
+	private final ScheduleService scheduleService;
 
 	@PostMapping
 	public ResponseEntity<DataResult<ScheduleDto>> save(@RequestBody ScheduleDto scheduleDto) {

@@ -6,6 +6,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.DepartmentService;
@@ -19,16 +20,11 @@ import com.dershaneproject.randevu.entities.concretes.Department;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
 
 @Service
+@RequiredArgsConstructor
 public class DepartmentManager implements DepartmentService {
 
-	private DepartmentDao departmentDao;
-	private ModelMapperServiceWithTypeMappingConfigs modelMapperService;
-
-	@Autowired
-	public DepartmentManager(DepartmentDao departmentDao, ModelMapperServiceWithTypeMappingConfigs modelMapperService) {
-		this.departmentDao = departmentDao;
-		this.modelMapperService = modelMapperService;
-	}
+	private final DepartmentDao departmentDao;
+	private final ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Override
 	public DataResult<DepartmentDto> save(DepartmentDto departmentDto) {

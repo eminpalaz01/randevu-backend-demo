@@ -5,9 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import com.dershaneproject.randevu.dto.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
@@ -30,33 +31,18 @@ import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
 
 @Service
+@RequiredArgsConstructor
 public class TeacherManager implements TeacherService {
 
-	private TeacherDao teacherDao;
-	private DepartmentDao departmentDao;
-	private HourDao hourDao;
-	private DayOfWeekDao dayOfWeekDao;
-	private ScheduleService scheduleService;
-	private ScheduleValidationService scheduleValidationService;
-	private WeeklyScheduleService weeklyScheduleService;
-	private SystemWorkerDao systemWorkerDao;
-	private ModelMapperServiceWithTypeMappingConfigs modelMapperService;
-
-	@Autowired
-	public TeacherManager(TeacherDao teacherDao, DepartmentDao departmentDao, HourDao hourDao,
-			DayOfWeekDao dayOfWeekDao, ScheduleService scheduleService, WeeklyScheduleService weeklyScheduleService,
-			ModelMapperServiceWithTypeMappingConfigs modelMapperService, SystemWorkerDao systemWorkerDao,
-			ScheduleValidationService scheduleValidationService) {
-		this.teacherDao = teacherDao;
-		this.departmentDao = departmentDao;
-		this.hourDao = hourDao;
-		this.dayOfWeekDao = dayOfWeekDao;
-		this.scheduleService = scheduleService;
-		this.scheduleValidationService = scheduleValidationService;
-		this.weeklyScheduleService = weeklyScheduleService;
-		this.modelMapperService = modelMapperService;
-		this.systemWorkerDao = systemWorkerDao;
-	}
+	private final  TeacherDao teacherDao;
+	private final  DepartmentDao departmentDao;
+	private final  HourDao hourDao;
+	private final  DayOfWeekDao dayOfWeekDao;
+	private final  ScheduleService scheduleService;
+	private final  ScheduleValidationService scheduleValidationService;
+	private final  WeeklyScheduleService weeklyScheduleService;
+	private final  SystemWorkerDao systemWorkerDao;
+	private final  ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Transactional
 	@Override
@@ -692,8 +678,12 @@ public class TeacherManager implements TeacherService {
 	}
 
 	@Override
-	public DataResult<TeacherDto> updateDepartmentById(long id, long departmentId) {
+	public DataResult<TeacherDto> updateDepartmentById(long id, Long departmentId) {
 		// TODO Auto-generated method stub
+
+		if (departmentId == null) {
+			return new DataResult<TeacherDto>(false, "Departman boş bırakılamaz.");
+		}
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 			Optional<Department> department = departmentDao.findById(departmentId);
@@ -729,7 +719,7 @@ public class TeacherManager implements TeacherService {
 
 	}
 
-	public DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, long teacherId) {
+	public DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, Long teacherId) {
 
 		// Eklerken hiç schedules verilmeme olasılığı olduğu için önce onu kontrol ediyorum ve
 		// ScheduleValidationService de sadece create edilirken kullanılması için system çalışanı olmayan halini

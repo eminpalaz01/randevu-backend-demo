@@ -1,6 +1,8 @@
 package com.dershaneproject.randevu.api.controllers;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,15 +19,11 @@ import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.DayOfWeekDto;
 
 @RestController
-@RequestMapping("/api/day-of-week")
+@RequestMapping("/api/v1/days-of-week")
+@RequiredArgsConstructor
 public class DaysOfWeekController {
 
-	private DayOfWeekService dayOfWeekService;
-
-	@Autowired
-	public DaysOfWeekController(DayOfWeekService dayOfWeekService) {
-		this.dayOfWeekService = dayOfWeekService;
-	}
+	private final DayOfWeekService dayOfWeekService;
 
 	@PostMapping
 	public ResponseEntity<DataResult<DayOfWeekDto>> save(@RequestBody DayOfWeekDto dayOfWeekDto) {

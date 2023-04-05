@@ -2,6 +2,8 @@ package com.dershaneproject.randevu.validations.concretes;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
@@ -12,22 +14,14 @@ import com.dershaneproject.randevu.dataAccess.abstracts.TeacherDao;
 import com.dershaneproject.randevu.dto.ScheduleDto;
 import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
 
+@RequiredArgsConstructor
 @Component
 public class ScheduleValidationServiceImpl implements ScheduleValidationService {
 
-	private TeacherDao teacherDao;
-	private DayOfWeekDao dayOfWeekDao;
-	private HourDao hourDao;
-	private SystemWorkerDao systemWorkerDao;
-
-	@Autowired
-	public ScheduleValidationServiceImpl(TeacherDao teacherDao, DayOfWeekDao dayOfWeekDao, HourDao hourDao,
-			SystemWorkerDao systemWorkerDao) {
-		this.teacherDao = teacherDao;
-		this.dayOfWeekDao = dayOfWeekDao;
-		this.hourDao = hourDao;
-		this.systemWorkerDao = systemWorkerDao;
-	}
+	private final TeacherDao teacherDao;
+	private final DayOfWeekDao dayOfWeekDao;
+	private final HourDao hourDao;
+	private final SystemWorkerDao systemWorkerDao;
 
 	@Override
 	public Result isValidateResult(ScheduleDto scheduleDto) {

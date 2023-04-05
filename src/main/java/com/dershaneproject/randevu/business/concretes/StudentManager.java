@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.dershaneproject.randevu.dto.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.StudentService;
@@ -16,16 +17,11 @@ import com.dershaneproject.randevu.entities.concretes.Student;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 
 @Service
+@RequiredArgsConstructor
 public class StudentManager implements StudentService {
 
-	private StudentDao studentDao;
-	private ModelMapperServiceWithTypeMappingConfigs modelMapperService;
-
-	@Autowired
-	public StudentManager(StudentDao studentDao, ModelMapperServiceWithTypeMappingConfigs modelMapperService) {
-		this.studentDao = studentDao;
-		this.modelMapperService = modelMapperService;
-	}
+	private final StudentDao studentDao;
+	private final ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Override
 	public DataResult<StudentDto> save(StudentDto studentDto) {
@@ -432,7 +428,5 @@ public class StudentManager implements StudentService {
 			return new DataResult<Long>(false, e.getMessage());
 		}
 	}
-
-
 
 }

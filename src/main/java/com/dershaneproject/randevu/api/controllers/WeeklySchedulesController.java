@@ -1,6 +1,8 @@
 package com.dershaneproject.randevu.api.controllers;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,21 +19,11 @@ import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 
 @RestController
-@RequestMapping("/api/weekly-schedule")
+@RequestMapping("/api/v1/weekly-schedules")
+@RequiredArgsConstructor
 public class WeeklySchedulesController {
 
-	private WeeklyScheduleService weeklyScheduleService;
-
-	@Autowired
-	public WeeklySchedulesController(WeeklyScheduleService weeklyScheduleService) {
-		this.weeklyScheduleService = weeklyScheduleService;
-	}
-
-	@PostMapping
-	public ResponseEntity<DataResult<WeeklyScheduleDto>> save(@RequestBody WeeklyScheduleDto weeklyScheduleDto) {
-
-		return ResponseEntity.ok(weeklyScheduleService.save(weeklyScheduleDto));
-	}
+	private final WeeklyScheduleService weeklyScheduleService;
 
 	@PostMapping("/all")
 	public ResponseEntity<DataResult<List<WeeklyScheduleDto>>> saveAll(@RequestBody List<WeeklyScheduleDto> weeklySchedulesDto) {

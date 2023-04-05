@@ -1,6 +1,8 @@
 package com.dershaneproject.randevu.api.controllers;
 
 import java.util.List;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,15 +19,11 @@ import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.DepartmentDto;
 
 @RestController
-@RequestMapping("/api/department")
+@RequestMapping("/api/v1/departments")
+@RequiredArgsConstructor
 public class DepartmentsController {
 
-	private DepartmentService departmentService;
-
-	@Autowired
-	public DepartmentsController(DepartmentService departmentService) {
-		this.departmentService = departmentService;
-	}
+	private final DepartmentService departmentService;
 
 	@PostMapping
 	public ResponseEntity<DataResult<DepartmentDto>> save(@RequestBody DepartmentDto departmentDto) {
