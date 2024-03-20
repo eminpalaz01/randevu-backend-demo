@@ -1,11 +1,5 @@
 package com.dershaneproject.randevu.validations.concretes;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.DayOfWeekDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.HourDao;
@@ -13,6 +7,11 @@ import com.dershaneproject.randevu.dataAccess.abstracts.SystemWorkerDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.TeacherDao;
 import com.dershaneproject.randevu.dto.ScheduleDto;
 import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -26,7 +25,7 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 	@Override
 	public Result isValidateResult(ScheduleDto scheduleDto) {
 		// TODO Auto-generated method stub
-		StringBuffer fieldErrorMessage = new StringBuffer("Program oluşturulamaz girdiğiniz");
+		StringBuilder fieldErrorMessage = new StringBuilder("Program oluşturulamaz girdiğiniz");
 		String messageSuccess = "Program ın oluşturulmasında bir sorun yok.";
 
 		Boolean isFullEmpty = scheduleDto.getFull();
@@ -57,10 +56,10 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 			// This algorithm writes in a readable form
 			for (int i = 0; i < errorFields.size(); i++) {
 				if (errorFields.size() - 1 == i) {
-					fieldErrorMessage.append(" " + errorFields.get(i));
+					fieldErrorMessage.append(" ").append(errorFields.get(i));
 					break;
 				}
-				fieldErrorMessage.append(" " + errorFields.get(i) + ",");
+				fieldErrorMessage.append(" ").append(errorFields.get(i)).append(",");
 			}
 
 			fieldErrorMessage.append(" değerleri sistemde bulunamadı kontrol ediniz.");
@@ -75,7 +74,7 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 	@Override
 	public Result areValidateForCreateTeacherResult(List<ScheduleDto> schedulesDto) {
 		// TODO Auto-generated method stub
-		StringBuffer fieldErrorMessage = new StringBuffer("Programların biri veya bazıları oluşturulamaz girdiğiniz bazı");
+		StringBuilder fieldErrorMessage = new StringBuilder("Programların biri veya bazıları oluşturulamaz girdiğiniz bazı");
 		String messageSuccess = "Programlar'ın oluşturulmasında bir sorun yok.";
 
 		for(ScheduleDto scheduleDto:schedulesDto) {
@@ -100,9 +99,9 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 			// This algorithm writes in a readable form
 			for (int i = 0; i < errorFields.size(); i++) {
 				if (errorFields.size() - 1 == i) {
-					fieldErrorMessage.append(" " + errorFields.get(i));
+					fieldErrorMessage.append(" ").append(errorFields.get(i));
 				}
-				fieldErrorMessage.append(" " + errorFields.get(i) + ",");
+				fieldErrorMessage.append(" ").append(errorFields.get(i)).append(",");
 			}
 
 			fieldErrorMessage.append(" değerleri sistemde bulunamadı kontrol ediniz.");

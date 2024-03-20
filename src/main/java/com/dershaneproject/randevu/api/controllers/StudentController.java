@@ -3,7 +3,6 @@ package com.dershaneproject.randevu.api.controllers;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +20,7 @@ import com.dershaneproject.randevu.dto.StudentDto;
 @RestController
 @RequestMapping("/api/v1/students")
 @RequiredArgsConstructor
-public class StudentsController {
+public class StudentController {
 
 	private final StudentService studentService;
 

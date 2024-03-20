@@ -47,7 +47,7 @@ public class ScheduleManager implements ScheduleService {
 	public DataResult<ScheduleDto> save(ScheduleDto scheduleDto) {
 		// TODO Auto-generated method stub
 		try {
-			String description = "DEFAULT DESCRİPTİON";
+			String description = "DEFAULT DESCRIPTION";
 			Result validateResult = scheduleValidationService.isValidateResult(scheduleDto);
 
 			if (validateResult.isSuccess()) {

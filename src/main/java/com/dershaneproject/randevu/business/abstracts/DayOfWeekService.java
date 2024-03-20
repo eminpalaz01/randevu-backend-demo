@@ -1,13 +1,16 @@
 package com.dershaneproject.randevu.business.abstracts;
 
-import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.DayOfWeekDto;
+import com.dershaneproject.randevu.dto.requests.DayOfWeekSaveRequest;
+import com.dershaneproject.randevu.dto.responses.DayOfWeekSaveResponse;
+
+import java.util.List;
 
 public interface DayOfWeekService {
-	
-	DataResult<DayOfWeekDto> save(DayOfWeekDto dayOfWeekDto);
+
+	DataResult<DayOfWeekSaveResponse> save(DayOfWeekSaveRequest dayOfWeekSaveRequest);
 
 	Result deleteById(long id);
 
@@ -16,6 +19,6 @@ public interface DayOfWeekService {
 	DataResult<DayOfWeekDto> findById(long id);
 
 	DataResult<DayOfWeekDto> updateNameById(long id, String name);
-	
+
 	DataResult<Long> getCount();
 }

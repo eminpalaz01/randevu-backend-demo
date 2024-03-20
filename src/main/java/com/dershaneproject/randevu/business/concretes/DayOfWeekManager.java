@@ -1,18 +1,19 @@
 package com.dershaneproject.randevu.business.concretes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.DayOfWeekService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.DayOfWeekDao;
 import com.dershaneproject.randevu.dto.DayOfWeekDto;
+import com.dershaneproject.randevu.dto.requests.DayOfWeekSaveRequest;
+import com.dershaneproject.randevu.dto.responses.DayOfWeekSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,21 +22,18 @@ public class DayOfWeekManager implements DayOfWeekService {
 	private final DayOfWeekDao dayOfWeekDao;
 
 	@Override
-	public DataResult<DayOfWeekDto> save(DayOfWeekDto dayOfWeekDto) {
-		// TODO Auto-generated method stub
+	public DataResult<DayOfWeekSaveResponse> save(DayOfWeekSaveRequest dayOfWeekSaveRequest) {
 		try {
 			DayOfWeek dayOfWeek = new DayOfWeek();
+			dayOfWeek.setName(dayOfWeekSaveRequest.getName());
 
-			dayOfWeek.setName(dayOfWeekDto.getName());
+			DayOfWeekSaveResponse dayOfWeekSaveResponse = new DayOfWeekSaveResponse();
+			dayOfWeekSaveResponse.setId(dayOfWeekDao.save(dayOfWeek).getId());
 
-			DayOfWeek dayOfWeekDb = dayOfWeekDao.save(dayOfWeek);
-
-			dayOfWeekDto.setId(dayOfWeekDb.getId());
-
-			return new DataResult<DayOfWeekDto>(dayOfWeekDto, true, "Veritabanına kaydedildi.");
+			return new DataResult<DayOfWeekSaveResponse>(dayOfWeekSaveResponse, true, "Veritabanına kaydedildi.");
 		} catch (Exception e) {
 			// TODO: handle exception
-			return new DataResult<DayOfWeekDto>(false, e.getMessage());
+			return new DataResult<DayOfWeekSaveResponse>(false, e.getMessage());
 		}
 	}
 
