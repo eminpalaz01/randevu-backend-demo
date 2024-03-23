@@ -4,7 +4,11 @@ import lombok.Data;
 
 @Data
 public class WeeklyScheduleSaveRequest {
-    private String userName;
-    private String password;
-    private String email;
+    private Boolean full;
+    private String description;
+    private Long teacherId;
+    private Long studentId;
+    private Long lastUpdateDateSystemWorkerId;
+    private Long dayOfWeekId;
+    private Long hourId;
 }
