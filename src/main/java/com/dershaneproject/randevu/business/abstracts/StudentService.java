@@ -1,13 +1,16 @@
 package com.dershaneproject.randevu.business.abstracts;
 
-import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.StudentDto;
+import com.dershaneproject.randevu.dto.requests.StudentSaveRequest;
+import com.dershaneproject.randevu.dto.responses.StudentSaveResponse;
+
+import java.util.List;
 
 public interface StudentService {
 	
-	DataResult<StudentDto> save(StudentDto studentDto);
+	DataResult<StudentSaveResponse> save(StudentSaveRequest studentDto);
 
 	Result deleteById(long id);
 

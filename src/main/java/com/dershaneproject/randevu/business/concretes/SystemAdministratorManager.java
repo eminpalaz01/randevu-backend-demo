@@ -1,21 +1,22 @@
 package com.dershaneproject.randevu.business.concretes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import com.dershaneproject.randevu.dto.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.SystemAdministratorService;
 import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.SystemAdministratorDao;
+import com.dershaneproject.randevu.dto.*;
+import com.dershaneproject.randevu.dto.requests.SystemAdministratorSaveRequest;
+import com.dershaneproject.randevu.dto.responses.SystemAdministratorSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.SystemAdministrator;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,32 +26,28 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 	private final ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Override
-	public DataResult<SystemAdministratorDto> save(SystemAdministratorDto systemAdministratorDto) {
-		// TODO Auto-generated method stub
+	public DataResult<SystemAdministratorSaveResponse> save(SystemAdministratorSaveRequest systemAdministratorSaveRequest) {
 		try {
-			SystemAdministrator systemAdministrator = new SystemAdministrator();
-
-			systemAdministrator.setUserName(systemAdministratorDto.getUserName());
-			systemAdministrator.setPassword(systemAdministratorDto.getPassword());
-			systemAdministrator.setEmail(systemAdministratorDto.getEmail());
-
-			SystemAdministrator systemAdministratorDb = systemAdministratorDao.save(systemAdministrator);
-
-			systemAdministratorDto.setId(systemAdministratorDb.getId());
-			systemAdministratorDto.setCreateDate(systemAdministratorDb.getCreateDate());
-			systemAdministratorDto.setLastUpdateDate(systemAdministratorDb.getLastUpdateDate());
-
-			return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true, "Veritabanına kaydedildi.");
+			SystemAdministrator systemAdministrator = systemAdministratorDao.save(createSystemAdministratorForSave(systemAdministratorSaveRequest));
+			SystemAdministratorSaveResponse systemAdministratorSaveResponse = modelMapperService.forResponse()
+					.map(systemAdministrator, SystemAdministratorSaveResponse.class);
+			return new DataResult<SystemAdministratorSaveResponse>(systemAdministratorSaveResponse, true, "Veritabanına kaydedildi.");
 		} catch (Exception e) {
-			// TODO: handle exception
-			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
+			return new DataResult<SystemAdministratorSaveResponse>(false, e.getMessage());
 		}
 
 	}
 
+	private SystemAdministrator createSystemAdministratorForSave(SystemAdministratorSaveRequest systemAdministratorSaveRequest) {
+		SystemAdministrator systemAdministrator = new SystemAdministrator();
+		systemAdministrator.setUserName(systemAdministratorSaveRequest.getUserName());
+		systemAdministrator.setPassword(systemAdministratorSaveRequest.getPassword());
+		systemAdministrator.setEmail(systemAdministratorSaveRequest.getEmail());
+		return systemAdministrator;
+	}
+
 	@Override
 	public Result deleteById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 			if (!(systemAdministrator.equals(Optional.empty()))) {
@@ -60,7 +57,6 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 			return new Result(false, id + " id'li sistem yöneticisi bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new Result(false, e.getMessage());
 		}
 	}
@@ -69,39 +65,36 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 	@Override
 	public DataResult<SystemAdministratorDto> findById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
 			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
-				systemAdministratorDto.setId(systemAdministrator.get().getId());
-				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorDto.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorDto.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorDto.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorDto.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorDto.setAuthority(systemAdministrator.get().getAuthority());
+				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
+				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
+				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
+				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
+				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
+				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
+				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
 
-				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisi getirildi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
 		}
 	}	
 		
 	@Override
 	public DataResult<SystemAdministratorDto> findByIdWithAllSchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
 			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 				List<Schedule> schedules = systemAdministrator.get().getSchedules();
 				List<ScheduleDto> schedulesDto = new ArrayList<>();
@@ -167,34 +160,32 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 				
-				systemAdministratorDto.setId(systemAdministrator.get().getId());
-				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorDto.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorDto.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorDto.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorDto.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorDto.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorDto.setSchedules(schedulesDto);
-				systemAdministratorDto.setWeeklySchedules(weeklySchedulesDto);
+				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
+				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
+				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
+				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
+				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
+				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
+				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
+				systemAdministratorSaveRequest.setSchedules(schedulesDto);
+				systemAdministratorSaveRequest.setWeeklySchedules(weeklySchedulesDto);
 
-				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisi getirildi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemAdministratorDto> findByIdWithWeeklySchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
 			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 				List<WeeklySchedule> weeklySchedules = systemAdministrator.get().getWeeklySchedules();
 				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
@@ -233,33 +224,31 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 				
-				systemAdministratorDto.setId(systemAdministrator.get().getId());
-				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorDto.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorDto.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorDto.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorDto.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorDto.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorDto.setWeeklySchedules(weeklySchedulesDto);
+				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
+				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
+				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
+				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
+				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
+				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
+				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
+				systemAdministratorSaveRequest.setWeeklySchedules(weeklySchedulesDto);
 
-				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisi getirildi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
 		}
 	}
 	
 	@Override
 	public DataResult<SystemAdministratorDto> findByIdWithSchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
 			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 				List<Schedule> schedules = systemAdministrator.get().getSchedules();
 				List<ScheduleDto> schedulesDto = new ArrayList<>();
@@ -288,45 +277,43 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 					schedulesDto.add(scheduleDto);});
 				
-				systemAdministratorDto.setId(systemAdministrator.get().getId());
-				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorDto.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorDto.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorDto.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorDto.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorDto.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorDto.setSchedules(schedulesDto);
+				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
+				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
+				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
+				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
+				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
+				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
+				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
+				systemAdministratorSaveRequest.setSchedules(schedulesDto);
 
-				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisi getirildi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<List<SystemAdministratorDto>> findAll() {
-		// TODO Auto-generated method stub
 		try {
 			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
 			if (systemAdministrators.size() != 0) {
 				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
 
 				systemAdministrators.forEach(systemAdministrator -> {
-					SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+					SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
-					systemAdministratorDto.setId(systemAdministrator.getId());
-					systemAdministratorDto.setUserName(systemAdministrator.getUserName());
-					systemAdministratorDto.setPassword(systemAdministrator.getPassword());
-					systemAdministratorDto.setEmail(systemAdministrator.getEmail());
-					systemAdministratorDto.setAuthority(systemAdministrator.getAuthority());
-					systemAdministratorDto.setCreateDate(systemAdministrator.getCreateDate());
-					systemAdministratorDto.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
+					systemAdministratorSaveRequest.setId(systemAdministrator.getId());
+					systemAdministratorSaveRequest.setUserName(systemAdministrator.getUserName());
+					systemAdministratorSaveRequest.setPassword(systemAdministrator.getPassword());
+					systemAdministratorSaveRequest.setEmail(systemAdministrator.getEmail());
+					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
+					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
+					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
 
-					systemAdministratorsDto.add(systemAdministratorDto);
+					systemAdministratorsDto.add(systemAdministratorSaveRequest);
 				});
 
 				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
@@ -337,21 +324,19 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<SystemAdministratorDto>>(false, e.getMessage());
 		}
 	}
 	
 	@Override
 	public DataResult<List<SystemAdministratorDto>> findAllWithSchedules() {
-		// TODO Auto-generated method stub
 		try {
 			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
 			if (systemAdministrators.size() != 0) {
 				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
 
 				systemAdministrators.forEach(systemAdministrator -> {
-					SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+					SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 					List<Schedule> schedules = systemAdministrator.getSchedules();
 					List<ScheduleDto> schedulesDto = new ArrayList<>();
@@ -380,16 +365,16 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 						schedulesDto.add(scheduleDto);});
 					
-					systemAdministratorDto.setId(systemAdministrator.getId());
-					systemAdministratorDto.setUserName(systemAdministrator.getUserName());
-					systemAdministratorDto.setPassword(systemAdministrator.getPassword());
-					systemAdministratorDto.setEmail(systemAdministrator.getEmail());
-					systemAdministratorDto.setAuthority(systemAdministrator.getAuthority());
-					systemAdministratorDto.setCreateDate(systemAdministrator.getCreateDate());
-					systemAdministratorDto.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorDto.setSchedules(schedulesDto);
+					systemAdministratorSaveRequest.setId(systemAdministrator.getId());
+					systemAdministratorSaveRequest.setUserName(systemAdministrator.getUserName());
+					systemAdministratorSaveRequest.setPassword(systemAdministrator.getPassword());
+					systemAdministratorSaveRequest.setEmail(systemAdministrator.getEmail());
+					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
+					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
+					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
+					systemAdministratorSaveRequest.setSchedules(schedulesDto);
 
-					systemAdministratorsDto.add(systemAdministratorDto);
+					systemAdministratorsDto.add(systemAdministratorSaveRequest);
 				});
 
 				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
@@ -400,21 +385,19 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<SystemAdministratorDto>>(false, e.getMessage());
 		}
 	}
 		
 	@Override
 	public DataResult<List<SystemAdministratorDto>> findAllWithAllSchedules() {
-		// TODO Auto-generated method stub
 		try {
 			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
 			if (systemAdministrators.size() != 0) {
 				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
 
 				systemAdministrators.forEach(systemAdministrator -> {
-					SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+					SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 					List<Schedule> schedules = systemAdministrator.getSchedules();
 					List<ScheduleDto> schedulesDto = new ArrayList<>();
@@ -480,17 +463,17 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 					
-					systemAdministratorDto.setId(systemAdministrator.getId());
-					systemAdministratorDto.setUserName(systemAdministrator.getUserName());
-					systemAdministratorDto.setPassword(systemAdministrator.getPassword());
-					systemAdministratorDto.setEmail(systemAdministrator.getEmail());
-					systemAdministratorDto.setAuthority(systemAdministrator.getAuthority());
-					systemAdministratorDto.setCreateDate(systemAdministrator.getCreateDate());
-					systemAdministratorDto.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorDto.setSchedules(schedulesDto);
-					systemAdministratorDto.setWeeklySchedules(weeklySchedulesDto);
+					systemAdministratorSaveRequest.setId(systemAdministrator.getId());
+					systemAdministratorSaveRequest.setUserName(systemAdministrator.getUserName());
+					systemAdministratorSaveRequest.setPassword(systemAdministrator.getPassword());
+					systemAdministratorSaveRequest.setEmail(systemAdministrator.getEmail());
+					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
+					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
+					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
+					systemAdministratorSaveRequest.setSchedules(schedulesDto);
+					systemAdministratorSaveRequest.setWeeklySchedules(weeklySchedulesDto);
 
-					systemAdministratorsDto.add(systemAdministratorDto);
+					systemAdministratorsDto.add(systemAdministratorSaveRequest);
 				});
 
 				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
@@ -501,21 +484,19 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<SystemAdministratorDto>>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<List<SystemAdministratorDto>> findAllWithWeeklySchedules() {
-		// TODO Auto-generated method stub
 		try {
 			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
 			if (systemAdministrators.size() != 0) {
 				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
 
 				systemAdministrators.forEach(systemAdministrator -> {
-					SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+					SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 					List<WeeklySchedule> weeklySchedules = systemAdministrator.getWeeklySchedules();
 					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
@@ -554,16 +535,16 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 					
-					systemAdministratorDto.setId(systemAdministrator.getId());
-					systemAdministratorDto.setUserName(systemAdministrator.getUserName());
-					systemAdministratorDto.setPassword(systemAdministrator.getPassword());
-					systemAdministratorDto.setEmail(systemAdministrator.getEmail());
-					systemAdministratorDto.setAuthority(systemAdministrator.getAuthority());
-					systemAdministratorDto.setCreateDate(systemAdministrator.getCreateDate());
-					systemAdministratorDto.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorDto.setWeeklySchedules(weeklySchedulesDto);
+					systemAdministratorSaveRequest.setId(systemAdministrator.getId());
+					systemAdministratorSaveRequest.setUserName(systemAdministrator.getUserName());
+					systemAdministratorSaveRequest.setPassword(systemAdministrator.getPassword());
+					systemAdministratorSaveRequest.setEmail(systemAdministrator.getEmail());
+					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
+					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
+					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
+					systemAdministratorSaveRequest.setWeeklySchedules(weeklySchedulesDto);
 
-					systemAdministratorsDto.add(systemAdministratorDto);
+					systemAdministratorsDto.add(systemAdministratorSaveRequest);
 				});
 
 				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
@@ -574,107 +555,99 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<SystemAdministratorDto>>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemAdministratorDto> updateUserNameById(long id, String userName) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
 			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 				systemAdministrator.get().setUserName(userName);
 
 				systemAdministratorDao.save(systemAdministrator.get());
 
-				systemAdministratorDto.setId(systemAdministrator.get().getId());
-				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorDto.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorDto.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorDto.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorDto.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorDto.setAuthority(systemAdministrator.get().getAuthority());
+				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
+				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
+				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
+				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
+				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
+				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
+				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
 
-				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisinin kullanıcı adı güncellendi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemAdministratorDto> updatePasswordById(long id, String password) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
 			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 				systemAdministrator.get().setPassword(password);
 
 				systemAdministratorDao.save(systemAdministrator.get());
 
-				systemAdministratorDto.setId(systemAdministrator.get().getId());
-				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorDto.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorDto.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorDto.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorDto.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorDto.setAuthority(systemAdministrator.get().getAuthority());
+				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
+				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
+				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
+				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
+				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
+				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
+				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
 
-				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisinin şifresi güncellendi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemAdministratorDto> updateEmailById(long id, String email) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
 			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorDto = new SystemAdministratorDto();
+				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
 
 				systemAdministrator.get().setEmail(email);
 
 				systemAdministratorDao.save(systemAdministrator.get());
 
-				systemAdministratorDto.setId(systemAdministrator.get().getId());
-				systemAdministratorDto.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorDto.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorDto.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorDto.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorDto.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorDto.setAuthority(systemAdministrator.get().getAuthority());
+				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
+				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
+				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
+				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
+				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
+				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
+				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
 
-				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisinin maili güncellendi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemAdministratorDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<Long> getCount() {
-		// TODO Auto-generated method stub
 		try {
 			return new DataResult<Long>(systemAdministratorDao.count(), true, "Sistem yöneticilerinin sayısı getirildi.");
 		} catch (Exception e) {

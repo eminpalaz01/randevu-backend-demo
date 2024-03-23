@@ -23,6 +23,8 @@ public class Schedule implements Serializable{
 	 */
 	private static final long serialVersionUID = -2247732292469828441L;
 
+	public static final String DEFAULT_DESCRIPTION = "DEFAULT DESCRIPTION";
+
 	@Id
 	@SequenceGenerator(name = "schedule_id_seq", allocationSize = 1)
 	@GeneratedValue(generator = "schedule_id_seq")
@@ -34,7 +36,7 @@ public class Schedule implements Serializable{
 	private Boolean full;
 	
 	@Column(name = "description", nullable = true)
-	private String description;
+	private String description = DEFAULT_DESCRIPTION;
 	
 	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "teacher_id")

@@ -1,13 +1,13 @@
 package com.dershaneproject.randevu.validations.abstracts;
 
-import java.util.List;
-
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
-import com.dershaneproject.randevu.dto.ScheduleDto;
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
+
+import java.util.List;
 
 public interface ScheduleValidationService {
 
-	Result isValidateResult(ScheduleDto scheduleDto);
+	Result isValidateResult(ScheduleSaveRequest scheduleDto);
 			
-	Result areValidateForCreateTeacherResult(List<ScheduleDto> schedulesDto);
+	Result areValidateResult(List<ScheduleSaveRequest> scheduleSaveRequestList);
 }

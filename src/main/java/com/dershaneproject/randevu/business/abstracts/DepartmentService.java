@@ -1,13 +1,16 @@
 package com.dershaneproject.randevu.business.abstracts;
 
-import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.DepartmentDto;
+import com.dershaneproject.randevu.dto.requests.DepartmentSaveRequest;
+import com.dershaneproject.randevu.dto.responses.DepartmentSaveResponse;
+
+import java.util.List;
 
 public interface DepartmentService {
 	
-	DataResult<DepartmentDto> save(DepartmentDto departmentDto);
+	DataResult<DepartmentSaveResponse> save(DepartmentSaveRequest departmentSaveRequest);
 
 	Result deleteById(long id);
 

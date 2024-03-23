@@ -1,34 +1,31 @@
 package com.dershaneproject.randevu.business.concretes;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import jakarta.transaction.Transactional;
-
-import com.dershaneproject.randevu.dto.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
 import com.dershaneproject.randevu.business.abstracts.TeacherService;
 import com.dershaneproject.randevu.business.abstracts.WeeklyScheduleService;
 import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
-import com.dershaneproject.randevu.dataAccess.abstracts.DayOfWeekDao;
-import com.dershaneproject.randevu.dataAccess.abstracts.DepartmentDao;
-import com.dershaneproject.randevu.dataAccess.abstracts.HourDao;
-import com.dershaneproject.randevu.dataAccess.abstracts.SystemWorkerDao;
-import com.dershaneproject.randevu.dataAccess.abstracts.TeacherDao;
-import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
+import com.dershaneproject.randevu.dataAccess.abstracts.*;
+import com.dershaneproject.randevu.dto.*;
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequestForTeacher;
+import com.dershaneproject.randevu.dto.requests.TeacherSaveRequest;
+import com.dershaneproject.randevu.dto.responses.ScheduleSaveResponse;
+import com.dershaneproject.randevu.dto.responses.TeacherSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Department;
-import com.dershaneproject.randevu.entities.concretes.Hour;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
 import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,107 +43,98 @@ public class TeacherManager implements TeacherService {
 
 	@Transactional
 	@Override
-	public DataResult<TeacherDto> save(TeacherDto teacherDto) {
+	public DataResult<TeacherSaveResponse> save(TeacherSaveRequest teacherSaveRequest) {
 		try {
-			Optional<Department> department = departmentDao.findById(teacherDto.getDepartmentId());
-			List<ScheduleDto> schedulesDto = teacherDto.getSchedules();
-
-			if (schedulesDto == null) {
-				schedulesDto = new ArrayList<ScheduleDto>();
+			if (teacherSaveRequest.getSchedules() == null) {
+				teacherSaveRequest.setSchedules(new ArrayList<ScheduleSaveRequestForTeacher>());
 			}
 
-			if (department.equals(Optional.empty())) {
-				return new DataResult<TeacherDto>(false,
+			if (!departmentDao.existsById(teacherSaveRequest.getDepartmentId())) {
+				return new DataResult<TeacherSaveResponse>(false,
 						"Veritabanına öğretmen kaydı başarısız departman id'sini kontrol ediniz.");
-			} else {
-				Teacher teacher = new Teacher();
-				teacher.setUserName(teacherDto.getUserName());
-				teacher.setPassword(teacherDto.getPassword());
-				teacher.setEmail(teacherDto.getEmail());
-
-				teacher.setDepartment(department.get());
-				teacher.setTeacherNumber(teacherDto.getTeacherNumber());
-
-				Teacher teacherDb = teacherDao.save(teacher);
-				
-				// if teacherDb is not null set id, dates and save schedulesDto of teacherDto
-				if (teacherDb != null) {
-
-					// schedulesDto are updating for register
-					DataResult<List<ScheduleDto>> resultUpdateSchedulesDto = updateSchedulesDtoForTeacher(schedulesDto,
-							teacherDb.getId());
-
-					if (resultUpdateSchedulesDto.isSuccess()) {
-						// schedulesDto are validating
-						Result resultValidationSchedulesDto = scheduleValidationService
-								.areValidateForCreateTeacherResult(resultUpdateSchedulesDto.getData());
-
-						if (resultValidationSchedulesDto.isSuccess()) {
-							// schedulesDto are saving and updating
-							DataResult<List<ScheduleDto>> resultResponseSchedulesDto = scheduleService
-									.saveAllForCreateTeacher(resultUpdateSchedulesDto.getData());
-							
-							if (resultResponseSchedulesDto.isSuccess()) {
-								List<ScheduleDto> schedulesDtoResult = resultResponseSchedulesDto.getData();
-								List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-
-								// schedulesDto mapping to weeklySchedulesDto
-								schedulesDtoResult.forEach(scheduleDto -> {
-									WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse()
-											.map(scheduleDto,  WeeklyScheduleDto.class);
-									weeklyScheduleDto.setStudentId(null);
-									weeklyScheduleDto.setDescription(scheduleDto.getDescription());
-									weeklySchedulesDto.add(weeklyScheduleDto);
-								});
-
-								// weeklySchedulesDto are saving and updating
-								DataResult<List<WeeklyScheduleDto>> resultResponseWeeklySchedulesDto
-										= weeklyScheduleService.saveAll(weeklySchedulesDto);
-								 if(resultResponseWeeklySchedulesDto.isSuccess()){
-
-									 teacherDto.setSchedules(schedulesDtoResult);
-									 teacherDto.setWeeklySchedules(resultResponseWeeklySchedulesDto.getData());
-
-									 teacherDto.setId(teacherDb.getId());
-									 teacherDto.setCreateDate(teacherDb.getCreateDate());
-									 teacherDto.setLastUpdateDate(teacherDb.getLastUpdateDate());
-									 return new DataResult<TeacherDto>(teacherDto, true, "Öğretmen veritabanına eklendi.(Gelen response'da"
-											 + " schedule ların date lerinde 1 2 saniye yanılma payı vardır "
-											 + "sadece oluşturulurken date leri getirmediği için tekrar istek atmak yerine "
-											 + "database e kendim anlık tarihi koydum tüm schedule larda ama database de tamamen doğru"
-											 + " şekildedir bir dahaki isteklerde yanılma payı yoktur.) null olmasıda tercih edilebilirdi.");
-								 }else{
-									 teacherDao.deleteById(teacherDb.getId());
-									 return new DataResult<TeacherDto>(false, resultResponseWeeklySchedulesDto.getMessage());
-								 }
-
-							} else {
-								teacherDao.deleteById(teacherDb.getId());
-								return new DataResult<TeacherDto>(false, resultResponseSchedulesDto.getMessage());
-							}
-
-						} else {
-							teacherDao.deleteById(teacherDb.getId());
-							return new DataResult<TeacherDto>(false, resultValidationSchedulesDto.getMessage());
-						}
-
-					} else {
-						teacherDao.deleteById(teacherDb.getId());
-						return new DataResult<TeacherDto>(false, resultUpdateSchedulesDto.getMessage());
-					}
-
-				} else {
-					return new DataResult<TeacherDto>(false,
-							"Öğretmen veritabanına kaydedilirken bir sorun ile karşılaşıldı.");
-				}
-
 			}
 
-		} catch (Exception e) {
-			// TODO: handle exception
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			Teacher teacher = teacherDao.saveAndFlush(createTeacherForSave(teacherSaveRequest));
+
+            // scheduleSaveRequestsForTeacher are updating for register
+            DataResult<List<ScheduleSaveRequest>> resultUpdateSchedulesDto = updateScheduleSaveRequestListForTeacher(teacherSaveRequest, teacher.getId());
+
+            if (resultUpdateSchedulesDto.isSuccess()) {
+                // scheduleSaveRequestsForTeacher are validating
+                Result resultValidationSchedulesDto = scheduleValidationService
+                        .areValidateResult(resultUpdateSchedulesDto.getData());
+
+                if (resultValidationSchedulesDto.isSuccess()) {
+                    // scheduleSaveRequestsForTeacher are saving and updating
+                    DataResult<List<ScheduleSaveResponse>> resultScheduleSaveResponseList = scheduleService
+                            .saveAll(resultUpdateSchedulesDto.getData());
+
+                    if (resultScheduleSaveResponseList.isSuccess()) {
+                        List<ScheduleSaveResponse> scheduleSaveResponseList = resultScheduleSaveResponseList.getData();
+                        List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+
+                        // scheduleSaveRequestsForTeacher mapping to weeklySchedulesDto
+                        scheduleSaveResponseList.forEach(scheduleSaveResponse -> {
+                            WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse()
+                                    .map(scheduleSaveResponse,  WeeklyScheduleDto.class);
+                            weeklySchedulesDto.add(weeklyScheduleDto);
+                        });
+
+                        // weeklySchedulesDto are saving and updating
+                        DataResult<List<WeeklyScheduleDto>> resultResponseWeeklySchedulesDto
+                                = weeklyScheduleService.saveAll(weeklySchedulesDto);
+                         if(resultResponseWeeklySchedulesDto.isSuccess()){
+							 TeacherSaveResponse teacherSaveResponse = modelMapperService.forResponse().map(teacherSaveRequest, TeacherSaveResponse.class);
+							 teacherSaveResponse.setSchedules(scheduleSaveResponseList);
+							 teacherSaveResponse.setWeeklySchedules(resultResponseWeeklySchedulesDto.getData());
+
+							 teacherSaveResponse.setId(teacher.getId());
+							 teacherSaveResponse.setCreateDate(teacher.getCreateDate());
+							 teacherSaveResponse.setLastUpdateDate(teacher.getLastUpdateDate());
+                             return new DataResult<TeacherSaveResponse>(teacherSaveResponse, true, "Öğretmen veritabanına eklendi.(Gelen response'da"
+                                     + " schedule ların date lerinde 1 2 saniye yanılma payı vardır "
+                                     + "sadece oluşturulurken date leri getirmediği için tekrar istek atmak yerine "
+                                     + "database e kendim anlık tarihi koydum tüm schedule larda ama database de tamamen doğru"
+                                     + " şekildedir bir dahaki isteklerde yanılma payı yoktur.) null olmasıda tercih edilebilirdi.");
+                         }else{
+                             teacherDao.deleteById(teacher.getId());
+                             return new DataResult<TeacherSaveResponse>(false, resultResponseWeeklySchedulesDto.getMessage());
+                         }
+
+                    } else {
+                        teacherDao.deleteById(teacher.getId());
+                        return new DataResult<TeacherSaveResponse>(false, resultScheduleSaveResponseList.getMessage());
+                    }
+
+                } else {
+                    teacherDao.deleteById(teacher.getId());
+                    return new DataResult<TeacherSaveResponse>(false, resultValidationSchedulesDto.getMessage());
+                }
+
+            } else {
+                teacherDao.deleteById(teacher.getId());
+                return new DataResult<TeacherSaveResponse>(false, resultUpdateSchedulesDto.getMessage());
+            }
+
+
+        } catch (Exception e) {
+			return new DataResult<TeacherSaveResponse>(false, e.getMessage());
 		}
 
+	}
+
+	private Teacher createTeacherForSave(TeacherSaveRequest teacherSaveRequest) {
+		Department department = new Department();
+		department.setId(teacherSaveRequest.getDepartmentId());
+
+		Teacher teacher = new Teacher();
+		teacher.setUserName(teacherSaveRequest.getUserName());
+		teacher.setPassword(teacherSaveRequest.getPassword());
+		teacher.setEmail(teacherSaveRequest.getEmail());
+
+		teacher.setDepartment(department);
+		teacher.setTeacherNumber(teacherSaveRequest.getTeacherNumber());
+		return teacher;
 	}
 
 	@Override
@@ -160,7 +148,6 @@ public class TeacherManager implements TeacherService {
 			}
 			return new Result(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new Result(false, e.getMessage());
 		}
 
@@ -168,7 +155,6 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> findById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
@@ -190,7 +176,6 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
@@ -198,7 +183,6 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> findByIdWithSchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
@@ -261,14 +245,12 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<TeacherDto> findByIdWithAllSchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
@@ -378,7 +360,6 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
@@ -386,7 +367,6 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> findByIdWithWeeklySchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
@@ -452,7 +432,6 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
@@ -463,7 +442,6 @@ public class TeacherManager implements TeacherService {
 	// Bu yüzden öğretmeni bireysel olarak çektiğimizde gönderdim sadece
 	@Override
 	public DataResult<List<TeacherDto>> getByDepartmentId(long departmentId) {
-		// TODO Auto-generated method stub
 		try {
 			List<Teacher> teachers = teacherDao.getByDepartmentId(departmentId);
 			if (teachers.size() != 0) {
@@ -498,7 +476,6 @@ public class TeacherManager implements TeacherService {
 			}
 
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<TeacherDto>>(false, e.getMessage());
 		}
 	}
@@ -508,7 +485,6 @@ public class TeacherManager implements TeacherService {
 	// Bu yüzden öğretmeni bireysel olarak çektiğimizde gönderdim sadece
 	@Override
 	public DataResult<List<TeacherDto>> findAll() {
-		// TODO Auto-generated method stub
 		try {
 			List<Teacher> teachers = teacherDao.findAll();
 			if (teachers.size() != 0) {
@@ -541,7 +517,6 @@ public class TeacherManager implements TeacherService {
 			}
 
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<TeacherDto>>(false, e.getMessage());
 		}
 
@@ -549,7 +524,6 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> updateEmailById(long id, String email) {
-		// TODO Auto-generated method stub
 
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
@@ -574,7 +548,6 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
@@ -582,7 +555,6 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> updateUserNameById(long id, String userName) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
@@ -607,7 +579,6 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
@@ -615,7 +586,6 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> updatePasswordById(long id, String password) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
@@ -639,7 +609,7 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
+			// xTODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
@@ -647,7 +617,6 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> updateTeacherNumberById(long id, String teacherNumber) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
@@ -671,7 +640,6 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
@@ -679,7 +647,6 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> updateDepartmentById(long id, Long departmentId) {
-		// TODO Auto-generated method stub
 
 		if (departmentId == null) {
 			return new DataResult<TeacherDto>(false, "Departman boş bırakılamaz.");
@@ -713,95 +680,74 @@ public class TeacherManager implements TeacherService {
 			}
 			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<TeacherDto>(false, e.getMessage());
 		}
 
 	}
 
-	public DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, Long teacherId) {
-
+	public DataResult<List<ScheduleSaveRequest>> updateScheduleSaveRequestListForTeacher(TeacherSaveRequest teacherSaveRequest, Long teacherId) {
 		// Eklerken hiç schedules verilmeme olasılığı olduğu için önce onu kontrol ediyorum ve
 		// ScheduleValidationService de sadece create edilirken kullanılması için system çalışanı olmayan halini
 		// yazdım bu arada. Eğerki eklenmişse Schedule bununda sistem çalışanı kontrol ediliyor var mı yok mu diye.
 		// ve de teacher oluşturulurken tüm programların sistem çalışanı aynı olmalı ondan buraya özel kontrol yazdım.
-		boolean systemWorkersAreAllTheSame = schedulesDto.stream()
-				.filter(schedule -> schedule.getLastUpdateDateSystemWorker() != null)
-				.map(schedule -> schedule.getLastUpdateDateSystemWorker()).distinct().count() <= 1;
 
-		if (systemWorkersAreAllTheSame == false) {
-			return new DataResult<List<ScheduleDto>>(false,
-					"Programlarınızda eklediğiniz sistem çalışanlarının bazıları birbiriyle farklı dikkat ediniz. "
-							+ "(Bu istekte tek bir sistem çalışanı gönderilebilir.)");
+		if (!systemWorkerDao.existsById(teacherSaveRequest.getLastUpdateDateSystemWorkerId())) {
+			return new DataResult<List<ScheduleSaveRequest>>(false,
+					"Eklediğiniz programlardaki sistem çalışanı bulunamadı kontrol ediniz.");
 		}
-
-		SystemWorkerDto systemWorker = schedulesDto.stream()
-				.filter(schedule -> schedule.getLastUpdateDateSystemWorker() != null).findAny().get()
-				.getLastUpdateDateSystemWorker();
-
-		if (systemWorker != null) {
-			if (!(systemWorkerDao.existsById(systemWorker.getId()))) {
-				return new DataResult<List<ScheduleDto>>(false,
-						"Eklediğiniz programlardaki sistem çalışanı bulunamadı kontrol ediniz.");
-			}
-		}
-		// SystemWorker kontrolü tamamlandı. En başta yapmamın sebebi aşağıdakiler
-		// sistemi yorucak işler olabilir.
 
 		// Dao dan toplam sayılarını getiriyor.
 		long dayOfWeekCount = dayOfWeekDao.count();
 		long hourCount = hourDao.count();
 
-		List<ScheduleDto> willSaveSchedulesDto = new ArrayList<>();
+		List<ScheduleSaveRequest> willSaveSchedules = new ArrayList<>();
 
 		for (int i = 0; i < dayOfWeekCount; i++) {
 
 			for (int k = 0; k < hourCount; k++) {
-				final int dayId = i + 1;
-				final int hourId = k + 1;
+				final long dayId = i + 1;
+				final long hourId = k + 1;
 
-				List<ScheduleDto> scheduleDto = schedulesDto.stream().filter(
-						schedule -> schedule.getDayOfWeek().getId() == dayId && schedule.getHour().getId() == hourId)
-						.collect(Collectors.toList());
+				List<ScheduleSaveRequestForTeacher> scheduleSaveRequestForTeacherList = teacherSaveRequest.getSchedules().stream().filter(
+						schedule -> schedule.getDayOfWeekId() == dayId && schedule.getHourId() == hourId)
+						.toList();
 
-				if (!(scheduleDto.size() > 1)) {
-					if (scheduleDto.size() == 1) {
-						scheduleDto.get(0).setTeacherId(teacherId);
-						scheduleDto.get(0).setLastUpdateDateSystemWorker(systemWorker);
-
-						willSaveSchedulesDto.add(scheduleDto.get(0));
-					} else {
-						ScheduleDto emptyscheduleDto = new ScheduleDto();
-						
-						HourDto hourDto = new HourDto();
-						DayOfWeekDto dayOfWeekDto = new DayOfWeekDto();						
-						
-						hourDto.setId((long) hourId);
-						dayOfWeekDto.setId((long) dayId);
-						
-						emptyscheduleDto.setDayOfWeek(dayOfWeekDto);
-						emptyscheduleDto.setHour(hourDto);
-						emptyscheduleDto.setTeacherId(teacherId);
-						emptyscheduleDto.setLastUpdateDateSystemWorker(systemWorker);
-						emptyscheduleDto.setDescription(null);
-						emptyscheduleDto.setFull(false);
-
-						willSaveSchedulesDto.add(emptyscheduleDto);
-					}
-				} else {
-					return new DataResult<List<ScheduleDto>>(false,
-							"Eklediğiniz programlarda gün ve saati aynı olan değerleriniz var kontrol ediniz.");
+				if (scheduleSaveRequestForTeacherList.size() > 1) {
+					return new DataResult<List<ScheduleSaveRequest>>(false,
+							"Eklediğiniz programlarda gün ve saati aynı olan programlar var kontrol ediniz.");
 				}
+				if (scheduleSaveRequestForTeacherList.size() == 1) {
+					ScheduleSaveRequest scheduleSaveRequest = modelMapperService.forRequest()
+							.map(scheduleSaveRequestForTeacherList.getFirst(), ScheduleSaveRequest.class);
+					scheduleSaveRequest.setTeacherId(teacherId);
+					scheduleSaveRequest.setLastUpdateDateSystemWorkerId(teacherSaveRequest.getLastUpdateDateSystemWorkerId());
 
+					willSaveSchedules.add(scheduleSaveRequest);
+				} else {
+					ScheduleSaveRequest emptyScheduleSaveRequest = createEmptyScheduleSaveRequest(teacherSaveRequest, teacherId, dayId, hourId);
+
+					willSaveSchedules.add(emptyScheduleSaveRequest);
+				}
 			}
 		}
 
-		return new DataResult<List<ScheduleDto>>(willSaveSchedulesDto, true, "Öğretmenin programları ayarlandı.");
+		return new DataResult<List<ScheduleSaveRequest>>(willSaveSchedules, true, "Öğretmenin programları ayarlandı.");
+	}
+
+	private ScheduleSaveRequest createEmptyScheduleSaveRequest(TeacherSaveRequest teacherSaveRequest, Long teacherId, long dayId, long hourId) {
+		ScheduleSaveRequest emptyScheduleSaveRequest = new ScheduleSaveRequest();
+		emptyScheduleSaveRequest.setDayOfWeekId(dayId);
+		emptyScheduleSaveRequest.setHourId(hourId);
+		emptyScheduleSaveRequest.setTeacherId(teacherId);
+		emptyScheduleSaveRequest.setLastUpdateDateSystemWorkerId(teacherSaveRequest.getLastUpdateDateSystemWorkerId());
+		emptyScheduleSaveRequest.setDescription(Schedule.DEFAULT_DESCRIPTION);
+		emptyScheduleSaveRequest.setFull(false);
+		return emptyScheduleSaveRequest;
 	}
 
 	@Override
 	public DataResult<Long> getCount() {
-		// TODO Auto-generated method stub
+		// xTODO Auto-generated method stub
 		try {
 			return new DataResult<Long>(teacherDao.count(), true, "Öğretmenlerin sayısı getirildi.");
 		} catch (Exception e) {

@@ -1,21 +1,16 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.ScheduleDto;
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
+import com.dershaneproject.randevu.dto.responses.ScheduleSaveResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/schedules")
@@ -25,15 +20,15 @@ public class ScheduleController {
 	private final ScheduleService scheduleService;
 
 	@PostMapping
-	public ResponseEntity<DataResult<ScheduleDto>> save(@RequestBody ScheduleDto scheduleDto) {
+	public ResponseEntity<DataResult<ScheduleSaveResponse>> save(@RequestBody ScheduleSaveRequest scheduleSaveRequest) {
 
-		return ResponseEntity.ok(scheduleService.save(scheduleDto));
+		return ResponseEntity.ok(scheduleService.save(scheduleSaveRequest));
 	}
 
 	@PostMapping("/all")
-	public ResponseEntity<DataResult<List<ScheduleDto>>> saveAll(@RequestBody List<ScheduleDto> schedulesDto) {
+	public ResponseEntity<DataResult<List<ScheduleSaveResponse>>> saveAll(@RequestBody List<ScheduleSaveRequest> scheduleSaveRequestList) {
 
-		return ResponseEntity.ok(scheduleService.saveAll(schedulesDto));
+		return ResponseEntity.ok(scheduleService.saveAll(scheduleSaveRequestList));
 	}
 
 	@GetMapping

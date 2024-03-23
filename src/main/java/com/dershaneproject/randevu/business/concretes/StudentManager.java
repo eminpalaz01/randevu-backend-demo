@@ -1,20 +1,21 @@
 package com.dershaneproject.randevu.business.concretes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import com.dershaneproject.randevu.dto.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.StudentService;
 import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.StudentDao;
+import com.dershaneproject.randevu.dto.*;
+import com.dershaneproject.randevu.dto.requests.StudentSaveRequest;
+import com.dershaneproject.randevu.dto.responses.StudentSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Student;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,34 +25,29 @@ public class StudentManager implements StudentService {
 	private final ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Override
-	public DataResult<StudentDto> save(StudentDto studentDto) {
-		// TODO Auto-generated method stub
+	public DataResult<StudentSaveResponse> save(StudentSaveRequest studentSaveRequest) {
 		try {
-			
-			Student student = new Student();
+			Student student = studentDao.save(createStudentForSave(studentSaveRequest));
+			StudentSaveResponse studentSaveResponse = modelMapperService.forResponse().map(student, StudentSaveResponse.class);
 
-			student.setUserName(studentDto.getUserName());
-			student.setPassword(studentDto.getPassword());
-			student.setEmail(studentDto.getEmail());
-			student.setStudentNumber(studentDto.getStudentNumber());
-
-			Student studentDb = studentDao.save(student);
-
-			studentDto.setId(studentDb.getId());
-			studentDto.setCreateDate(studentDb.getCreateDate());
-			studentDto.setLastUpdateDate(studentDb.getLastUpdateDate());
-
-			return new DataResult<StudentDto>(studentDto, true, "Veritabanına kaydedildi.");
+			return new DataResult<StudentSaveResponse>(studentSaveResponse, true, "Veritabanına kaydedildi.");
 		} catch (Exception e) {
-			// TODO: handle exception
-			return new DataResult<StudentDto>(false, e.getMessage());
+			return new DataResult<StudentSaveResponse>(false, e.getMessage());
 		}
 
 	}
 
+	private Student createStudentForSave(StudentSaveRequest studentSaveRequest) {
+		Student student = new Student();
+		student.setUserName(studentSaveRequest.getUserName());
+		student.setPassword(studentSaveRequest.getPassword());
+		student.setEmail(studentSaveRequest.getEmail());
+		student.setStudentNumber(studentSaveRequest.getStudentNumber());
+		return student;
+	}
+
 	@Override
 	public Result deleteById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Student> student = studentDao.findById(id);
 			if (!(student.equals(Optional.empty()))) {
@@ -61,7 +57,6 @@ public class StudentManager implements StudentService {
 
 			return new Result(false, id + " id'li öğrenci bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new Result(false, e.getMessage());
 		}
 
@@ -69,7 +64,6 @@ public class StudentManager implements StudentService {
 
 	@Override
 	public DataResult<List<StudentDto>> findAll() {
-		// TODO Auto-generated method stub
 		try {
 			List<Student> students = studentDao.findAll();
 			if (students.size() != 0) {
@@ -96,7 +90,6 @@ public class StudentManager implements StudentService {
 				return new DataResult<List<StudentDto>>(false, "Öğrenci bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<StudentDto>>(false, e.getMessage());
 		}
 
@@ -104,7 +97,6 @@ public class StudentManager implements StudentService {
 	
 	@Override
 	public DataResult<List<StudentDto>> findAllWithWeeklySchedules() {
-		// TODO Auto-generated method stub
 		try {
 			List<Student> students = studentDao.findAll();
 			if (students.size() != 0) {
@@ -184,7 +176,6 @@ public class StudentManager implements StudentService {
 				return new DataResult<List<StudentDto>>(false, "Öğrenci bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<StudentDto>>(false, e.getMessage());
 		}
 
@@ -192,7 +183,6 @@ public class StudentManager implements StudentService {
 
 	@Override
 	public DataResult<StudentDto> findById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Student> student = studentDao.findById(id);
 
@@ -212,7 +202,6 @@ public class StudentManager implements StudentService {
 			}
 			return new DataResult<StudentDto>(false, id + " id'li öğrenci bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<StudentDto>(false, e.getMessage());
 		}
 
@@ -220,7 +209,6 @@ public class StudentManager implements StudentService {
 	
 	@Override
 	public DataResult<StudentDto> findByIdWithWeeklySchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Student> student = studentDao.findById(id);
 
@@ -293,13 +281,11 @@ public class StudentManager implements StudentService {
 			}
 			return new DataResult<StudentDto>(false, id + " id'li öğrenci bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<StudentDto>(false, e.getMessage());
 		}
 	}
 	@Override
 	public DataResult<StudentDto> updateStudentNumberById(long id, String studentNumber) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Student> student = studentDao.findById(id);
 
@@ -322,7 +308,6 @@ public class StudentManager implements StudentService {
 			}
 			return new DataResult<StudentDto>(false, id + " id'li öğrenci bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<StudentDto>(false, e.getMessage());
 		}
 
@@ -330,7 +315,6 @@ public class StudentManager implements StudentService {
 
 	@Override
 	public DataResult<StudentDto> updateUserNameById(long id, String userName) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Student> student = studentDao.findById(id);
 
@@ -354,14 +338,12 @@ public class StudentManager implements StudentService {
 			}
 			return new DataResult<StudentDto>(false, id + " id'li öğrenci bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<StudentDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<StudentDto> updatePasswordById(long id, String password) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Student> student = studentDao.findById(id);
 
@@ -384,14 +366,12 @@ public class StudentManager implements StudentService {
 			}
 			return new DataResult<StudentDto>(false, id + " id'li öğrenci bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<StudentDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<StudentDto> updateEmailById(long id, String email) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<Student> student = studentDao.findById(id);
 
@@ -414,14 +394,12 @@ public class StudentManager implements StudentService {
 			}
 			return new DataResult<StudentDto>(false, id + " id'li öğrenci bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<StudentDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<Long> getCount() {
-		// TODO Auto-generated method stub
 		try {
 			return new DataResult<Long>(studentDao.count(), true, "Öğrencilerin sayısı getirildi.");
 		} catch (Exception e) {

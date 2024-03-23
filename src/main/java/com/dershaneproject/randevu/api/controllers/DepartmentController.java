@@ -1,21 +1,16 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.dershaneproject.randevu.business.abstracts.DepartmentService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.DepartmentDto;
+import com.dershaneproject.randevu.dto.requests.DepartmentSaveRequest;
+import com.dershaneproject.randevu.dto.responses.DepartmentSaveResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/departments")
@@ -25,9 +20,9 @@ public class DepartmentController {
 	private final DepartmentService departmentService;
 
 	@PostMapping
-	public ResponseEntity<DataResult<DepartmentDto>> save(@RequestBody DepartmentDto departmentDto) {
+	public ResponseEntity<DataResult<DepartmentSaveResponse>> save(@RequestBody DepartmentSaveRequest departmentSaveRequest) {
 
-		return ResponseEntity.ok(departmentService.save(departmentDto));
+		return ResponseEntity.ok(departmentService.save(departmentSaveRequest));
 	}
 	
 	@GetMapping("/count")

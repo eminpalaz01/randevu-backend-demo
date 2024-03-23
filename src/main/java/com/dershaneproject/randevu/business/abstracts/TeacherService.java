@@ -1,14 +1,16 @@
 package com.dershaneproject.randevu.business.abstracts;
 
-import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
-import com.dershaneproject.randevu.dto.ScheduleDto;
 import com.dershaneproject.randevu.dto.TeacherDto;
+import com.dershaneproject.randevu.dto.requests.TeacherSaveRequest;
+import com.dershaneproject.randevu.dto.responses.TeacherSaveResponse;
+
+import java.util.List;
 
 public interface TeacherService {
 
-	DataResult<TeacherDto> save(TeacherDto teacherDto);
+	DataResult<TeacherSaveResponse> save(TeacherSaveRequest teacherSaveRequest);
 
 	Result deleteById(long id);
 
@@ -33,9 +35,7 @@ public interface TeacherService {
 	DataResult<TeacherDto> updateTeacherNumberById(long id, String teacherNumber);
 
 	DataResult<TeacherDto> updateDepartmentById(long id, Long departmentId);
-	
-	DataResult<List<ScheduleDto>> updateSchedulesDtoForTeacher(List<ScheduleDto> schedulesDto, Long teacherId);
-	
+
 	DataResult<Long> getCount();
 
 }

@@ -1,21 +1,22 @@
 package com.dershaneproject.randevu.business.concretes;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import com.dershaneproject.randevu.dto.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.business.abstracts.SystemStaffService;
 import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.SystemStaffDao;
+import com.dershaneproject.randevu.dto.*;
+import com.dershaneproject.randevu.dto.requests.SystemStaffSaveRequest;
+import com.dershaneproject.randevu.dto.responses.SystemStaffSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.SystemStaff;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,31 +26,27 @@ public class SystemStaffManager implements SystemStaffService {
 	private final  ModelMapperServiceWithTypeMappingConfigs modelMapperService;
 
 	@Override
-	public DataResult<SystemStaffDto> save(SystemStaffDto systemStaffDto) {
-		// TODO Auto-generated method stub
+	public DataResult<SystemStaffSaveResponse> save(SystemStaffSaveRequest systemStaffSaveRequest) {
 		try {
-			SystemStaff systemStaff = new SystemStaff();
+			SystemStaff systemStaff = systemStaffDao.save(createSystemStaffForSave(systemStaffSaveRequest));
+			SystemStaffSaveResponse systemStaffSaveResponse = modelMapperService.forResponse().map(systemStaff, SystemStaffSaveResponse.class);
 
-			systemStaff.setUserName(systemStaffDto.getUserName());
-			systemStaff.setPassword(systemStaffDto.getPassword());
-			systemStaff.setEmail(systemStaffDto.getEmail());
-
-			SystemStaff systemStaffDb = systemStaffDao.save(systemStaff);
-
-			systemStaffDto.setId(systemStaffDb.getId());
-			systemStaffDto.setCreateDate(systemStaffDb.getCreateDate());
-			systemStaffDto.setLastUpdateDate(systemStaffDb.getLastUpdateDate());
-
-			return new DataResult<SystemStaffDto>(systemStaffDto, true, "Veritabanına kaydedildi.");
+			return new DataResult<SystemStaffSaveResponse>(systemStaffSaveResponse, true, "Veritabanına kaydedildi.");
 		} catch (Exception e) {
-			// TODO: handle exception
-			return new DataResult<SystemStaffDto>(false, e.getMessage());
+			return new DataResult<SystemStaffSaveResponse>(false, e.getMessage());
 		}
+	}
+
+	private SystemStaff createSystemStaffForSave(SystemStaffSaveRequest systemStaffDto) {
+		SystemStaff systemStaff = new SystemStaff();
+		systemStaff.setUserName(systemStaffDto.getUserName());
+		systemStaff.setPassword(systemStaffDto.getPassword());
+		systemStaff.setEmail(systemStaffDto.getEmail());
+		return systemStaff;
 	}
 
 	@Override
 	public Result deleteById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 			if (!(systemStaff.equals(Optional.empty()))) {
@@ -59,14 +56,12 @@ public class SystemStaffManager implements SystemStaffService {
 
 			return new Result(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new Result(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemStaffDto> findById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
@@ -85,14 +80,12 @@ public class SystemStaffManager implements SystemStaffService {
 			}
 			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemStaffDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemStaffDto> findByIdWithAllSchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
@@ -177,14 +170,12 @@ public class SystemStaffManager implements SystemStaffService {
 			}
 			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemStaffDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemStaffDto> findByIdWithWeeklySchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
@@ -241,14 +232,12 @@ public class SystemStaffManager implements SystemStaffService {
 			}
 			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemStaffDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemStaffDto> findByIdWithSchedules(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
@@ -295,14 +284,12 @@ public class SystemStaffManager implements SystemStaffService {
 			}
 			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemStaffDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<List<SystemStaffDto>> findAll() {
-		// TODO Auto-generated method stub
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
 			if (systemStaffs.size() != 0) {
@@ -329,14 +316,12 @@ public class SystemStaffManager implements SystemStaffService {
 				return new DataResult<List<SystemStaffDto>>(false, "Sistem çalışanı bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<List<SystemStaffDto>> findAllWithAllSchedules() {
-		// TODO Auto-generated method stub
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
 			if (systemStaffs.size() != 0) {
@@ -429,14 +414,12 @@ public class SystemStaffManager implements SystemStaffService {
 				return new DataResult<List<SystemStaffDto>>(false, "Sistem çalışanı bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<List<SystemStaffDto>> findAllWithSchedules() {
-		// TODO Auto-generated method stub
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
 			if (systemStaffs.size() != 0) {
@@ -491,14 +474,12 @@ public class SystemStaffManager implements SystemStaffService {
 				return new DataResult<List<SystemStaffDto>>(false, "Sistem çalışanı bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<List<SystemStaffDto>> findAllWithWeeklySchedules() {
-		// TODO Auto-generated method stub
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
 			if (systemStaffs.size() != 0) {
@@ -563,14 +544,12 @@ public class SystemStaffManager implements SystemStaffService {
 				return new DataResult<List<SystemStaffDto>>(false, "Sistem çalışanı bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<SystemStaffDto>>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemStaffDto> updateUserNameById(long id, String userName) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
@@ -594,14 +573,12 @@ public class SystemStaffManager implements SystemStaffService {
 			}
 			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemStaffDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemStaffDto> updatePasswordById(long id, String password) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
@@ -625,14 +602,12 @@ public class SystemStaffManager implements SystemStaffService {
 			}
 			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemStaffDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<SystemStaffDto> updateEmailById(long id, String email) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
@@ -656,14 +631,12 @@ public class SystemStaffManager implements SystemStaffService {
 			}
 			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<SystemStaffDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<Long> getCount() {
-		// TODO Auto-generated method stub
 		try {
 			return new DataResult<Long>(systemStaffDao.count(), true, "Sistem çalışanlarının sayısı getirildi.");
 		} catch (Exception e) {

@@ -1,21 +1,16 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.dershaneproject.randevu.business.abstracts.SystemStaffService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.SystemStaffDto;
+import com.dershaneproject.randevu.dto.requests.SystemStaffSaveRequest;
+import com.dershaneproject.randevu.dto.responses.SystemStaffSaveResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/system-staffs")
@@ -25,9 +20,9 @@ public class SystemStaffController {
 	private final SystemStaffService systemStaffService;
 
 	@PostMapping
-	public ResponseEntity<DataResult<SystemStaffDto>> save(@RequestBody SystemStaffDto systemStaffDto) {
+	public ResponseEntity<DataResult<SystemStaffSaveResponse>> save(@RequestBody SystemStaffSaveRequest systemStaffSaveRequest) {
 
-		return ResponseEntity.ok(systemStaffService.save(systemStaffDto));
+		return ResponseEntity.ok(systemStaffService.save(systemStaffSaveRequest));
 	}
 
 	@GetMapping

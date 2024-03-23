@@ -1,21 +1,16 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.dershaneproject.randevu.business.abstracts.StudentService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.StudentDto;
+import com.dershaneproject.randevu.dto.requests.StudentSaveRequest;
+import com.dershaneproject.randevu.dto.responses.StudentSaveResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/students")
@@ -25,9 +20,9 @@ public class StudentController {
 	private final StudentService studentService;
 
 	@PostMapping
-	public ResponseEntity<DataResult<StudentDto>> save(@RequestBody StudentDto studentDto) {
+	public ResponseEntity<DataResult<StudentSaveResponse>> save(@RequestBody StudentSaveRequest studentSaveRequest) {
 
-		return ResponseEntity.ok(studentService.save(studentDto));
+		return ResponseEntity.ok(studentService.save(studentSaveRequest));
 	}
 
 	@GetMapping

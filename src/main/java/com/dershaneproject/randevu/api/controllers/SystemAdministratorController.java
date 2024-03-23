@@ -1,21 +1,16 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.dershaneproject.randevu.business.abstracts.SystemAdministratorService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.SystemAdministratorDto;
+import com.dershaneproject.randevu.dto.requests.SystemAdministratorSaveRequest;
+import com.dershaneproject.randevu.dto.responses.SystemAdministratorSaveResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/system-administrators")
@@ -25,10 +20,9 @@ public class SystemAdministratorController {
 	private final SystemAdministratorService systemAdministratorService;
 
 	@PostMapping
-	public ResponseEntity<DataResult<SystemAdministratorDto>> save(
-			@RequestBody SystemAdministratorDto systemAdministratorDto) {
+	public ResponseEntity<DataResult<SystemAdministratorSaveResponse>> save(@RequestBody SystemAdministratorSaveRequest systemAdministratorSaveRequest) {
 
-		return ResponseEntity.ok(systemAdministratorService.save(systemAdministratorDto));
+		return ResponseEntity.ok(systemAdministratorService.save(systemAdministratorSaveRequest));
 	}
 
 	@GetMapping
@@ -94,25 +88,25 @@ public class SystemAdministratorController {
 
 	@PutMapping("/{id}/email")
 	public ResponseEntity<DataResult<SystemAdministratorDto>> updateEmailById(@PathVariable long id,
-			@RequestBody SystemAdministratorDto systemAdministratorDto) {
+																			  @RequestBody SystemAdministratorDto systemAdministratorSaveRequest) {
 
-		return ResponseEntity.ok(systemAdministratorService.updateEmailById(id, systemAdministratorDto.getEmail()));
+		return ResponseEntity.ok(systemAdministratorService.updateEmailById(id, systemAdministratorSaveRequest.getEmail()));
 	}
 
 	@PutMapping("/{id}/user-name")
 	public ResponseEntity<DataResult<SystemAdministratorDto>> updateUserNameById(@PathVariable long id,
-			@RequestBody SystemAdministratorDto systemAdministratorDto) {
+																				 @RequestBody SystemAdministratorDto systemAdministratorSaveRequest) {
 
 		return ResponseEntity
-				.ok(systemAdministratorService.updateUserNameById(id, systemAdministratorDto.getUserName()));
+				.ok(systemAdministratorService.updateUserNameById(id, systemAdministratorSaveRequest.getUserName()));
 	}
 
 	@PutMapping("/{id}/password")
 	public ResponseEntity<DataResult<SystemAdministratorDto>> updatePasswordById(@PathVariable long id,
-			@RequestBody SystemAdministratorDto systemAdministratorDto) {
+																				 @RequestBody SystemAdministratorDto systemAdministratorSaveRequest) {
 
 		return ResponseEntity
-				.ok(systemAdministratorService.updatePasswordById(id, systemAdministratorDto.getPassword()));
+				.ok(systemAdministratorService.updatePasswordById(id, systemAdministratorSaveRequest.getPassword()));
 	}
 
 }
