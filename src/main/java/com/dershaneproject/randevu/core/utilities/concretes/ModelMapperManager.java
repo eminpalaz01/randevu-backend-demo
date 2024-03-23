@@ -1,36 +1,27 @@
 package com.dershaneproject.randevu.core.utilities.concretes;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.dto.*;
 import com.dershaneproject.randevu.entities.concretes.*;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
+import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class ModelMapperManager implements ModelMapperServiceWithTypeMappingConfigs {
 
-	private ModelMapper modelMapper;
-	
-	@Autowired
-	public ModelMapperManager(ModelMapper modelMapper) {
-		this.modelMapper = modelMapper;
-
-		//  adding typeMaps
-		// typeMappingConfigForResponse();
-	}
+	private final ModelMapper modelMapper;
 
 	@Override
 	public ModelMapper forResponse() {
-		// TODO Auto-generated method stub
 		this.modelMapper.getConfiguration().setAmbiguityIgnored(true).setMatchingStrategy(MatchingStrategies.LOOSE);
 		return this.modelMapper;
 	}
 
 	@Override
 	public ModelMapper forRequest() {
-		// TODO Auto-generated method stub
 		this.modelMapper.getConfiguration().setAmbiguityIgnored(true).setMatchingStrategy(MatchingStrategies.STANDARD);
 		return this.modelMapper;
 	}
@@ -84,9 +75,7 @@ public class ModelMapperManager implements ModelMapperServiceWithTypeMappingConf
         
         // Student
 		this.modelMapper.createTypeMap(Student.class, StudentDto.class)
-                .addMappings(mapper -> {
-					mapper.map(Student::getWeeklySchedules, StudentDto::setWeeklySchedules);
-				});
+                .addMappings(mapper -> mapper.map(Student::getWeeklySchedules, StudentDto::setWeeklySchedules));
 
         
         // SystemAdministrator

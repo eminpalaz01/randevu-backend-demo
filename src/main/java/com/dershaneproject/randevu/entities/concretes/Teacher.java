@@ -1,27 +1,15 @@
 package com.dershaneproject.randevu.entities.concretes;
 
-import java.io.Serializable;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.Date;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-
 @Getter
 @Setter
-@ToString
 @Entity
 @Table(name = "teachers")
 public class Teacher extends User{
@@ -31,7 +19,7 @@ public class Teacher extends User{
 	 */
 	
 	@JsonBackReference(value = "departmentTeachersReference")
-	@OneToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "department_id")
 	private Department department;
 
@@ -51,10 +39,20 @@ public class Teacher extends User{
 
 	public Teacher(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email,
 			Department department, String teacherNumber) {
-		// TODO Auto-generated constructor stub
 		super(id, userName, password, createDate, lastUpdateDate, email);
 		this.teacherNumber = teacherNumber;
 		this.department = department;
 	}
 
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "(" +
+				"id = " + getId() + ", " +
+				"teacherNumber = " + getTeacherNumber() + ", " +
+				"userName = " + getUserName() + ", " +
+				"password = " + getPassword() + ", " +
+				"createDate = " + getCreateDate() + ", " +
+				"lastUpdateDate = " + getLastUpdateDate() + ", " +
+				"email = " + getEmail() + ")";
+	}
 }

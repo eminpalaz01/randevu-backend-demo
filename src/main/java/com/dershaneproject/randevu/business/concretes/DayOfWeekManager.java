@@ -32,14 +32,12 @@ public class DayOfWeekManager implements DayOfWeekService {
 
 			return new DataResult<DayOfWeekSaveResponse>(dayOfWeekSaveResponse, true, "Veritabanına kaydedildi.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<DayOfWeekSaveResponse>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public Result deleteById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
 			if (!(dayOfWeek.equals(Optional.empty()))) {
@@ -49,17 +47,15 @@ public class DayOfWeekManager implements DayOfWeekService {
 
 			return new Result(false, id + " id'li gün bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new Result(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<List<DayOfWeekDto>> findAll() {
-		// TODO Auto-generated method stub
 		try {
 			List<DayOfWeek> daysOfWeek = dayOfWeekDao.findAll();
-			if (daysOfWeek.size() != 0) {
+			if (!daysOfWeek.isEmpty()) {
 				List<DayOfWeekDto> daysOfWeekDto = new ArrayList<DayOfWeekDto>();
 
 				daysOfWeek.forEach(dayOfWeek -> {
@@ -74,14 +70,12 @@ public class DayOfWeekManager implements DayOfWeekService {
 				return new DataResult<List<DayOfWeekDto>>(false, "Kayıtlı Gün bulunamadı.");
 			}
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<List<DayOfWeekDto>>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<DayOfWeekDto> findById(long id) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
 			if (!(dayOfWeek.equals(Optional.empty()))) {
@@ -94,14 +88,12 @@ public class DayOfWeekManager implements DayOfWeekService {
 
 			return new DataResult<DayOfWeekDto>(false, id + " id'li gün bulunamadı.");
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<DayOfWeekDto>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<DayOfWeekDto> updateNameById(long id, String name) {
-		// TODO Auto-generated method stub
 		try {
 			Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
 			if (!(dayOfWeek.equals(Optional.empty()))) {
@@ -119,7 +111,6 @@ public class DayOfWeekManager implements DayOfWeekService {
 			return new DataResult<DayOfWeekDto>(false, id + " id'li gün bulunamadı.");
 
 		} catch (Exception e) {
-			// TODO: handle exception
 			return new DataResult<DayOfWeekDto>(false, e.getMessage());
 		}
 
@@ -127,7 +118,6 @@ public class DayOfWeekManager implements DayOfWeekService {
 
 	@Override
 	public DataResult<Long> getCount() {
-		// TODO Auto-generated method stub
 		try {
 			return new DataResult<Long>(dayOfWeekDao.count(), true, "Günlerin sayısı getirildi.");
 		} catch (Exception e) {

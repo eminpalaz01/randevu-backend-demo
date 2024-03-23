@@ -1,22 +1,15 @@
 package com.dershaneproject.randevu.entities.concretes;
 
-import java.util.Date;
-import java.util.List;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
+
+import java.util.Date;
+import java.util.List;
 
 @Setter
 @Getter
-@ToString
 @Entity
 @Table(name = "system_workers")
 @Inheritance(strategy = InheritanceType.JOINED)
@@ -38,7 +31,6 @@ public class SystemWorker extends User {
 	private List<WeeklySchedule> weeklySchedules;
 
 	public SystemWorker() {
-		// TODO Auto-generated constructor stub
 		super();
 	}
 
@@ -48,5 +40,17 @@ public class SystemWorker extends User {
 
 	protected void setAuthority(Integer authority) {
 		this.authority = authority;
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "(" +
+				"id = " + getId() + ", " +
+				"authority = " + getAuthority() + ", " +
+				"userName = " + getUserName() + ", " +
+				"password = " + getPassword() + ", " +
+				"createDate = " + getCreateDate() + ", " +
+				"lastUpdateDate = " + getLastUpdateDate() + ", " +
+				"email = " + getEmail() + ")";
 	}
 }

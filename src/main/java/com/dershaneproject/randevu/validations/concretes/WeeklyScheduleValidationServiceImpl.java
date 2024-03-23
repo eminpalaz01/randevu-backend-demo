@@ -1,11 +1,9 @@
 package com.dershaneproject.randevu.validations.concretes;
 
-import com.dershaneproject.randevu.business.abstracts.WeeklyScheduleService;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.*;
 import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.validations.abstracts.WeeklyScheduleValidationService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -24,8 +22,7 @@ public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValida
 
     @Override
     public Result isValidateResult(WeeklyScheduleDto weeklyScheduleDto) {
-        // TODO Auto-generated method stub
-        StringBuffer fieldErrorMessage = new StringBuffer("Haftalık Program oluşturulamaz girdiğiniz bazı");
+        StringBuilder fieldErrorMessage = new StringBuilder("Haftalık Program oluşturulamaz girdiğiniz bazı");
         String messageSuccess = "Haftalık Program'ın oluşturulmasında bir sorun yok.";
 
         Boolean isFullEmpty = weeklyScheduleDto.getFull();
@@ -56,10 +53,10 @@ public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValida
             // This algorithm writes in a readable form
             for (int i = 0; i < errorFields.size(); i++) {
                 if (errorFields.size() - 1 == i) {
-                    fieldErrorMessage.append(" " + errorFields.get(i));
+                    fieldErrorMessage.append(" ").append(errorFields.get(i));
                     break;
                 }
-                fieldErrorMessage.append(" " + errorFields.get(i) + ",");
+                fieldErrorMessage.append(" ").append(errorFields.get(i)).append(",");
             }
 
             fieldErrorMessage.append(" değerleri sistemde bulunamadı kontrol ediniz.");
@@ -67,13 +64,12 @@ public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValida
             return new Result(false, fieldErrorMessage.toString());
         }
 
-        return new Result(true, messageSuccess.toString());
+        return new Result(true, messageSuccess);
 
     }
 
     public Result studentExistById(WeeklyScheduleDto weeklyScheduleDto){
-        // TODO Auto-generated method stub
-        StringBuffer fieldErrorMessage = new StringBuffer("Haftalık Program oluşturulamaz girdiğiniz bazı");
+        StringBuilder fieldErrorMessage = new StringBuilder("Haftalık Program oluşturulamaz girdiğiniz bazı");
         String messageSuccess = "Haftalık Program'ın oluşturulmasında bir sorun yok.";
 
         boolean isExistsStudent = studentDao.existsById(weeklyScheduleDto.getStudentId());
@@ -85,7 +81,7 @@ public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValida
             return new Result(false, fieldErrorMessage.toString());
         }
 
-        return new Result(true, messageSuccess.toString());
+        return new Result(true, messageSuccess);
 
     }
 }
