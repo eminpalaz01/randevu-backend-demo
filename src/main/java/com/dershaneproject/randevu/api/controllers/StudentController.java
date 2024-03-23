@@ -26,15 +26,9 @@ public class StudentController {
 	}
 
 	@GetMapping
-	public ResponseEntity<DataResult<List<StudentDto>>> findAll() {
-
+	public ResponseEntity<DataResult<List<StudentDto>>> findAll(@RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) {
+		if (withWeeklySchedules) { return ResponseEntity.ok(studentService.findAllWithWeeklySchedules());}
 		return ResponseEntity.ok(studentService.findAll());
-	}
-	
-	@GetMapping("/weekly-schedules")
-	public ResponseEntity<DataResult<List<StudentDto>>> findAllWithWeeklySchedules() {
-
-		return ResponseEntity.ok(studentService.findAllWithWeeklySchedules());
 	}
 
 	@GetMapping("/count")
@@ -44,15 +38,10 @@ public class StudentController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<DataResult<StudentDto>> findById(@PathVariable long id) {
-
+	public ResponseEntity<DataResult<StudentDto>> findById(@PathVariable long id,
+														   @RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) {
+		if (withWeeklySchedules) { return ResponseEntity.ok(studentService.findByIdWithWeeklySchedules(id));}
 		return ResponseEntity.ok(studentService.findById(id));
-	}
-	
-	@GetMapping("/weekly-schedules/{id}")
-	public ResponseEntity<DataResult<StudentDto>> findByIdWithSchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(studentService.findByIdWithWeeklySchedules(id));
 	}
 
 	@DeleteMapping("/{id}")

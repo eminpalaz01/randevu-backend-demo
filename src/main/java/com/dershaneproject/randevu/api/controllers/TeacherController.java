@@ -44,27 +44,13 @@ public class TeacherController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<DataResult<TeacherDto>> findById(@PathVariable long id) {
-
+	public ResponseEntity<DataResult<TeacherDto>> findById(@PathVariable long id,
+														   @RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
+														   @RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) {
+		if (withSchedules && withWeeklySchedules) { return ResponseEntity.ok(teacherService.findByIdWithAllSchedules(id));}
+		if (withSchedules) { return ResponseEntity.ok(teacherService.findByIdWithSchedules(id));}
+		if (withWeeklySchedules) { return ResponseEntity.ok(teacherService.findByIdWithWeeklySchedules(id));}
 		return ResponseEntity.ok(teacherService.findById(id));
-	}
-	
-	@GetMapping("/schedules-and-weekly-schedules/{id}")
-	public ResponseEntity<DataResult<TeacherDto>> findByIdWithAllSchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(teacherService.findByIdWithAllSchedules(id));
-	}
-	
-	@GetMapping("/schedules/{id}")
-	public ResponseEntity<DataResult<TeacherDto>> findByIdWithSchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(teacherService.findByIdWithSchedules(id));
-	}
-	
-	@GetMapping("/weekly-schedules/{id}")
-	public ResponseEntity<DataResult<TeacherDto>> findByIdWithWeeklySchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(teacherService.findByIdWithWeeklySchedules(id));
 	}
 
 	@DeleteMapping("/{id}")

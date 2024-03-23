@@ -26,27 +26,12 @@ public class SystemStaffController {
 	}
 
 	@GetMapping
-	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAll() {
-
+	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAll(@RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
+																	@RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) {
+		if (withSchedules && withWeeklySchedules) { return ResponseEntity.ok(systemStaffService.findAllWithAllSchedules());}
+		if (withSchedules) { return ResponseEntity.ok(systemStaffService.findAllWithSchedules());}
+		if (withWeeklySchedules) { return ResponseEntity.ok(systemStaffService.findAllWithWeeklySchedules());}
 		return ResponseEntity.ok(systemStaffService.findAll());
-	}
-	
-	@GetMapping("/schedules-and-weekly-schedules")
-	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAllWithAllSchedules() {
-
-		return ResponseEntity.ok(systemStaffService.findAllWithAllSchedules());
-	}
-	
-	@GetMapping("/schedules")
-	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAllWithSchedules() {
-
-		return ResponseEntity.ok(systemStaffService.findAllWithSchedules());
-	}
-	
-	@GetMapping("/weekly-schedules")
-	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAllWithWeeklySchedules() {
-
-		return ResponseEntity.ok(systemStaffService.findAllWithWeeklySchedules());
 	}
 
 	@GetMapping("/count")
@@ -56,27 +41,14 @@ public class SystemStaffController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<DataResult<SystemStaffDto>> findById(@PathVariable long id) {
+	public ResponseEntity<DataResult<SystemStaffDto>> findById(@PathVariable long id,
+															   @RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
+															   @RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) {
 
+		if (withSchedules && withWeeklySchedules) { return ResponseEntity.ok(systemStaffService.findByIdWithAllSchedules(id));}
+		if (withSchedules) { return ResponseEntity.ok(systemStaffService.findByIdWithSchedules(id));}
+		if (withWeeklySchedules) { return ResponseEntity.ok(systemStaffService.findByIdWithWeeklySchedules(id));}
 		return ResponseEntity.ok(systemStaffService.findById(id));
-	}
-	
-	@GetMapping("/schedules-and-weekly-schedules/{id}")
-	public ResponseEntity<DataResult<SystemStaffDto>> findByIdWithAllSchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(systemStaffService.findByIdWithAllSchedules(id));
-	}
-	
-	@GetMapping("/schedules/{id}")
-	public ResponseEntity<DataResult<SystemStaffDto>> findByIdWithSchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(systemStaffService.findByIdWithSchedules(id));
-	}
-	
-	@GetMapping("/weekly-schedules/{id}")
-	public ResponseEntity<DataResult<SystemStaffDto>> findByIdWithWeeklySchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(systemStaffService.findByIdWithWeeklySchedules(id));
 	}
 
 	@DeleteMapping("/{id}")
