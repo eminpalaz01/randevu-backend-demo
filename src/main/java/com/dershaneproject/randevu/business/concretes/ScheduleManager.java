@@ -49,11 +49,11 @@ public class ScheduleManager implements ScheduleService {
 				return new DataResult<ScheduleSaveResponse>(scheduleSaveResponse, true, "Program veritabanına eklendi.");
 
 			} else {
-				return new DataResult<ScheduleSaveResponse>(false, validateResult.getMessage());
+				return new DataResult<>(false, validateResult.getMessage());
 			}
 
 		} catch (Exception e) {
-			return new DataResult<ScheduleSaveResponse>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -61,10 +61,10 @@ public class ScheduleManager implements ScheduleService {
 	@Override
 	public DataResult<List<ScheduleSaveResponse>> saveAll(List<ScheduleSaveRequest> scheduleSaveRequestList) {
 		// Firstly, scheduleSaveRequestList is validating one by one
-		for (ScheduleSaveRequest scheduleDto : scheduleSaveRequestList) {
-			Result resultValidation = scheduleValidationService.isValidateResult(scheduleDto);
+		for (ScheduleSaveRequest scheduleSaveRequest : scheduleSaveRequestList) {
+			Result resultValidation = scheduleValidationService.isValidateResult(scheduleSaveRequest);
 			if(!(resultValidation.isSuccess())) {
-				return new DataResult<List<ScheduleSaveResponse>>(false, resultValidation.getMessage());
+				return new DataResult<>(false, resultValidation.getMessage());
 			}
 		}
 		List<Schedule> schedules = new ArrayList<Schedule>();
@@ -76,9 +76,8 @@ public class ScheduleManager implements ScheduleService {
 			// Schedules created and added to list
 
 			// Schedule saved and id and dates return to list
-			Date fakeDate = new Date();
 			schedules = scheduleDao.saveAll(schedules);
-			schedules = scheduleDao.findAllByIdListSorted(schedules.stream()
+			schedules = scheduleDao.findAllByIdSorted(schedules.stream()
 					.map(Schedule::getId)
 					.collect(Collectors.toList()));
 
@@ -94,7 +93,7 @@ public class ScheduleManager implements ScheduleService {
 			return new DataResult<List<ScheduleSaveResponse>>(scheduleSaveResponseList, true, "Programlar veritabanına eklendi.");
 
 		} catch (Exception e) {
-			return new DataResult<List<ScheduleSaveResponse>>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -191,7 +190,7 @@ public class ScheduleManager implements ScheduleService {
 
 			} else {
 
-				return new DataResult<List<ScheduleDto>>(false, "Program bulunamadı.");
+				return new DataResult<>(false, "Program bulunamadı.");
 			}
 	}
 
@@ -237,9 +236,9 @@ public class ScheduleManager implements ScheduleService {
 
 				return new DataResult<ScheduleDto>(scheduleDto, true, id + " id'li program getirildi.");
 			}
-			return new DataResult<ScheduleDto>(false, id + " id'li program bulunamadı.");
+			return new DataResult<>(false, id + " id'li program bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<ScheduleDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -289,9 +288,9 @@ public class ScheduleManager implements ScheduleService {
 
 				return new DataResult<ScheduleDto>(scheduleDto, true, id + " id'li programın doluluğu güncellendi.");
 			}
-			return new DataResult<ScheduleDto>(false, id + " id'li program bulunamadı.");
+			return new DataResult<>(false, id + " id'li program bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<ScheduleDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 	}
 
@@ -299,7 +298,7 @@ public class ScheduleManager implements ScheduleService {
 	public DataResult<ScheduleDto> updateTeacherById(long id, Long teacherId) {
 		try {
 			if(teacherId == null){
-				return new DataResult<ScheduleDto>(false, "Öğretmen Boş olamaz.");
+				return new DataResult<>(false, "Öğretmen Boş olamaz.");
 			}
 			Optional<Schedule> schedule = scheduleDao.findById(id);
 			Optional<Teacher> teacher = teacherDao.findById(teacherId);
@@ -345,21 +344,21 @@ public class ScheduleManager implements ScheduleService {
 				return new DataResult<ScheduleDto>(scheduleDto, true, id + " id'li programın öğretmeni güncellendi.");
 			} else {
 				if (schedule.equals(Optional.empty())) {
-					return new DataResult<ScheduleDto>(false, id + " id'li program bulunamadı.");
+					return new DataResult<>(false, id + " id'li program bulunamadı.");
 
 				}
 			}
-			return new DataResult<ScheduleDto>(false,
+			return new DataResult<>(false,
 					id + " id'li program için verdiğiniz öğretmen id'sini kontrol ediniz.");
 		} catch (Exception e) {
-			return new DataResult<ScheduleDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<ScheduleDto> updateLastUpdateDateSystemWorkerById(long id, Long lastUpdateDateSystemWorkerId) {
 		if (lastUpdateDateSystemWorkerId == null){
-			return new DataResult<ScheduleDto>(false, "Son güncelleme yapan sistem çalışanı boş bırakılamaz.");
+			return new DataResult<>(false, "Son güncelleme yapan sistem çalışanı boş bırakılamaz.");
 		}
 		try {
 			Optional<Schedule> schedule = scheduleDao.findById(id);
@@ -405,15 +404,15 @@ public class ScheduleManager implements ScheduleService {
 						id + " id'li programın üstünde son değişilik yapan sistem çalışanı güncellendi.");
 			} else {
 				if (schedule.equals(Optional.empty())) {
-					return new DataResult<ScheduleDto>(false, id + " id'li program bulunamadı.");
+					return new DataResult<>(false, id + " id'li program bulunamadı.");
 
 				}
 			}
 
-			return new DataResult<ScheduleDto>(false,
+			return new DataResult<>(false,
 					id + " id'li program için verdiğiiz sistem çalışanını kontrol ediniz.");
 		} catch (Exception e) {
-			return new DataResult<ScheduleDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -422,7 +421,7 @@ public class ScheduleManager implements ScheduleService {
 	public DataResult<ScheduleDto> updateDayOfWeekById(long id, Long dayOfWeekId) {
 
 		if (dayOfWeekId == null) {
-			return new DataResult<ScheduleDto>(false, "Gün boş bırakılamaz.");
+			return new DataResult<>(false, "Gün boş bırakılamaz.");
 		}
 		try {
 			Optional<Schedule> schedule = scheduleDao.findById(id);
@@ -468,14 +467,14 @@ public class ScheduleManager implements ScheduleService {
 				return new DataResult<ScheduleDto>(scheduleDto, true, id + " id'li programın günü güncellendi.");
 			} else {
 				if (schedule.equals(Optional.empty())) {
-					return new DataResult<ScheduleDto>(false, id + " id'li program bulunamadı.");
+					return new DataResult<>(false, id + " id'li program bulunamadı.");
 
 				}
 			}
-			return new DataResult<ScheduleDto>(false,
+			return new DataResult<>(false,
 					id + " id'li program için verdiğiniz gün id'sini kontrol ediniz.");
 		} catch (Exception e) {
-			return new DataResult<ScheduleDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -484,7 +483,7 @@ public class ScheduleManager implements ScheduleService {
 	public DataResult<ScheduleDto> updateHourById(long id, Long hourId) {
 
 		if (hourId == null) {
-			return new DataResult<ScheduleDto>(Boolean.FALSE, "Saat boş bırakılamaz.");
+			return new DataResult<>(Boolean.FALSE, "Saat boş bırakılamaz.");
 		}
 
 		try {
@@ -531,14 +530,14 @@ public class ScheduleManager implements ScheduleService {
 				return new DataResult<ScheduleDto>(scheduleDto, true, id + " id'li programın saati güncellendi.");
 			} else {
 				if (schedule.equals(Optional.empty())) {
-					return new DataResult<ScheduleDto>(false, id + " id'li program bulunamadı.");
+					return new DataResult<>(false, id + " id'li program bulunamadı.");
 
 				}
 			}
-			return new DataResult<ScheduleDto>(false,
+			return new DataResult<>(false,
 					id + " id'li program için verdiğiniz saat id'sini kontrol ediniz.");
 		} catch (Exception e) {
-			return new DataResult<ScheduleDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -587,15 +586,70 @@ public class ScheduleManager implements ScheduleService {
 
 				return new DataResult<ScheduleDto>(scheduleDto, true, id + " id'li programın açıklaması güncellendi.");
 			}
-			return new DataResult<ScheduleDto>(false, id + " id'li program bulunamadı.");
+			return new DataResult<>(false, id + " id'li program bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<ScheduleDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 	}
 
 	@Override
 	public DataResult<Long> getCount() {
 		return new DataResult<Long>(scheduleDao.count(), true, "Programların sayısı getirildi.");
+	}
+
+	@Override
+	public DataResult<List<ScheduleDto>> findAllByTeacherId(long teacherId) {
+		List<Schedule> schedules = scheduleDao.findAllByTeacherIdSorted(teacherId);
+
+		if (!schedules.isEmpty()) {
+
+			List<ScheduleDto> schedulesDto = new ArrayList<ScheduleDto>();
+
+			for(Schedule schedule:schedules) {
+				SystemWorker lastUpdateDateSystemWorker = schedule.getLastUpdateDateSystemWorker();
+
+				HourDto hourDto = modelMapperService.forResponse().map(schedule.getHour(), HourDto.class);
+				DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(schedule.getDayOfWeek(),
+						DayOfWeekDto.class);
+
+				ScheduleDto scheduleDto = new ScheduleDto();
+
+				scheduleDto.setId(schedule.getId());
+				scheduleDto.setFull(schedule.getFull());
+				scheduleDto.setDescription(schedule.getDescription());
+				scheduleDto.setTeacherId(schedule.getTeacher().getId());
+				scheduleDto.setCreateDate(schedule.getCreateDate());
+				scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
+				scheduleDto.setDayOfWeek(dayOfWeekDto);
+				scheduleDto.setHour(hourDto);
+
+				if (lastUpdateDateSystemWorker == null) {
+					scheduleDto.setLastUpdateDateSystemWorker(null);
+
+				} else {
+					// if I use the mapper it get schedules PERFORMANCE PROBLEM
+					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
+					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
+					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
+					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
+					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
+					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
+					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
+					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
+
+					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+
+				}
+
+				schedulesDto.add(scheduleDto);
+			}
+
+			return new DataResult<List<ScheduleDto>>(schedulesDto, true, "Programlar getirildi.");
+
+		} else {
+
+			return new DataResult<>(false, "Program bulunamadı.");
+		}
 	}
 
 }

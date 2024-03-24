@@ -4,8 +4,6 @@ import com.dershaneproject.randevu.business.abstracts.ScheduleService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.ScheduleDto;
-import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
-import com.dershaneproject.randevu.dto.responses.ScheduleSaveResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,17 +17,17 @@ public class ScheduleController {
 
 	private final ScheduleService scheduleService;
 
-	@PostMapping
-	public ResponseEntity<DataResult<ScheduleSaveResponse>> save(@RequestBody ScheduleSaveRequest scheduleSaveRequest) {
-
-		return ResponseEntity.ok(scheduleService.save(scheduleSaveRequest));
-	}
-
-	@PostMapping("/all")
-	public ResponseEntity<DataResult<List<ScheduleSaveResponse>>> saveAll(@RequestBody List<ScheduleSaveRequest> scheduleSaveRequestList) {
-
-		return ResponseEntity.ok(scheduleService.saveAll(scheduleSaveRequestList));
-	}
+//	@PostMapping
+//	public ResponseEntity<DataResult<ScheduleSaveResponse>> save(@RequestBody ScheduleSaveRequest scheduleSaveRequest) {
+//
+//		return ResponseEntity.ok(scheduleService.save(scheduleSaveRequest));
+//	}
+//
+//	@PostMapping("/all")
+//	public ResponseEntity<DataResult<List<ScheduleSaveResponse>>> saveAll(@RequestBody List<ScheduleSaveRequest> scheduleSaveRequestList) {
+//
+//		return ResponseEntity.ok(scheduleService.saveAll(scheduleSaveRequestList));
+//	}
 
 	@GetMapping
 	public ResponseEntity<DataResult<List<ScheduleDto>>> findAll() {
@@ -47,6 +45,12 @@ public class ScheduleController {
 	public ResponseEntity<DataResult<ScheduleDto>> findById(@PathVariable long id) {
 
 		return ResponseEntity.ok(scheduleService.findById(id));
+	}
+
+	@GetMapping("/teacher/{teacherId}")
+	public ResponseEntity<DataResult<List<ScheduleDto>>> findAllByTeacherId(@PathVariable long teacherId) {
+
+		return ResponseEntity.ok(scheduleService.findAllByTeacherId(teacherId));
 	}
 
 	@DeleteMapping("/{id}")

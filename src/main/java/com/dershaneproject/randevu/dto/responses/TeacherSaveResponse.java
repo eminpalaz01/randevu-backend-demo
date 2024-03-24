@@ -1,6 +1,5 @@
 package com.dershaneproject.randevu.dto.responses;
 
-import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import lombok.Data;
 
 import java.util.Date;
@@ -17,5 +16,5 @@ public class TeacherSaveResponse {
     private Long departmentId;
     private String teacherNumber;
     private List<ScheduleSaveResponse> schedules;
-    private List<WeeklyScheduleDto> weeklySchedules;
+    private List<WeeklyScheduleSaveResponse> weeklySchedules;
 }

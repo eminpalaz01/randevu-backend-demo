@@ -33,4 +33,6 @@ public interface ScheduleService {
 	DataResult<ScheduleDto> updateHourById(long id, Long hourId);
 	
 	DataResult<Long> getCount();
+
+	DataResult<List<ScheduleDto>> findAllByTeacherId(long teacherId);
 }

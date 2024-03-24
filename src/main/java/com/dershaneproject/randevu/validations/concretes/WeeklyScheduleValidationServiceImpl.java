@@ -2,7 +2,7 @@ package com.dershaneproject.randevu.validations.concretes;
 
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.*;
-import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
+import com.dershaneproject.randevu.dto.requests.WeeklyScheduleSaveRequest;
 import com.dershaneproject.randevu.validations.abstracts.WeeklyScheduleValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -21,15 +21,15 @@ public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValida
     private final StudentDao studentDao;
 
     @Override
-    public Result isValidateResult(WeeklyScheduleDto weeklyScheduleDto) {
+    public Result isValidateResult(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest) {
         StringBuilder fieldErrorMessage = new StringBuilder("Haftalık Program oluşturulamaz girdiğiniz bazı");
         String messageSuccess = "Haftalık Program'ın oluşturulmasında bir sorun yok.";
 
-        Boolean isFullEmpty = weeklyScheduleDto.getFull();
-        boolean isExistsTeacher = teacherDao.existsById(weeklyScheduleDto.getTeacherId());
-        boolean isExistsDayOfWeek = dayOfWeekDao.existsById(weeklyScheduleDto.getDayOfWeek().getId());
-        boolean isExistsHour = hourDao.existsById(weeklyScheduleDto.getHour().getId());
-        boolean isExistsSystemWorker = systemWorkerDao.existsById(weeklyScheduleDto.getLastUpdateDateSystemWorker().getId());
+        Boolean isFullEmpty = weeklyScheduleSaveRequest.getFull();
+        boolean isExistsTeacher = teacherDao.existsById(weeklyScheduleSaveRequest.getTeacherId());
+        boolean isExistsDayOfWeek = dayOfWeekDao.existsById(weeklyScheduleSaveRequest.getDayOfWeekId());
+        boolean isExistsHour = hourDao.existsById(weeklyScheduleSaveRequest.getHourId());
+        boolean isExistsSystemWorker = systemWorkerDao.existsById(weeklyScheduleSaveRequest.getLastUpdateDateSystemWorkerId());
 
         if (!isExistsTeacher || !isExistsDayOfWeek || !isExistsHour || !isExistsSystemWorker || isFullEmpty == null) {
             List<String> errorFields = new ArrayList<>(5);
@@ -68,11 +68,11 @@ public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValida
 
     }
 
-    public Result studentExistById(WeeklyScheduleDto weeklyScheduleDto){
+    public Result studentExistById(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest){
         StringBuilder fieldErrorMessage = new StringBuilder("Haftalık Program oluşturulamaz girdiğiniz bazı");
         String messageSuccess = "Haftalık Program'ın oluşturulmasında bir sorun yok.";
 
-        boolean isExistsStudent = studentDao.existsById(weeklyScheduleDto.getStudentId());
+        boolean isExistsStudent = studentDao.existsById(weeklyScheduleSaveRequest.getStudentId());
 
         if (!isExistsStudent){
 

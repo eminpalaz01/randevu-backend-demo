@@ -11,8 +11,10 @@ import com.dershaneproject.randevu.dto.*;
 import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
 import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequestForTeacher;
 import com.dershaneproject.randevu.dto.requests.TeacherSaveRequest;
+import com.dershaneproject.randevu.dto.requests.WeeklyScheduleSaveRequest;
 import com.dershaneproject.randevu.dto.responses.ScheduleSaveResponse;
 import com.dershaneproject.randevu.dto.responses.TeacherSaveResponse;
+import com.dershaneproject.randevu.dto.responses.WeeklyScheduleSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Department;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
@@ -50,7 +52,7 @@ public class TeacherManager implements TeacherService {
 			}
 
 			if (!departmentDao.existsById(teacherSaveRequest.getDepartmentId())) {
-				return new DataResult<TeacherSaveResponse>(false,
+				return new DataResult<>(false,
 						"Veritabanına öğretmen kaydı başarısız departman id'sini kontrol ediniz.");
 			}
 
@@ -71,18 +73,18 @@ public class TeacherManager implements TeacherService {
 
                     if (resultScheduleSaveResponseList.isSuccess()) {
                         List<ScheduleSaveResponse> scheduleSaveResponseList = resultScheduleSaveResponseList.getData();
-                        List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+                        List<WeeklyScheduleSaveRequest> weeklyScheduleSaveRequestList = new ArrayList<>();
 
-                        // scheduleSaveRequestsForTeacher mapping to weeklySchedulesDto
+                        // scheduleSaveRequestsForTeacher mapping to WeeklyScheduleSaveRequestList
                         scheduleSaveResponseList.forEach(scheduleSaveResponse -> {
-                            WeeklyScheduleDto weeklyScheduleDto = modelMapperService.forResponse()
-                                    .map(scheduleSaveResponse,  WeeklyScheduleDto.class);
-                            weeklySchedulesDto.add(weeklyScheduleDto);
+							WeeklyScheduleSaveRequest weeklyScheduleSaveRequest = modelMapperService.forResponse()
+                                    .map(scheduleSaveResponse,  WeeklyScheduleSaveRequest.class);
+                            weeklyScheduleSaveRequestList.add(weeklyScheduleSaveRequest);
                         });
 
-                        // weeklySchedulesDto are saving and updating
-                        DataResult<List<WeeklyScheduleDto>> resultResponseWeeklySchedulesDto
-                                = weeklyScheduleService.saveAll(weeklySchedulesDto);
+                        // weeklyScheduleSaveRequestList are saving and updating
+                        DataResult<List<WeeklyScheduleSaveResponse>> resultResponseWeeklySchedulesDto
+                                = weeklyScheduleService.saveAll(weeklyScheduleSaveRequestList);
                          if(resultResponseWeeklySchedulesDto.isSuccess()){
 							 TeacherSaveResponse teacherSaveResponse = modelMapperService.forResponse().map(teacherSaveRequest, TeacherSaveResponse.class);
 							 teacherSaveResponse.setSchedules(scheduleSaveResponseList);
@@ -98,27 +100,27 @@ public class TeacherManager implements TeacherService {
                                      + " şekildedir bir dahaki isteklerde yanılma payı yoktur.) null olmasıda tercih edilebilirdi.");
                          }else{
                              teacherDao.deleteById(teacher.getId());
-                             return new DataResult<TeacherSaveResponse>(false, resultResponseWeeklySchedulesDto.getMessage());
+                             return new DataResult<>(false, resultResponseWeeklySchedulesDto.getMessage());
                          }
 
                     } else {
                         teacherDao.deleteById(teacher.getId());
-                        return new DataResult<TeacherSaveResponse>(false, resultScheduleSaveResponseList.getMessage());
+                        return new DataResult<>(false, resultScheduleSaveResponseList.getMessage());
                     }
 
                 } else {
                     teacherDao.deleteById(teacher.getId());
-                    return new DataResult<TeacherSaveResponse>(false, resultValidationSchedulesDto.getMessage());
+                    return new DataResult<>(false, resultValidationSchedulesDto.getMessage());
                 }
 
             } else {
                 teacherDao.deleteById(teacher.getId());
-                return new DataResult<TeacherSaveResponse>(false, resultUpdateSchedulesDto.getMessage());
+                return new DataResult<>(false, resultUpdateSchedulesDto.getMessage());
             }
 
 
         } catch (Exception e) {
-			return new DataResult<TeacherSaveResponse>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -174,9 +176,9 @@ public class TeacherManager implements TeacherService {
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -243,9 +245,9 @@ public class TeacherManager implements TeacherService {
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 	}
 
@@ -358,9 +360,9 @@ public class TeacherManager implements TeacherService {
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -430,9 +432,9 @@ public class TeacherManager implements TeacherService {
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -471,12 +473,12 @@ public class TeacherManager implements TeacherService {
 
 			} else {
 
-				return new DataResult<List<TeacherDto>>(false,
+				return new DataResult<>(false,
 						departmentId + " departman id'li bir öğretmen bulunamadı.");
 			}
 
 		} catch (Exception e) {
-			return new DataResult<List<TeacherDto>>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 	}
 
@@ -513,11 +515,11 @@ public class TeacherManager implements TeacherService {
 
 			} else {
 
-				return new DataResult<List<TeacherDto>>(false, "Öğretmen bulunamadı.");
+				return new DataResult<>(false, "Öğretmen bulunamadı.");
 			}
 
 		} catch (Exception e) {
-			return new DataResult<List<TeacherDto>>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -546,9 +548,9 @@ public class TeacherManager implements TeacherService {
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin maili güncellendi.");
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -577,9 +579,9 @@ public class TeacherManager implements TeacherService {
 				return new DataResult<TeacherDto>(teacherDto, true,
 						id + " id'li öğretmenin kullanıcı adı güncellendi.");
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -607,10 +609,10 @@ public class TeacherManager implements TeacherService {
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin şifresi güncellendi.");
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
 			// xTODO: handle exception
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -638,9 +640,9 @@ public class TeacherManager implements TeacherService {
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin numarası güncellendi.");
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -674,13 +676,13 @@ public class TeacherManager implements TeacherService {
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin departmanı güncellendi.");
 			} else {
 				if (department.equals(Optional.empty())) {
-					return new DataResult<TeacherDto>(false,
+					return new DataResult<>(false,
 							id + " id'li öğretmen için verdiğiniz departman id'sini kontrol ediniz.");
 				}
 			}
-			return new DataResult<TeacherDto>(false, id + " id'li öğretmen bulunamadı.");
+			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			return new DataResult<TeacherDto>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 
 	}
@@ -692,7 +694,7 @@ public class TeacherManager implements TeacherService {
 		// ve de teacher oluşturulurken tüm programların sistem çalışanı aynı olmalı ondan buraya özel kontrol yazdım.
 
 		if (!systemWorkerDao.existsById(teacherSaveRequest.getLastUpdateDateSystemWorkerId())) {
-			return new DataResult<List<ScheduleSaveRequest>>(false,
+			return new DataResult<>(false,
 					"Eklediğiniz programlardaki sistem çalışanı bulunamadı kontrol ediniz.");
 		}
 
@@ -713,7 +715,7 @@ public class TeacherManager implements TeacherService {
 						.toList();
 
 				if (scheduleSaveRequestForTeacherList.size() > 1) {
-					return new DataResult<List<ScheduleSaveRequest>>(false,
+					return new DataResult<>(false,
 							"Eklediğiniz programlarda gün ve saati aynı olan programlar var kontrol ediniz.");
 				}
 				if (scheduleSaveRequestForTeacherList.size() == 1) {
@@ -751,7 +753,7 @@ public class TeacherManager implements TeacherService {
 		try {
 			return new DataResult<Long>(teacherDao.count(), true, "Öğretmenlerin sayısı getirildi.");
 		} catch (Exception e) {
-			return new DataResult<Long>(false, e.getMessage());
+			return new DataResult<>(false, e.getMessage());
 		}
 	}
 

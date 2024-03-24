@@ -13,6 +13,16 @@ public interface WeeklyScheduleDao extends JpaRepository<WeeklySchedule,Long>{
     @Query(value = "SELECT weeklySchedule FROM WeeklySchedule weeklySchedule " +
                    "WHERE weeklySchedule.id IN (:idList) " +
                    "ORDER BY weeklySchedule.dayOfWeek.id ASC, weeklySchedule.hour.id ASC")
-    List<WeeklySchedule> findAllByIdListSorted(List<Long> idList);
+    List<WeeklySchedule> findAllByIdSorted(List<Long> idList);
+
+    @Query(value = "SELECT weeklySchedule FROM WeeklySchedule weeklySchedule " +
+                   "WHERE weeklySchedule.teacher.id = :teacherId " +
+                   "ORDER BY weeklySchedule.dayOfWeek.id ASC, weeklySchedule.hour.id ASC")
+    List<WeeklySchedule> findAllByTeacherIdSorted(Long teacherId);
+
+    @Query(value = "SELECT weeklySchedule FROM WeeklySchedule weeklySchedule " +
+                   "WHERE weeklySchedule.student.id = :studentId " +
+                   "ORDER BY weeklySchedule.dayOfWeek.id ASC, weeklySchedule.hour.id ASC")
+    List<WeeklySchedule> findAllByStudentIdSorted(Long studentId);
 
 }
