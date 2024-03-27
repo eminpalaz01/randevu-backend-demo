@@ -1,6 +1,7 @@
-package com.dershaneproject.randevu.dto.mappers;
+package com.dershaneproject.randevu.mappers;
 
 import com.dershaneproject.randevu.dto.ScheduleDto;
+import com.dershaneproject.randevu.dto.mappers.SystemWorkerMapper;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
 import org.mapstruct.Mapper;

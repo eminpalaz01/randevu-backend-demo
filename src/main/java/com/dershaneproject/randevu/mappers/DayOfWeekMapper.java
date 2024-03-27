@@ -1,4 +1,4 @@
-package com.dershaneproject.randevu.dto.mappers;
+package com.dershaneproject.randevu.mappers;
 
 import com.dershaneproject.randevu.dto.DayOfWeekDto;
 import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
