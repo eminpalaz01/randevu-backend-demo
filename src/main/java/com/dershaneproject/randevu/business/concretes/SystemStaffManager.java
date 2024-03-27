@@ -111,11 +111,11 @@ public class SystemStaffManager implements SystemStaffService {
 					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					scheduleDto.setCreateDate(schedule.getCreateDate());
 					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 					schedulesDto.add(scheduleDto);});
 
@@ -129,8 +129,8 @@ public class SystemStaffManager implements SystemStaffService {
 
 					weeklyScheduleDto.setId(weeklySchedule.getId());
 					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+					weeklyScheduleDto.setHourDto(hourDto);
 					weeklyScheduleDto.setFull(weeklySchedule.getFull());
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -152,7 +152,7 @@ public class SystemStaffManager implements SystemStaffService {
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 
@@ -163,8 +163,8 @@ public class SystemStaffManager implements SystemStaffService {
 				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
 				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
 				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
-				systemStaffDto.setSchedules(schedulesDto);
-				systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
+				systemStaffDto.setSchedulesDto(schedulesDto);
+				systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
 			}
@@ -192,8 +192,8 @@ public class SystemStaffManager implements SystemStaffService {
 
 					weeklyScheduleDto.setId(weeklySchedule.getId());
 					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+					weeklyScheduleDto.setHourDto(hourDto);
 					weeklyScheduleDto.setFull(weeklySchedule.getFull());
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -215,7 +215,7 @@ public class SystemStaffManager implements SystemStaffService {
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 
@@ -226,7 +226,7 @@ public class SystemStaffManager implements SystemStaffService {
 				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
 				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
 				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
-				systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
+				systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
 			}
@@ -263,11 +263,11 @@ public class SystemStaffManager implements SystemStaffService {
 					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					scheduleDto.setCreateDate(schedule.getCreateDate());
 					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 					schedulesDto.add(scheduleDto);});
 
@@ -278,7 +278,7 @@ public class SystemStaffManager implements SystemStaffService {
 				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
 				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
 				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
-				systemStaffDto.setSchedules(schedulesDto);
+				systemStaffDto.setSchedulesDto(schedulesDto);
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
 			}
@@ -349,11 +349,11 @@ public class SystemStaffManager implements SystemStaffService {
 						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						scheduleDto.setCreateDate(schedule.getCreateDate());
 						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-						scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-						scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+						scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+						scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 						schedulesDto.add(scheduleDto);});
 
@@ -367,8 +367,8 @@ public class SystemStaffManager implements SystemStaffService {
 
 						weeklyScheduleDto.setId(weeklySchedule.getId());
 						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-						weeklyScheduleDto.setHour(hourDto);
+						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+						weeklyScheduleDto.setHourDto(hourDto);
 						weeklyScheduleDto.setFull(weeklySchedule.getFull());
 						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -390,7 +390,7 @@ public class SystemStaffManager implements SystemStaffService {
 						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 
@@ -401,8 +401,8 @@ public class SystemStaffManager implements SystemStaffService {
 					systemStaffDto.setAuthority(systemStaff.getAuthority());
 					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
 					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
-					systemStaffDto.setSchedules(schedulesDto);
-					systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
+					systemStaffDto.setSchedulesDto(schedulesDto);
+					systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
 				});
@@ -447,11 +447,11 @@ public class SystemStaffManager implements SystemStaffService {
 						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						scheduleDto.setCreateDate(schedule.getCreateDate());
 						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-						scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-						scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+						scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+						scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 						schedulesDto.add(scheduleDto);});
 
@@ -462,7 +462,7 @@ public class SystemStaffManager implements SystemStaffService {
 					systemStaffDto.setAuthority(systemStaff.getAuthority());
 					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
 					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
-					systemStaffDto.setSchedules(schedulesDto);
+					systemStaffDto.setSchedulesDto(schedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
 				});
@@ -498,8 +498,8 @@ public class SystemStaffManager implements SystemStaffService {
 
 						weeklyScheduleDto.setId(weeklySchedule.getId());
 						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-						weeklyScheduleDto.setHour(hourDto);
+						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+						weeklyScheduleDto.setHourDto(hourDto);
 						weeklyScheduleDto.setFull(weeklySchedule.getFull());
 						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -521,7 +521,7 @@ public class SystemStaffManager implements SystemStaffService {
 						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 
@@ -532,7 +532,7 @@ public class SystemStaffManager implements SystemStaffService {
 					systemStaffDto.setAuthority(systemStaff.getAuthority());
 					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
 					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
-					systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
+					systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
 				});

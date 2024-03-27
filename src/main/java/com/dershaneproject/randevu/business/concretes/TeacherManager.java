@@ -172,7 +172,7 @@ public class TeacherManager implements TeacherService {
 				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
 				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
 				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-				teacherDto.setSchedules(null);
+				teacherDto.setSchedulesDto(null);
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
@@ -210,23 +210,23 @@ public class TeacherManager implements TeacherService {
 					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					scheduleDto.setCreateDate(schedule.getCreateDate());
 					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 					schedulesDto.add(scheduleDto);
 				});
 
 				// SchedulesDto are sorting here
 				Collections.sort(schedulesDto, (o1, o2) -> {
-					Long s1DayOfWeekId = o1.getDayOfWeek().getId();
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
+					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 
 					if (dayOfWeekCompare == 0) {
-						Long s1HourId = o1.getHour().getId();
-						int hourCompare = s1HourId.compareTo(o2.getHour().getId());
+						Long s1HourId = o1.getHourDto().getId();
+						int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
 						return hourCompare;
 					}
 					return dayOfWeekCompare;
@@ -241,7 +241,7 @@ public class TeacherManager implements TeacherService {
 				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
 				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
 				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-				teacherDto.setSchedules(schedulesDto);
+				teacherDto.setSchedulesDto(schedulesDto);
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
@@ -282,22 +282,22 @@ public class TeacherManager implements TeacherService {
 					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					scheduleDto.setCreateDate(schedule.getCreateDate());
 					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 					schedulesDto.add(scheduleDto);});
 
 				    // SchedulesDto are sorting here
 				    Collections.sort(schedulesDto, (o1, o2) -> {
-				    	Long s1DayOfWeekId = o1.getDayOfWeek().getId();
-				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
+				    	Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 
 				    	if (dayOfWeekCompare == 0) {
-				    		Long s1HourId = o1.getHour().getId();
-				    		int hourCompare = s1HourId.compareTo(o2.getHour().getId());
+				    		Long s1HourId = o1.getHourDto().getId();
+				    		int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
 				    		return hourCompare;
 				    	}
 				    	return dayOfWeekCompare;
@@ -326,21 +326,21 @@ public class TeacherManager implements TeacherService {
 						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
 					}
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-					weeklyScheduleDto.setDayOfWeek(modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class));
-					weeklyScheduleDto.setHour(modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class));
+					weeklyScheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class));
+					weeklyScheduleDto.setHourDto(modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class));
 
 					weeklySchedulesDto.add(weeklyScheduleDto);});
 
 				    // WeeklySchedulesDto are sorting here
 				    weeklySchedulesDto.sort((o1, o2) -> {
-				    	Long s1DayOfWeekId = o1.getDayOfWeek().getId();
-				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
+				    	Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 				    	if (dayOfWeekCompare == 0) {
-				    		Long s1HourId = o1.getHour().getId();
-				    		int hourCompare = s1HourId.compareTo(o2.getHour().getId());
+				    		Long s1HourId = o1.getHourDto().getId();
+				    		int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
 				    		return hourCompare;
 				    	}
 				    	return dayOfWeekCompare;
@@ -355,8 +355,8 @@ public class TeacherManager implements TeacherService {
 				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
 				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
 				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-				teacherDto.setSchedules(schedulesDto);
-				teacherDto.setWeeklySchedules(weeklySchedulesDto);
+				teacherDto.setSchedulesDto(schedulesDto);
+				teacherDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
@@ -399,21 +399,21 @@ public class TeacherManager implements TeacherService {
 						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
 					}
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-					weeklyScheduleDto.setDayOfWeek(modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class));
-					weeklyScheduleDto.setHour(modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class));
+					weeklyScheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class));
+					weeklyScheduleDto.setHourDto(modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class));
 
 					weeklySchedulesDto.add(weeklyScheduleDto);});
 
 				    // WeeklySchedulesDto are sorting here
 				    weeklySchedulesDto.sort((o1, o2) -> {
-				    	Long s1DayOfWeekId = o1.getDayOfWeek().getId();
-				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
+				    	Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 				    	if (dayOfWeekCompare == 0) {
-				    		Long s1HourId = o1.getHour().getId();
-				    		int hourCompare = s1HourId.compareTo(o2.getHour().getId());
+				    		Long s1HourId = o1.getHourDto().getId();
+				    		int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
 				    		return hourCompare;
 				    	}
 				    	return dayOfWeekCompare;
@@ -428,7 +428,7 @@ public class TeacherManager implements TeacherService {
 				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
 				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
 				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-				teacherDto.setWeeklySchedules(weeklySchedulesDto);
+				teacherDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
@@ -464,7 +464,7 @@ public class TeacherManager implements TeacherService {
 					// Burası verilirse eğer öğretmen başına 105 satır değer olucak buda performans
 					// sorunu yaratır.
 					// Bu yüzden öğretmeni bireysel olarak çektiğimizde gönderdim sadece
-					teacherDto.setSchedules(null);
+					teacherDto.setSchedulesDto(null);
 					teachersDto.add(teacherDto);
 				});
 
@@ -507,7 +507,7 @@ public class TeacherManager implements TeacherService {
 					// Burası verilirse eğer öğretmen başına 105 satır değer olucak buda performans
 					// sorunu yaratır.
 					// Bu yüzden öğretmeni bireysel olarak çektiğimizde gönderdim sadece
-					teacherDto.setSchedules(null);
+					teacherDto.setSchedulesDto(null);
 					teachersDto.add(teacherDto);
 				});
 

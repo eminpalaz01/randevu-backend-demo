@@ -55,4 +55,10 @@ public class Teacher extends User{
 				"lastUpdateDate = " + getLastUpdateDate() + ", " +
 				"email = " + getEmail() + ")";
 	}
+
+	public static Teacher createEmptyWithId(Long id){
+		Teacher teacher = new Teacher();
+		teacher.setId(id);
+		return teacher;
+	}
 }

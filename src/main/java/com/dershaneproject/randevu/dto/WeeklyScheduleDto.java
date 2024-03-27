@@ -19,17 +19,17 @@ public class WeeklyScheduleDto implements Serializable{
 	
 	private String description;
 
-	private Long teacherId;
-	
-	private Long studentId;
-
-	private SystemWorkerDto lastUpdateDateSystemWorker;
-
 	private Date createDate;
 
 	private Date lastUpdateDate;
 
-	private DayOfWeekDto dayOfWeek;
+	private Long teacherId;
 
-	private HourDto hour;
+	private Long studentId;
+
+	private SystemWorkerDto lastUpdateDateSystemWorkerDto;
+
+	private DayOfWeekDto dayOfWeekDto;
+
+	private HourDto hourDto;
 }

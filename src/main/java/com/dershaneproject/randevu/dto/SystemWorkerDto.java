@@ -1,10 +1,10 @@
 package com.dershaneproject.randevu.dto;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
-import lombok.Data;
 
 @Data
 public class SystemWorkerDto implements Serializable{
@@ -28,7 +28,7 @@ public class SystemWorkerDto implements Serializable{
 
 	private String email;
 	
-	private List<ScheduleDto> schedules;
+	private List<ScheduleDto> schedulesDto;
 	
-	private List<WeeklyScheduleDto> weeklySchedules;
+	private List<WeeklyScheduleDto> weeklySchedulesDto;
 }

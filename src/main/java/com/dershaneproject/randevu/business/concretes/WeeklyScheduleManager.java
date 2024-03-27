@@ -176,8 +176,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 					weeklyScheduleDto.setId(weeklySchedule.getId());
 					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+					weeklyScheduleDto.setHourDto(hourDto);
 					weeklyScheduleDto.setFull(weeklySchedule.getFull());
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -192,7 +192,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					}
 
 					if (lastUpdateDateSystemWorker == null) {
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 					} else {
 						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -205,7 +205,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					}
 
 					weeklySchedulesDto.add(weeklyScheduleDto);
@@ -239,8 +239,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
-				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-				weeklyScheduleDto.setHour(hourDto);
+				weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+				weeklyScheduleDto.setHourDto(hourDto);
 				weeklyScheduleDto.setFull(weeklySchedule.get().getFull());
 				weeklyScheduleDto.setCreateDate(weeklySchedule.get().getCreateDate());
 				weeklyScheduleDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDate());
@@ -255,7 +255,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				}
 
 				if (lastUpdateDateSystemWorker == null) {
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 				} else {
 					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -268,7 +268,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.get().getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 
 				}
 
@@ -299,8 +299,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
-				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-				weeklyScheduleDto.setHour(hourDto);
+				weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+				weeklyScheduleDto.setHourDto(hourDto);
 				weeklyScheduleDto.setFull(weeklySchedule.get().getFull());
 				weeklyScheduleDto.setCreateDate(weeklySchedule.get().getCreateDate());
 				weeklyScheduleDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDate());
@@ -315,7 +315,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				}
 
 				if (lastUpdateDateSystemWorker == null) {
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 				} else {
 					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -328,7 +328,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.get().getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 
 				}
 
@@ -370,8 +370,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
-				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-				weeklyScheduleDto.setHour(hourDto);
+				weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+				weeklyScheduleDto.setHourDto(hourDto);
 				weeklyScheduleDto.setFull(weeklySchedule.get().getFull());
 				weeklyScheduleDto.setCreateDate(weeklySchedule.get().getCreateDate());
 				weeklyScheduleDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDate());
@@ -386,7 +386,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				}
 
 				if (lastUpdateDateSystemWorker == null) {
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 				} else {
 					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -399,7 +399,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.get().getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 
 				}
 
@@ -447,8 +447,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
-				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-				weeklyScheduleDto.setHour(hourDto);
+				weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+				weeklyScheduleDto.setHourDto(hourDto);
 				weeklyScheduleDto.setFull(weeklySchedule.get().getFull());
 				weeklyScheduleDto.setCreateDate(weeklySchedule.get().getCreateDate());
 				weeklyScheduleDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDate());
@@ -463,7 +463,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				}
 
 				if (lastUpdateDateSystemWorker == null) {
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 				} else {
 					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -476,7 +476,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.get().getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 
 				}
 
@@ -515,8 +515,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
-				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-				weeklyScheduleDto.setHour(hourDto);
+				weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+				weeklyScheduleDto.setHourDto(hourDto);
 				weeklyScheduleDto.setFull(weeklySchedule.get().getFull());
 				weeklyScheduleDto.setCreateDate(weeklySchedule.get().getCreateDate());
 				weeklyScheduleDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDate());
@@ -531,7 +531,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				}
 
 				if (lastUpdateDateSystemWorker == null) {
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 				} else {
 					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -544,7 +544,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.get().getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 
 				}
 
@@ -585,8 +585,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
-				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-				weeklyScheduleDto.setHour(hourDto);
+				weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+				weeklyScheduleDto.setHourDto(hourDto);
 				weeklyScheduleDto.setFull(weeklySchedule.get().getFull());
 				weeklyScheduleDto.setCreateDate(weeklySchedule.get().getCreateDate());
 				weeklyScheduleDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDate());
@@ -601,7 +601,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				}
 
 				if (lastUpdateDateSystemWorker == null) {
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 				} else {
 					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -614,7 +614,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.get().getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 
 				}
 
@@ -655,8 +655,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
-				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-				weeklyScheduleDto.setHour(hourDto);
+				weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+				weeklyScheduleDto.setHourDto(hourDto);
 				weeklyScheduleDto.setFull(weeklySchedule.get().getFull());
 				weeklyScheduleDto.setCreateDate(weeklySchedule.get().getCreateDate());
 				weeklyScheduleDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDate());
@@ -671,7 +671,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				}
 
 				if (lastUpdateDateSystemWorker == null) {
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 				} else {
 					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -684,7 +684,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.get().getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 
 				}
 
@@ -715,8 +715,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 				weeklyScheduleDto.setId(weeklySchedule.get().getId());
 				weeklyScheduleDto.setTeacherId(weeklySchedule.get().getTeacher().getId());
-				weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-				weeklyScheduleDto.setHour(hourDto);
+				weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+				weeklyScheduleDto.setHourDto(hourDto);
 				weeklyScheduleDto.setFull(weeklySchedule.get().getFull());
 				weeklyScheduleDto.setCreateDate(weeklySchedule.get().getCreateDate());
 				weeklyScheduleDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDate());
@@ -731,7 +731,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 				}
 
 				if (lastUpdateDateSystemWorker == null) {
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 				} else {
 					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -744,7 +744,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.get().getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.get().getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 
 				}
 
@@ -780,8 +780,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 					weeklyScheduleDto.setId(weeklySchedule.getId());
 					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+					weeklyScheduleDto.setHourDto(hourDto);
 					weeklyScheduleDto.setFull(weeklySchedule.getFull());
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -796,7 +796,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					}
 
 					if (lastUpdateDateSystemWorker == null) {
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 					} else {
 						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -809,7 +809,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					}
 
 					weeklySchedulesDto.add(weeklyScheduleDto);
@@ -845,8 +845,8 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
 					weeklyScheduleDto.setId(weeklySchedule.getId());
 					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+					weeklyScheduleDto.setHourDto(hourDto);
 					weeklyScheduleDto.setFull(weeklySchedule.getFull());
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -861,7 +861,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 					}
 
 					if (lastUpdateDateSystemWorker == null) {
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(null);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(null);
 
 					} else {
 						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
@@ -874,7 +874,7 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					}
 
 					weeklySchedulesDto.add(weeklyScheduleDto);

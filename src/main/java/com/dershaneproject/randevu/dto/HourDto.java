@@ -1,9 +1,11 @@
 package com.dershaneproject.randevu.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.time.LocalTime;
-
-import lombok.Data;
 
 @Data
 public class HourDto implements Serializable {
@@ -15,6 +17,8 @@ public class HourDto implements Serializable {
 
 	private Long id;
 
+	@Schema(type = "String", pattern = "HH:mm")
+	@JsonFormat(pattern="HH:mm")
 	private LocalTime time;
 }
 
