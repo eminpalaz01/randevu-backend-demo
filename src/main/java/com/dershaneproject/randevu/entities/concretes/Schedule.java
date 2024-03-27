@@ -56,12 +56,12 @@ public class Schedule implements Serializable{
 	@Column(name = "last_update_date")
 	private Date lastUpdateDate;
     
-	@OneToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "day_of_week_id")
 	@JsonManagedReference(value = "dayOfWeekSchedulesReference")
 	private DayOfWeek dayOfWeek;
 
-	@OneToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "hour_id")
 	@JsonManagedReference(value = "hourSchedulesReference")
 	private Hour hour;

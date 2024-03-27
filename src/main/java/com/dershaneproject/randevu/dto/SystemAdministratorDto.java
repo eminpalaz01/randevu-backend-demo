@@ -28,8 +28,8 @@ public class SystemAdministratorDto implements Serializable {
 
 	private String email;
 	
-	private List<ScheduleDto> schedules;
+	private List<ScheduleDto> schedulesDto;
 	
-	private List<WeeklyScheduleDto> weeklySchedules;
+	private List<WeeklyScheduleDto> weeklySchedulesDto;
 
 }

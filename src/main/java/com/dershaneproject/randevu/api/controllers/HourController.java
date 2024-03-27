@@ -1,5 +1,6 @@
 package com.dershaneproject.randevu.api.controllers;
 
+import com.dershaneproject.randevu.api.controllers.doc.IHourController;
 import com.dershaneproject.randevu.business.abstracts.HourService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
@@ -15,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/hours")
 @RequiredArgsConstructor
-public class HourController {
+public class HourController implements IHourController {
 
 	private final HourService hourService;
 

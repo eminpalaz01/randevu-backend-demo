@@ -80,7 +80,7 @@ public class DepartmentManager implements DepartmentService {
 				departmentDto.setId(department.get().getId());
 				departmentDto.setName(department.get().getName());
 				departmentDto.setCompressing(department.get().getCompressing());
-				departmentDto.setTeachers(teachersDto);
+				departmentDto.setTeachersDto(teachersDto);
 
 				return new DataResult<DepartmentDto>(departmentDto, true, id + " id'li departman bulundu.");
 			}
@@ -137,7 +137,7 @@ public class DepartmentManager implements DepartmentService {
 					departmentDto.setId(department.getId());
 					departmentDto.setName(department.getName());
 					departmentDto.setCompressing(department.getCompressing());
-					departmentDto.setTeachers(teachersDto);
+					departmentDto.setTeachersDto(teachersDto);
 
 					departmentsDto.add(departmentDto);
 				}

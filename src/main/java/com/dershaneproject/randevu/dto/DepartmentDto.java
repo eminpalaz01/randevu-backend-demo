@@ -1,10 +1,9 @@
 package com.dershaneproject.randevu.dto;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.List;
-import com.dershaneproject.randevu.entities.concretes.Teacher;
-
-import lombok.Data;
 
 @Data
 public class DepartmentDto implements Serializable {
@@ -20,6 +19,6 @@ public class DepartmentDto implements Serializable {
 
 	private String compressing;
 
-	private List<TeacherDto> teachers;
+	private List<TeacherDto> teachersDto;
 
 }

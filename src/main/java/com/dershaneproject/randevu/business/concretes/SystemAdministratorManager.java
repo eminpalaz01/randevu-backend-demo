@@ -115,11 +115,11 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					scheduleDto.setCreateDate(schedule.getCreateDate());
 					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 					schedulesDto.add(scheduleDto);});
 
@@ -133,8 +133,8 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 					weeklyScheduleDto.setId(weeklySchedule.getId());
 					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+					weeklyScheduleDto.setHourDto(hourDto);
 					weeklyScheduleDto.setFull(weeklySchedule.getFull());
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -156,7 +156,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 				
@@ -167,8 +167,8 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
 				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
 				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorSaveRequest.setSchedules(schedulesDto);
-				systemAdministratorSaveRequest.setWeeklySchedules(weeklySchedulesDto);
+				systemAdministratorSaveRequest.setSchedulesDto(schedulesDto);
+				systemAdministratorSaveRequest.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisi getirildi.");
@@ -197,8 +197,8 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 					weeklyScheduleDto.setId(weeklySchedule.getId());
 					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+					weeklyScheduleDto.setHourDto(hourDto);
 					weeklyScheduleDto.setFull(weeklySchedule.getFull());
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -220,7 +220,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 				
@@ -231,7 +231,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
 				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
 				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorSaveRequest.setWeeklySchedules(weeklySchedulesDto);
+				systemAdministratorSaveRequest.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisi getirildi.");
@@ -269,11 +269,11 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					scheduleDto.setCreateDate(schedule.getCreateDate());
 					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 					schedulesDto.add(scheduleDto);});
 				
@@ -284,7 +284,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
 				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
 				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorSaveRequest.setSchedules(schedulesDto);
+				systemAdministratorSaveRequest.setSchedulesDto(schedulesDto);
 
 				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
 						id + " id'li sistem yöneticisi getirildi.");
@@ -357,11 +357,11 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						scheduleDto.setCreateDate(schedule.getCreateDate());
 						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-						scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-						scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+						scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+						scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 						schedulesDto.add(scheduleDto);});
 					
@@ -372,7 +372,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
 					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
 					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorSaveRequest.setSchedules(schedulesDto);
+					systemAdministratorSaveRequest.setSchedulesDto(schedulesDto);
 
 					systemAdministratorsDto.add(systemAdministratorSaveRequest);
 				});
@@ -418,11 +418,11 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						scheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						scheduleDto.setCreateDate(schedule.getCreateDate());
 						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-						scheduleDto.setDayOfWeek(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-						scheduleDto.setHour(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
+						scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
+						scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
 
 						schedulesDto.add(scheduleDto);});
 
@@ -436,8 +436,8 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 						weeklyScheduleDto.setId(weeklySchedule.getId());
 						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-						weeklyScheduleDto.setHour(hourDto);
+						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+						weeklyScheduleDto.setHourDto(hourDto);
 						weeklyScheduleDto.setFull(weeklySchedule.getFull());
 						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -459,7 +459,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 					
@@ -470,8 +470,8 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
 					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
 					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorSaveRequest.setSchedules(schedulesDto);
-					systemAdministratorSaveRequest.setWeeklySchedules(weeklySchedulesDto);
+					systemAdministratorSaveRequest.setSchedulesDto(schedulesDto);
+					systemAdministratorSaveRequest.setWeeklySchedulesDto(weeklySchedulesDto);
 
 					systemAdministratorsDto.add(systemAdministratorSaveRequest);
 				});
@@ -508,8 +508,8 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 						weeklyScheduleDto.setId(weeklySchedule.getId());
 						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-						weeklyScheduleDto.setHour(hourDto);
+						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+						weeklyScheduleDto.setHourDto(hourDto);
 						weeklyScheduleDto.setFull(weeklySchedule.getFull());
 						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -531,7 +531,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 					
@@ -542,7 +542,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
 					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
 					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorSaveRequest.setWeeklySchedules(weeklySchedulesDto);
+					systemAdministratorSaveRequest.setWeeklySchedulesDto(weeklySchedulesDto);
 
 					systemAdministratorsDto.add(systemAdministratorSaveRequest);
 				});

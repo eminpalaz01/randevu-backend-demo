@@ -115,8 +115,8 @@ public class StudentManager implements StudentService {
 
 						weeklyScheduleDto.setId(weeklySchedule.getId());
 						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-						weeklyScheduleDto.setHour(hourDto);
+						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+						weeklyScheduleDto.setHourDto(hourDto);
 						weeklyScheduleDto.setFull(weeklySchedule.getFull());
 						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -140,17 +140,17 @@ public class StudentManager implements StudentService {
 						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-						weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 						weeklySchedulesDto.add(weeklyScheduleDto);
 					});
 
 					// WeeklySchedulesDto are sorting here
 					weeklySchedulesDto.sort((o1, o2) -> {
-						Long s1DayOfWeekId = o1.getDayOfWeek().getId();
-						int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
+						Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+						int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 						if (dayOfWeekCompare == 0) {
-							Long s1HourId = o1.getHour().getId();
-							int hourCompare = s1HourId.compareTo(o2.getHour().getId());
+							Long s1HourId = o1.getHourDto().getId();
+							int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
 							return hourCompare;
 						}
 						return dayOfWeekCompare;
@@ -164,7 +164,7 @@ public class StudentManager implements StudentService {
 					studentDto.setCreateDate(student.getCreateDate());
 					studentDto.setLastUpdateDate(student.getLastUpdateDate());
 					studentDto.setStudentNumber(student.getStudentNumber());
-					studentDto.setWeeklySchedules(weeklySchedulesDto);
+					studentDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 					studentsDto.add(studentDto);
 				});
@@ -196,7 +196,7 @@ public class StudentManager implements StudentService {
 				studentDto.setCreateDate(student.get().getCreateDate());
 				studentDto.setLastUpdateDate(student.get().getLastUpdateDate());
 				studentDto.setStudentNumber(student.get().getStudentNumber());
-				studentDto.setWeeklySchedules(null);
+				studentDto.setWeeklySchedulesDto(null);
 
 				return new DataResult<StudentDto>(studentDto, true, id + " id'li öğrenci getirildi.");
 			}
@@ -226,8 +226,8 @@ public class StudentManager implements StudentService {
 
 					weeklyScheduleDto.setId(weeklySchedule.getId());
 					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeek(dayOfWeekDto);
-					weeklyScheduleDto.setHour(hourDto);
+					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
+					weeklyScheduleDto.setHourDto(hourDto);
 					weeklyScheduleDto.setFull(weeklySchedule.getFull());
 					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
 					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
@@ -251,17 +251,17 @@ public class StudentManager implements StudentService {
 					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
 					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorker(systemWorkerDto);
+					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
 					weeklySchedulesDto.add(weeklyScheduleDto);
 				});
 
 				// WeeklySchedulesDto are sorting here
 				weeklySchedulesDto.sort((o1, o2) -> {
-					Long s1DayOfWeekId = o1.getDayOfWeek().getId();
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
+					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 					if (dayOfWeekCompare == 0) {
-						Long s1HourId = o1.getHour().getId();
-						int hourCompare = s1HourId.compareTo(o2.getHour().getId());
+						Long s1HourId = o1.getHourDto().getId();
+						int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
 						return hourCompare;
 					}
 					return dayOfWeekCompare;
@@ -275,7 +275,7 @@ public class StudentManager implements StudentService {
 				studentDto.setCreateDate(student.get().getCreateDate());
 				studentDto.setLastUpdateDate(student.get().getLastUpdateDate());
 				studentDto.setStudentNumber(student.get().getStudentNumber());
-				studentDto.setWeeklySchedules(weeklySchedulesDto);
+				studentDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<StudentDto>(studentDto, true, id + " id'li öğrenci getirildi.");
 			}

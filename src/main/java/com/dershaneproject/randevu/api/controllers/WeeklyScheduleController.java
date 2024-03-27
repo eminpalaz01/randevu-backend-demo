@@ -69,14 +69,14 @@ public class WeeklyScheduleController {
 	public ResponseEntity<DataResult<WeeklyScheduleDto>> updateDayOfWeekById(@PathVariable long id,
 																			 @RequestBody WeeklyScheduleDto weeklyScheduleDto) {
 
-		return ResponseEntity.ok(weeklyScheduleService.updateDayOfWeekById(id, weeklyScheduleDto.getDayOfWeek().getId()));
+		return ResponseEntity.ok(weeklyScheduleService.updateDayOfWeekById(id, weeklyScheduleDto.getDayOfWeekDto().getId()));
 	}
 
 	@PutMapping("/{id}/hour")
 	public ResponseEntity<DataResult<WeeklyScheduleDto>> updateHourById(@PathVariable long id,
 																		@RequestBody WeeklyScheduleDto weeklyScheduleDto) {
 
-		return ResponseEntity.ok(weeklyScheduleService.updateHourById(id, weeklyScheduleDto.getHour().getId()));
+		return ResponseEntity.ok(weeklyScheduleService.updateHourById(id, weeklyScheduleDto.getHourDto().getId()));
 	}
 
 	@PutMapping("/{id}/full")
@@ -105,7 +105,7 @@ public class WeeklyScheduleController {
 																							  @RequestBody WeeklyScheduleDto weeklyScheduleDto) {
 
 		return ResponseEntity.ok(weeklyScheduleService.updateLastUpdateDateSystemWorkerById(id,
-				weeklyScheduleDto.getLastUpdateDateSystemWorker().getId()));
+				weeklyScheduleDto.getLastUpdateDateSystemWorkerDto().getId()));
 	}
 
 	@PutMapping("/{id}/description")
