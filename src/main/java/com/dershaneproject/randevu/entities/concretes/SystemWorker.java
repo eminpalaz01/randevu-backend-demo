@@ -38,7 +38,7 @@ public class SystemWorker extends User {
 		super(id, userName, password, createDate, lastUpdateDate, email);
 	}
 
-	protected void setAuthority(Integer authority) {
+    protected void setAuthority(Integer authority) {
 		this.authority = authority;
 	}
 
@@ -52,5 +52,14 @@ public class SystemWorker extends User {
 				"createDate = " + getCreateDate() + ", " +
 				"lastUpdateDate = " + getLastUpdateDate() + ", " +
 				"email = " + getEmail() + ")";
+	}
+
+	public static SystemWorker createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		SystemWorker systemWorker = new SystemWorker();
+		systemWorker.setId(id);
+		return systemWorker;
 	}
 }

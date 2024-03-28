@@ -27,4 +27,13 @@ public class SystemStaff extends SystemWorker {
 		setAuthority(Authority.STAFF.getValue());
 	}
 
+	public static SystemStaff createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		SystemStaff systemStaff = new SystemStaff();
+		systemStaff.setId(id);
+		return systemStaff;
+	}
+
 }

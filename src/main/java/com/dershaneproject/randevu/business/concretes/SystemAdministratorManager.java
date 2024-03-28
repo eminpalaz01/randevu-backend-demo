@@ -1,16 +1,18 @@
 package com.dershaneproject.randevu.business.concretes;
 
 import com.dershaneproject.randevu.business.abstracts.SystemAdministratorService;
-import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.SystemAdministratorDao;
-import com.dershaneproject.randevu.dto.*;
+import com.dershaneproject.randevu.dto.ScheduleDto;
+import com.dershaneproject.randevu.dto.SystemAdministratorDto;
+import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.dto.requests.SystemAdministratorSaveRequest;
 import com.dershaneproject.randevu.dto.responses.SystemAdministratorSaveResponse;
-import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.SystemAdministrator;
-import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import com.dershaneproject.randevu.mappers.ScheduleMapper;
+import com.dershaneproject.randevu.mappers.SystemAdministratorMapper;
+import com.dershaneproject.randevu.mappers.WeeklyScheduleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +25,16 @@ import java.util.Optional;
 public class SystemAdministratorManager implements SystemAdministratorService {
 
 	private final SystemAdministratorDao systemAdministratorDao;
-	private final ModelMapperServiceWithTypeMappingConfigs modelMapperService;
+
+	private final SystemAdministratorMapper systemAdministratorMapper;
+	private final ScheduleMapper scheduleMapper;
+	private final WeeklyScheduleMapper weeklyScheduleMapper;
 
 	@Override
 	public DataResult<SystemAdministratorSaveResponse> save(SystemAdministratorSaveRequest systemAdministratorSaveRequest) {
 		try {
-			SystemAdministrator systemAdministrator = systemAdministratorDao.save(createSystemAdministratorForSave(systemAdministratorSaveRequest));
-			SystemAdministratorSaveResponse systemAdministratorSaveResponse = modelMapperService.forResponse()
-					.map(systemAdministrator, SystemAdministratorSaveResponse.class);
+			SystemAdministrator systemAdministrator = systemAdministratorDao.save(systemAdministratorMapper.toEntity(systemAdministratorSaveRequest));
+			SystemAdministratorSaveResponse systemAdministratorSaveResponse = systemAdministratorMapper.toSaveResponse(systemAdministrator);
 			return new DataResult<SystemAdministratorSaveResponse>(systemAdministratorSaveResponse, true, "Veritabanına kaydedildi.");
 		} catch (Exception e) {
 			return new DataResult<SystemAdministratorSaveResponse>(false, e.getMessage());
@@ -38,19 +42,11 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 	}
 
-	private SystemAdministrator createSystemAdministratorForSave(SystemAdministratorSaveRequest systemAdministratorSaveRequest) {
-		SystemAdministrator systemAdministrator = new SystemAdministrator();
-		systemAdministrator.setUserName(systemAdministratorSaveRequest.getUserName());
-		systemAdministrator.setPassword(systemAdministratorSaveRequest.getPassword());
-		systemAdministrator.setEmail(systemAdministratorSaveRequest.getEmail());
-		return systemAdministrator;
-	}
-
 	@Override
 	public Result deleteById(long id) {
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
-			if (!(systemAdministrator.equals(Optional.empty()))) {
+			if (systemAdministrator.isPresent()) {
 				systemAdministratorDao.deleteById(id);
 				return new Result(true, id + " id'li sistem yöneticisi silindi.");
 			}
@@ -68,18 +64,9 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
-			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
-
-				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
-				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-
-				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
+			if (systemAdministrator.isPresent()) {
+				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
+				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisi getirildi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
@@ -93,84 +80,15 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
-			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
+			if (systemAdministrator.isPresent()) {
+				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
 
-				List<Schedule> schedules = systemAdministrator.get().getSchedules();
-				List<ScheduleDto> schedulesDto = new ArrayList<>();
-				schedules.forEach(schedule -> {
-					ScheduleDto scheduleDto = new ScheduleDto();
+				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemAdministrator.get().getSchedules());
+				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemAdministrator.get().getWeeklySchedules());
+				systemAdministratorDto.setSchedulesDto(schedulesDto);
+				systemAdministratorDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
-					scheduleDto.setId(schedule.getId());
-					scheduleDto.setTeacherId(schedule.getTeacher().getId());
-					scheduleDto.setFull(schedule.getFull());
-					scheduleDto.setDescription(schedule.getDescription());
-
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					scheduleDto.setCreateDate(schedule.getCreateDate());
-					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-					schedulesDto.add(scheduleDto);});
-
-				List<WeeklySchedule> weeklySchedules = systemAdministrator.get().getWeeklySchedules();
-				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-
-					HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
-					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
-
-					weeklyScheduleDto.setId(weeklySchedule.getId());
-					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
-					weeklyScheduleDto.setHourDto(hourDto);
-					weeklyScheduleDto.setFull(weeklySchedule.getFull());
-					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-					if(weeklySchedule.getStudent() == null){
-						weeklyScheduleDto.setStudentId(null);
-					}else{
-						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
-					}
-
-					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					weeklySchedulesDto.add(weeklyScheduleDto);
-				});
-				
-				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
-				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorSaveRequest.setSchedulesDto(schedulesDto);
-				systemAdministratorSaveRequest.setWeeklySchedulesDto(weeklySchedulesDto);
-
-				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisi getirildi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
@@ -184,56 +102,13 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
-			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
+			if (systemAdministrator.isPresent()) {
+				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
 
-				List<WeeklySchedule> weeklySchedules = systemAdministrator.get().getWeeklySchedules();
-				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemAdministrator.get().getWeeklySchedules());
+				systemAdministratorDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
-					HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
-					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
-
-					weeklyScheduleDto.setId(weeklySchedule.getId());
-					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
-					weeklyScheduleDto.setHourDto(hourDto);
-					weeklyScheduleDto.setFull(weeklySchedule.getFull());
-					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-					if(weeklySchedule.getStudent() == null){
-						weeklyScheduleDto.setStudentId(null);
-					}else{
-						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
-					}
-
-					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					weeklySchedulesDto.add(weeklyScheduleDto);
-				});
-				
-				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
-				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorSaveRequest.setWeeklySchedulesDto(weeklySchedulesDto);
-
-				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisi getirildi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
@@ -247,46 +122,13 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
-			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
+			if (systemAdministrator.isPresent()) {
+				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
 
-				List<Schedule> schedules = systemAdministrator.get().getSchedules();
-				List<ScheduleDto> schedulesDto = new ArrayList<>();
-				schedules.forEach(schedule -> {
-					ScheduleDto scheduleDto = new ScheduleDto();
+				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemAdministrator.get().getSchedules());
+				systemAdministratorDto.setSchedulesDto(schedulesDto);
 
-					scheduleDto.setId(schedule.getId());
-					scheduleDto.setTeacherId(schedule.getTeacher().getId());
-					scheduleDto.setFull(schedule.getFull());
-					scheduleDto.setDescription(schedule.getDescription());
-
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					scheduleDto.setCreateDate(schedule.getCreateDate());
-					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-					schedulesDto.add(scheduleDto);});
-				
-				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
-				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-				systemAdministratorSaveRequest.setSchedulesDto(schedulesDto);
-
-				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisi getirildi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
@@ -299,28 +141,11 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 	public DataResult<List<SystemAdministratorDto>> findAll() {
 		try {
 			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
-			if (systemAdministrators.size() != 0) {
-				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
-
-				systemAdministrators.forEach(systemAdministrator -> {
-					SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
-
-					systemAdministratorSaveRequest.setId(systemAdministrator.getId());
-					systemAdministratorSaveRequest.setUserName(systemAdministrator.getUserName());
-					systemAdministratorSaveRequest.setPassword(systemAdministrator.getPassword());
-					systemAdministratorSaveRequest.setEmail(systemAdministrator.getEmail());
-					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
-					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
-					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-
-					systemAdministratorsDto.add(systemAdministratorSaveRequest);
-				});
-
+			if (!systemAdministrators.isEmpty()) {
+				List<SystemAdministratorDto> systemAdministratorsDto = systemAdministratorMapper.toDtoList(systemAdministrators);
 				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
 						"Sistem yöneticileri getirildi.");
-
 			} else {
-
 				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
 			}
 		} catch (Exception e) {
@@ -332,54 +157,19 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 	public DataResult<List<SystemAdministratorDto>> findAllWithSchedules() {
 		try {
 			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
-			if (systemAdministrators.size() != 0) {
+			if (!systemAdministrators.isEmpty()) {
 				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
 
 				systemAdministrators.forEach(systemAdministrator -> {
-					SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
+					SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator);
 
-					List<Schedule> schedules = systemAdministrator.getSchedules();
-					List<ScheduleDto> schedulesDto = new ArrayList<>();
-					schedules.forEach(schedule -> {
-						ScheduleDto scheduleDto = new ScheduleDto();
+					List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemAdministrator.getSchedules());
+					systemAdministratorDto.setSchedulesDto(schedulesDto);
 
-						scheduleDto.setId(schedule.getId());
-						scheduleDto.setTeacherId(schedule.getTeacher().getId());
-						scheduleDto.setFull(schedule.getFull());
-						scheduleDto.setDescription(schedule.getDescription());
-
-						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-						systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-						systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-						systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-						systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-						scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-						scheduleDto.setCreateDate(schedule.getCreateDate());
-						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-						scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-						scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-						schedulesDto.add(scheduleDto);});
-					
-					systemAdministratorSaveRequest.setId(systemAdministrator.getId());
-					systemAdministratorSaveRequest.setUserName(systemAdministrator.getUserName());
-					systemAdministratorSaveRequest.setPassword(systemAdministrator.getPassword());
-					systemAdministratorSaveRequest.setEmail(systemAdministrator.getEmail());
-					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
-					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
-					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorSaveRequest.setSchedulesDto(schedulesDto);
-
-					systemAdministratorsDto.add(systemAdministratorSaveRequest);
+					systemAdministratorsDto.add(systemAdministratorDto);
 				});
-
 				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
 						"Sistem yöneticileri getirildi.");
-
 			} else {
 
 				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
@@ -393,92 +183,22 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 	public DataResult<List<SystemAdministratorDto>> findAllWithAllSchedules() {
 		try {
 			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
-			if (systemAdministrators.size() != 0) {
+			if (!systemAdministrators.isEmpty()) {
 				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
 
 				systemAdministrators.forEach(systemAdministrator -> {
-					SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
+					SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator);
 
-					List<Schedule> schedules = systemAdministrator.getSchedules();
-					List<ScheduleDto> schedulesDto = new ArrayList<>();
-					schedules.forEach(schedule -> {
-						ScheduleDto scheduleDto = new ScheduleDto();
+					List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemAdministrator.getSchedules());
+					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemAdministrator.getWeeklySchedules());
 
-						scheduleDto.setId(schedule.getId());
-						scheduleDto.setTeacherId(schedule.getTeacher().getId());
-						scheduleDto.setFull(schedule.getFull());
-						scheduleDto.setDescription(schedule.getDescription());
+					systemAdministratorDto.setSchedulesDto(schedulesDto);
+					systemAdministratorDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
-						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-						systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-						systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-						systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-						systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-						scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-						scheduleDto.setCreateDate(schedule.getCreateDate());
-						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-						scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-						scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-						schedulesDto.add(scheduleDto);});
-
-					List<WeeklySchedule> weeklySchedules = systemAdministrator.getWeeklySchedules();
-					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-					weeklySchedules.forEach(weeklySchedule -> {
-						WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-
-						HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
-						DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
-
-						weeklyScheduleDto.setId(weeklySchedule.getId());
-						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
-						weeklyScheduleDto.setHourDto(hourDto);
-						weeklyScheduleDto.setFull(weeklySchedule.getFull());
-						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-						weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-						if(weeklySchedule.getStudent() == null){
-							weeklyScheduleDto.setStudentId(null);
-						}else{
-							weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
-						}
-
-						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
-						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-						systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-						systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-						systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-						systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-						weeklySchedulesDto.add(weeklyScheduleDto);
-					});
-					
-					systemAdministratorSaveRequest.setId(systemAdministrator.getId());
-					systemAdministratorSaveRequest.setUserName(systemAdministrator.getUserName());
-					systemAdministratorSaveRequest.setPassword(systemAdministrator.getPassword());
-					systemAdministratorSaveRequest.setEmail(systemAdministrator.getEmail());
-					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
-					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
-					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorSaveRequest.setSchedulesDto(schedulesDto);
-					systemAdministratorSaveRequest.setWeeklySchedulesDto(weeklySchedulesDto);
-
-					systemAdministratorsDto.add(systemAdministratorSaveRequest);
+					systemAdministratorsDto.add(systemAdministratorDto);
 				});
-
 				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
 						"Sistem yöneticileri getirildi.");
-
 			} else {
 
 				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
@@ -492,64 +212,19 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 	public DataResult<List<SystemAdministratorDto>> findAllWithWeeklySchedules() {
 		try {
 			List<SystemAdministrator> systemAdministrators = systemAdministratorDao.findAll();
-			if (systemAdministrators.size() != 0) {
+			if (!systemAdministrators.isEmpty()) {
 				List<SystemAdministratorDto> systemAdministratorsDto = new ArrayList<SystemAdministratorDto>();
 
 				systemAdministrators.forEach(systemAdministrator -> {
-					SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
+					SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator);
 
-					List<WeeklySchedule> weeklySchedules = systemAdministrator.getWeeklySchedules();
-					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-					weeklySchedules.forEach(weeklySchedule -> {
-						WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
+					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemAdministrator.getWeeklySchedules());
+					systemAdministratorDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
-						HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
-						DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
-
-						weeklyScheduleDto.setId(weeklySchedule.getId());
-						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
-						weeklyScheduleDto.setHourDto(hourDto);
-						weeklyScheduleDto.setFull(weeklySchedule.getFull());
-						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-						weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-						if(weeklySchedule.getStudent() == null){
-							weeklyScheduleDto.setStudentId(null);
-						}else{
-							weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
-						}
-
-						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
-						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-						systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-						systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-						systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-						systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-						weeklySchedulesDto.add(weeklyScheduleDto);
-					});
-					
-					systemAdministratorSaveRequest.setId(systemAdministrator.getId());
-					systemAdministratorSaveRequest.setUserName(systemAdministrator.getUserName());
-					systemAdministratorSaveRequest.setPassword(systemAdministrator.getPassword());
-					systemAdministratorSaveRequest.setEmail(systemAdministrator.getEmail());
-					systemAdministratorSaveRequest.setAuthority(systemAdministrator.getAuthority());
-					systemAdministratorSaveRequest.setCreateDate(systemAdministrator.getCreateDate());
-					systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.getLastUpdateDate());
-					systemAdministratorSaveRequest.setWeeklySchedulesDto(weeklySchedulesDto);
-
-					systemAdministratorsDto.add(systemAdministratorSaveRequest);
+					systemAdministratorsDto.add(systemAdministratorDto);
 				});
-
 				return new DataResult<List<SystemAdministratorDto>>(systemAdministratorsDto, true,
 						"Sistem yöneticileri getirildi.");
-
 			} else {
 
 				return new DataResult<List<SystemAdministratorDto>>(false, "Sistem yöneticisi bulunamadı.");
@@ -564,22 +239,12 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
-			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
-
+			if (systemAdministrator.isPresent()) {
 				systemAdministrator.get().setUserName(userName);
-
 				systemAdministratorDao.save(systemAdministrator.get());
+				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
 
-				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
-				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-
-				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisinin kullanıcı adı güncellendi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
@@ -593,22 +258,12 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
-			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
-
+			if (systemAdministrator.isPresent()) {
 				systemAdministrator.get().setPassword(password);
-
 				systemAdministratorDao.save(systemAdministrator.get());
+				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
 
-				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
-				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-
-				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
+				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisinin şifresi güncellendi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
@@ -622,22 +277,11 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 		try {
 			Optional<SystemAdministrator> systemAdministrator = systemAdministratorDao.findById(id);
 
-			if (!(systemAdministrator.equals(Optional.empty()))) {
-				SystemAdministratorDto systemAdministratorSaveRequest = new SystemAdministratorDto();
-
+			if (systemAdministrator.isPresent()) {
 				systemAdministrator.get().setEmail(email);
-
 				systemAdministratorDao.save(systemAdministrator.get());
-
-				systemAdministratorSaveRequest.setId(systemAdministrator.get().getId());
-				systemAdministratorSaveRequest.setUserName(systemAdministrator.get().getUserName());
-				systemAdministratorSaveRequest.setEmail(systemAdministrator.get().getEmail());
-				systemAdministratorSaveRequest.setPassword(systemAdministrator.get().getPassword());
-				systemAdministratorSaveRequest.setCreateDate(systemAdministrator.get().getCreateDate());
-				systemAdministratorSaveRequest.setLastUpdateDate(systemAdministrator.get().getLastUpdateDate());
-				systemAdministratorSaveRequest.setAuthority(systemAdministrator.get().getAuthority());
-
-				return new DataResult<SystemAdministratorDto>(systemAdministratorSaveRequest, true,
+				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
+				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisinin maili güncellendi.");
 			}
 			return new DataResult<SystemAdministratorDto>(false, id + " id'li sistem yöneticisi bulunamadı.");
@@ -654,6 +298,4 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 			return new DataResult<Long>(false, e.getMessage());
 		}	
 	}
-
-
 }

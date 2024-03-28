@@ -1,8 +1,11 @@
 package com.dershaneproject.randevu.entities.concretes;
 
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.proxy.HibernateProxy;
@@ -80,5 +83,25 @@ public class Schedule implements Serializable{
 	@Override
 	public final int hashCode() {
 		return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+	}
+
+	public static Schedule createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		Schedule schedule = new Schedule();
+		schedule.setId(id);
+		return schedule;
+	}
+
+	public static ScheduleSaveRequest createDefaultScheduleForSave(Long lastUpdateDateSystemWorkerId, Long teacherId, long dayId, long hourId) {
+		ScheduleSaveRequest scheduleSaveRequest = new ScheduleSaveRequest();
+		scheduleSaveRequest.setDayOfWeekId(dayId);
+		scheduleSaveRequest.setHourId(hourId);
+		scheduleSaveRequest.setTeacherId(teacherId);
+		scheduleSaveRequest.setLastUpdateDateSystemWorkerId(lastUpdateDateSystemWorkerId);
+		scheduleSaveRequest.setDescription(Schedule.DEFAULT_DESCRIPTION);
+		scheduleSaveRequest.setFull(false);
+		return scheduleSaveRequest;
 	}
 }

@@ -37,6 +37,9 @@ public class Student extends User {
 	}
 
 	public static Student createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
 		Student student = new Student();
 		student.setId(id);
 		return student;

@@ -8,7 +8,6 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -109,10 +108,4 @@ public class RandevuApplication {
 				.description(description)
 				.license(new License().name("Randevu Api Licence")));	
 	}
-    
-    @Bean
-    public ModelMapper getModelMapper() {
-        return new ModelMapper();
-    }
-
 }

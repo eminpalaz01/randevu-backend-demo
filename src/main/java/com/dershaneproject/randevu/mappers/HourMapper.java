@@ -1,8 +1,11 @@
 package com.dershaneproject.randevu.mappers;
 
 import com.dershaneproject.randevu.dto.HourDto;
+import com.dershaneproject.randevu.dto.requests.HourSaveRequest;
+import com.dershaneproject.randevu.dto.responses.HourSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Hour;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -13,7 +16,16 @@ public interface HourMapper {
 
     Hour toEntity(HourDto hourDto);
 
-    List<HourDto> toDtoList(List<Hour> hours);
+    @Mapping(target = "id", expression = "java(null)")
+    Hour toEntity(HourSaveRequest hourSaveRequest);
 
-    List<Hour> toEntityList(List<HourDto> hoursDto);
+    HourSaveResponse toSaveResponse(Hour hour);
+
+    List<HourDto> toDtoList(List<Hour> hourList);
+
+    List<Hour> toEntityList(List<HourDto> hourDtoList);
+
+    List<HourSaveResponse> toSaveResponseList(List<Hour> hourList);
+
+    List<Hour> toEntityListFromSaveRequestList(List<HourSaveRequest> hourSaveRequestList);
 }

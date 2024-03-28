@@ -1,16 +1,18 @@
 package com.dershaneproject.randevu.business.concretes;
 
 import com.dershaneproject.randevu.business.abstracts.SystemStaffService;
-import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.SystemStaffDao;
-import com.dershaneproject.randevu.dto.*;
+import com.dershaneproject.randevu.dto.ScheduleDto;
+import com.dershaneproject.randevu.dto.SystemStaffDto;
+import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.dto.requests.SystemStaffSaveRequest;
 import com.dershaneproject.randevu.dto.responses.SystemStaffSaveResponse;
-import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.SystemStaff;
-import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import com.dershaneproject.randevu.mappers.ScheduleMapper;
+import com.dershaneproject.randevu.mappers.SystemStaffMapper;
+import com.dershaneproject.randevu.mappers.WeeklyScheduleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +25,16 @@ import java.util.Optional;
 public class SystemStaffManager implements SystemStaffService {
 
 	private final  SystemStaffDao systemStaffDao;
-	private final  ModelMapperServiceWithTypeMappingConfigs modelMapperService;
+
+	private final SystemStaffMapper systemStaffMapper;
+	private final ScheduleMapper scheduleMapper;
+	private final WeeklyScheduleMapper weeklyScheduleMapper;
 
 	@Override
 	public DataResult<SystemStaffSaveResponse> save(SystemStaffSaveRequest systemStaffSaveRequest) {
 		try {
-			SystemStaff systemStaff = systemStaffDao.save(createSystemStaffForSave(systemStaffSaveRequest));
-			SystemStaffSaveResponse systemStaffSaveResponse = modelMapperService.forResponse().map(systemStaff, SystemStaffSaveResponse.class);
+			SystemStaff systemStaff = systemStaffDao.save(systemStaffMapper.toEntity(systemStaffSaveRequest));
+			SystemStaffSaveResponse systemStaffSaveResponse = systemStaffMapper.toSaveResponse(systemStaff);
 
 			return new DataResult<SystemStaffSaveResponse>(systemStaffSaveResponse, true, "Veritabanına kaydedildi.");
 		} catch (Exception e) {
@@ -37,23 +42,14 @@ public class SystemStaffManager implements SystemStaffService {
 		}
 	}
 
-	private SystemStaff createSystemStaffForSave(SystemStaffSaveRequest systemStaffDto) {
-		SystemStaff systemStaff = new SystemStaff();
-		systemStaff.setUserName(systemStaffDto.getUserName());
-		systemStaff.setPassword(systemStaffDto.getPassword());
-		systemStaff.setEmail(systemStaffDto.getEmail());
-		return systemStaff;
-	}
-
 	@Override
 	public Result deleteById(long id) {
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
-			if (!(systemStaff.equals(Optional.empty()))) {
+			if (systemStaff.isPresent()) {
 				systemStaffDao.deleteById(id);
 				return new Result(true, id + " id'li sistem çalışanı silindi.");
 			}
-
 			return new Result(false, id + " id'li sistem çalışanı bulunamadı.");
 		} catch (Exception e) {
 			return new Result(false, e.getMessage());
@@ -65,17 +61,8 @@ public class SystemStaffManager implements SystemStaffService {
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
-
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
-
+			if (systemStaff.isPresent()) {
+				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
 			}
 			return new DataResult<SystemStaffDto>(false, id + " id'li sistem çalışanı bulunamadı.");
@@ -89,80 +76,12 @@ public class SystemStaffManager implements SystemStaffService {
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
-				
-				List<Schedule> schedules = systemStaff.get().getSchedules();
-				List<ScheduleDto> schedulesDto = new ArrayList<>();
-				schedules.forEach(schedule -> {
-					ScheduleDto scheduleDto = new ScheduleDto();
+			if (systemStaff.isPresent()) {
+				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 
-					scheduleDto.setId(schedule.getId());
-					scheduleDto.setTeacherId(schedule.getTeacher().getId());
-					scheduleDto.setFull(schedule.getFull());
-					scheduleDto.setDescription(schedule.getDescription());
+				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemStaff.get().getSchedules());
+				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemStaff.get().getWeeklySchedules());
 
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					scheduleDto.setCreateDate(schedule.getCreateDate());
-					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-					schedulesDto.add(scheduleDto);});
-
-				List<WeeklySchedule> weeklySchedules = systemStaff.get().getWeeklySchedules();
-				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-
-					HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
-					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
-
-					weeklyScheduleDto.setId(weeklySchedule.getId());
-					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
-					weeklyScheduleDto.setHourDto(hourDto);
-					weeklyScheduleDto.setFull(weeklySchedule.getFull());
-					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-					if(weeklySchedule.getStudent() == null){
-						weeklyScheduleDto.setStudentId(null);
-					}else{
-						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
-					}
-
-					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					weeklySchedulesDto.add(weeklyScheduleDto);
-				});
-
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
 				systemStaffDto.setSchedulesDto(schedulesDto);
 				systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
@@ -179,53 +98,10 @@ public class SystemStaffManager implements SystemStaffService {
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
+			if (systemStaff.isPresent()) {
+				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 
-				List<WeeklySchedule> weeklySchedules = systemStaff.get().getWeeklySchedules();
-				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-
-					HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
-					DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
-
-					weeklyScheduleDto.setId(weeklySchedule.getId());
-					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
-					weeklyScheduleDto.setHourDto(hourDto);
-					weeklyScheduleDto.setFull(weeklySchedule.getFull());
-					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-					if(weeklySchedule.getStudent() == null){
-						weeklyScheduleDto.setStudentId(null);
-					}else{
-						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
-					}
-
-					// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					weeklySchedulesDto.add(weeklyScheduleDto);
-				});
-
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemStaff.get().getWeeklySchedules());
 				systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
@@ -241,43 +117,10 @@ public class SystemStaffManager implements SystemStaffService {
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
-				
-				List<Schedule> schedules = systemStaff.get().getSchedules();
-				List<ScheduleDto> schedulesDto = new ArrayList<>();
-				schedules.forEach(schedule -> {
-					ScheduleDto scheduleDto = new ScheduleDto();
+			if (systemStaff.isPresent()) {
+				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 
-					scheduleDto.setId(schedule.getId());
-					scheduleDto.setTeacherId(schedule.getTeacher().getId());
-					scheduleDto.setFull(schedule.getFull());
-					scheduleDto.setDescription(schedule.getDescription());
-
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					scheduleDto.setCreateDate(schedule.getCreateDate());
-					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-					schedulesDto.add(scheduleDto);});
-
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
+				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemStaff.get().getSchedules());
 				systemStaffDto.setSchedulesDto(schedulesDto);
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
@@ -292,23 +135,8 @@ public class SystemStaffManager implements SystemStaffService {
 	public DataResult<List<SystemStaffDto>> findAll() {
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
-			if (systemStaffs.size() != 0) {
-				List<SystemStaffDto> systemStaffsDto = new ArrayList<SystemStaffDto>();
-
-				systemStaffs.forEach(systemStaff -> {
-					SystemStaffDto systemStaffDto = new SystemStaffDto();
-
-					systemStaffDto.setId(systemStaff.getId());
-					systemStaffDto.setUserName(systemStaff.getUserName());
-					systemStaffDto.setPassword(systemStaff.getPassword());
-					systemStaffDto.setEmail(systemStaff.getEmail());
-					systemStaffDto.setAuthority(systemStaff.getAuthority());
-					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
-					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
-
-					systemStaffsDto.add(systemStaffDto);
-				});
-
+			if (!systemStaffs.isEmpty()) {
+				List<SystemStaffDto> systemStaffsDto = systemStaffMapper.toDtoList(systemStaffs);
 				return new DataResult<List<SystemStaffDto>>(systemStaffsDto, true, "Sistem çalışanları getirildi.");
 
 			} else {
@@ -324,83 +152,15 @@ public class SystemStaffManager implements SystemStaffService {
 	public DataResult<List<SystemStaffDto>> findAllWithAllSchedules() {
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
-			if (systemStaffs.size() != 0) {
+			if (!systemStaffs.isEmpty()) {
 				List<SystemStaffDto> systemStaffsDto = new ArrayList<SystemStaffDto>();
 
 				systemStaffs.forEach(systemStaff -> {
-					SystemStaffDto systemStaffDto = new SystemStaffDto();
+					SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff);
 
-					List<Schedule> schedules = systemStaff.getSchedules();
-					List<ScheduleDto> schedulesDto = new ArrayList<>();
-					schedules.forEach(schedule -> {
-						ScheduleDto scheduleDto = new ScheduleDto();
+					List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemStaff.getSchedules());
+					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemStaff.getWeeklySchedules());
 
-						scheduleDto.setId(schedule.getId());
-						scheduleDto.setTeacherId(schedule.getTeacher().getId());
-						scheduleDto.setFull(schedule.getFull());
-						scheduleDto.setDescription(schedule.getDescription());
-
-						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-						systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-						systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-						systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-						systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-						scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-						scheduleDto.setCreateDate(schedule.getCreateDate());
-						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-						scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-						scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-						schedulesDto.add(scheduleDto);});
-
-					List<WeeklySchedule> weeklySchedules = systemStaff.getWeeklySchedules();
-					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-					weeklySchedules.forEach(weeklySchedule -> {
-						WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-
-						HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
-						DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
-
-						weeklyScheduleDto.setId(weeklySchedule.getId());
-						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
-						weeklyScheduleDto.setHourDto(hourDto);
-						weeklyScheduleDto.setFull(weeklySchedule.getFull());
-						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-						weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-						if(weeklySchedule.getStudent() == null){
-							weeklyScheduleDto.setStudentId(null);
-						}else{
-							weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
-						}
-
-						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
-						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-						systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-						systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-						systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-						systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-						weeklySchedulesDto.add(weeklyScheduleDto);
-					});
-
-					systemStaffDto.setId(systemStaff.getId());
-					systemStaffDto.setUserName(systemStaff.getUserName());
-					systemStaffDto.setPassword(systemStaff.getPassword());
-					systemStaffDto.setEmail(systemStaff.getEmail());
-					systemStaffDto.setAuthority(systemStaff.getAuthority());
-					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
-					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
 					systemStaffDto.setSchedulesDto(schedulesDto);
 					systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
@@ -422,46 +182,13 @@ public class SystemStaffManager implements SystemStaffService {
 	public DataResult<List<SystemStaffDto>> findAllWithSchedules() {
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
-			if (systemStaffs.size() != 0) {
+			if (!systemStaffs.isEmpty()) {
 				List<SystemStaffDto> systemStaffsDto = new ArrayList<SystemStaffDto>();
 
 				systemStaffs.forEach(systemStaff -> {
-					SystemStaffDto systemStaffDto = new SystemStaffDto();
+					SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff);
 
-					List<Schedule> schedules = systemStaff.getSchedules();
-					List<ScheduleDto> schedulesDto = new ArrayList<>();
-					schedules.forEach(schedule -> {
-						ScheduleDto scheduleDto = new ScheduleDto();
-
-						scheduleDto.setId(schedule.getId());
-						scheduleDto.setTeacherId(schedule.getTeacher().getId());
-						scheduleDto.setFull(schedule.getFull());
-						scheduleDto.setDescription(schedule.getDescription());
-
-						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-						systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-						systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-						systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-						systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-						systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-						systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-						scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-						scheduleDto.setCreateDate(schedule.getCreateDate());
-						scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-						scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-						scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-						schedulesDto.add(scheduleDto);});
-
-					systemStaffDto.setId(systemStaff.getId());
-					systemStaffDto.setUserName(systemStaff.getUserName());
-					systemStaffDto.setPassword(systemStaff.getPassword());
-					systemStaffDto.setEmail(systemStaff.getEmail());
-					systemStaffDto.setAuthority(systemStaff.getAuthority());
-					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
-					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
+					List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemStaff.getSchedules());
 					systemStaffDto.setSchedulesDto(schedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
@@ -482,56 +209,13 @@ public class SystemStaffManager implements SystemStaffService {
 	public DataResult<List<SystemStaffDto>> findAllWithWeeklySchedules() {
 		try {
 			List<SystemStaff> systemStaffs = systemStaffDao.findAll();
-			if (systemStaffs.size() != 0) {
+			if (!systemStaffs.isEmpty()) {
 				List<SystemStaffDto> systemStaffsDto = new ArrayList<SystemStaffDto>();
 
 				systemStaffs.forEach(systemStaff -> {
-					SystemStaffDto systemStaffDto = new SystemStaffDto();
+					SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff);
 
-					List<WeeklySchedule> weeklySchedules = systemStaff.getWeeklySchedules();
-					List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-					weeklySchedules.forEach(weeklySchedule -> {
-						WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-
-						HourDto hourDto = modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class);
-						DayOfWeekDto dayOfWeekDto = modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class);
-
-						weeklyScheduleDto.setId(weeklySchedule.getId());
-						weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-						weeklyScheduleDto.setDayOfWeekDto(dayOfWeekDto);
-						weeklyScheduleDto.setHourDto(hourDto);
-						weeklyScheduleDto.setFull(weeklySchedule.getFull());
-						weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-						weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-						weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-						if(weeklySchedule.getStudent() == null){
-							weeklyScheduleDto.setStudentId(null);
-						}else{
-							weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
-						}
-
-						// if I use the mapper it get the schedules,weeklySchedules (PERFORMANCE PROBLEM)
-						SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-						systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-						systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-						systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-						systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-						systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-						systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-						systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-						weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-						weeklySchedulesDto.add(weeklyScheduleDto);
-					});
-
-					systemStaffDto.setId(systemStaff.getId());
-					systemStaffDto.setUserName(systemStaff.getUserName());
-					systemStaffDto.setPassword(systemStaff.getPassword());
-					systemStaffDto.setEmail(systemStaff.getEmail());
-					systemStaffDto.setAuthority(systemStaff.getAuthority());
-					systemStaffDto.setCreateDate(systemStaff.getCreateDate());
-					systemStaffDto.setLastUpdateDate(systemStaff.getLastUpdateDate());
+					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemStaff.getWeeklySchedules());
 					systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
@@ -553,21 +237,10 @@ public class SystemStaffManager implements SystemStaffService {
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
-
+			if (systemStaff.isPresent()) {
 				systemStaff.get().setUserName(userName);
-
 				systemStaffDao.save(systemStaff.get());
-
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
-
+				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 				return new DataResult<SystemStaffDto>(systemStaffDto, true,
 						id + " id'li sistem çalışanının kullanıcı adı güncellendi.");
 			}
@@ -582,21 +255,10 @@ public class SystemStaffManager implements SystemStaffService {
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
-
+			if (systemStaff.isPresent()) {
 				systemStaff.get().setPassword(password);
-
 				systemStaffDao.save(systemStaff.get());
-
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
-
+				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 				return new DataResult<SystemStaffDto>(systemStaffDto, true,
 						id + " id'li sistem çalışanının şifresi güncellendi.");
 			}
@@ -611,21 +273,10 @@ public class SystemStaffManager implements SystemStaffService {
 		try {
 			Optional<SystemStaff> systemStaff = systemStaffDao.findById(id);
 
-			if (!(systemStaff.equals(Optional.empty()))) {
-				SystemStaffDto systemStaffDto = new SystemStaffDto();
-
+			if (systemStaff.isPresent()) {
 				systemStaff.get().setEmail(email);
-
 				systemStaffDao.save(systemStaff.get());
-
-				systemStaffDto.setId(systemStaff.get().getId());
-				systemStaffDto.setUserName(systemStaff.get().getUserName());
-				systemStaffDto.setEmail(systemStaff.get().getEmail());
-				systemStaffDto.setPassword(systemStaff.get().getPassword());
-				systemStaffDto.setCreateDate(systemStaff.get().getCreateDate());
-				systemStaffDto.setLastUpdateDate(systemStaff.get().getLastUpdateDate());
-				systemStaffDto.setAuthority(systemStaff.get().getAuthority());
-
+				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 				return new DataResult<SystemStaffDto>(systemStaffDto, true,
 						id + " id'li sistem çalışanının maili güncellendi.");
 			}
@@ -643,5 +294,4 @@ public class SystemStaffManager implements SystemStaffService {
 			return new DataResult<Long>(false, e.getMessage());
 		}
 	}
-
 }
