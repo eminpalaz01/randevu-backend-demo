@@ -7,14 +7,13 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring" ,
-        uses= {WeeklyScheduleMapper.class})
+@Mapper(componentModel = "spring")
 public interface StudentMapper {
 
-    @Mapping(target = "weeklySchedulesDto", source = "weeklySchedules")
+    @Mapping(target = "weeklySchedulesDto",  expression = "java(null)")
     StudentDto toDto(Student student);
 
-    @Mapping(target = "weeklySchedules", source = "weeklySchedulesDto")
+    @Mapping(target = "weeklySchedules",  expression = "java(null)")
     Student toEntity(StudentDto studentDto);
 
     List<StudentDto> toDtoList(List<Student> students);

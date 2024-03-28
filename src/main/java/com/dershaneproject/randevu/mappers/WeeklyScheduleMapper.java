@@ -1,7 +1,6 @@
 package com.dershaneproject.randevu.mappers;
 
 import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
-import com.dershaneproject.randevu.dto.mappers.SystemWorkerMapper;
 import com.dershaneproject.randevu.entities.concretes.Student;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
 import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
@@ -11,7 +10,7 @@ import org.mapstruct.Mapping;
 import java.util.List;
 
 @Mapper(componentModel = "spring" ,
-        uses= {TeacherMapper.class, SystemWorkerMapper.class, DayOfWeekMapper.class ,HourMapper.class, StudentMapper.class, DepartmentMapper.class}
+        uses= {SystemWorkerMapper.class, DayOfWeekMapper.class , HourMapper.class}
 //        ,imports = {Teacher.class}
 )
 public interface WeeklyScheduleMapper {
@@ -19,7 +18,7 @@ public interface WeeklyScheduleMapper {
     @Mapping(target = "hourDto", source = "hour")
     @Mapping(target = "dayOfWeekDto", source = "dayOfWeek")
     @Mapping(target = "lastUpdateDateSystemWorkerDto", source = "lastUpdateDateSystemWorker")
-    @Mapping(target = "teacherId", source = "teacher.id")
+    @Mapping(target = "teacherId", expression = "java(weeklySchedule.getTeacher() != null ? weeklySchedule.getTeacher().getId() : null)")
     @Mapping(target = "studentId", expression = "java(weeklySchedule.getStudent() != null ? weeklySchedule.getStudent().getId() : null)")
     WeeklyScheduleDto toDto(WeeklySchedule weeklySchedule);
 

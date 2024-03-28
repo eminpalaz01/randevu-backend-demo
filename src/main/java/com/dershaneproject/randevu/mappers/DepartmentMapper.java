@@ -7,14 +7,13 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring" ,
-        uses= {TeacherMapper.class})
+@Mapper(componentModel = "spring" )
 public interface DepartmentMapper {
 
-    @Mapping(target = "teachersDto", source = "teachers")
+    @Mapping(target = "teachersDto",  expression = "java(null)")
     DepartmentDto toDto(Department department);
 
-    @Mapping(target = "teachers", source = "teachersDto")
+    @Mapping(target = "teachers",  expression = "java(null)")
     Department toEntity(DepartmentDto departmentDto);
 
     List<DepartmentDto> toDtoList(List<Department> departments);

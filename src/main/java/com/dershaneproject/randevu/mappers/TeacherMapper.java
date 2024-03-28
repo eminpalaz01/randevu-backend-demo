@@ -8,17 +8,16 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring" ,
-        uses= {ScheduleMapper.class, WeeklyScheduleMapper.class, DepartmentMapper.class})
+@Mapper(componentModel = "spring")
 public interface TeacherMapper {
 
-    @Mapping(target = "weeklySchedulesDto", source = "weeklySchedules")
-    @Mapping(target = "schedulesDto", source = "schedules")
-    @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "weeklySchedulesDto",  expression = "java(null)")
+    @Mapping(target = "schedulesDto",  expression = "java(null)")
+    @Mapping(target = "departmentId", expression = "java(teacher.getDepartment() != null ? teacher.getDepartment().getId() : null)")
     TeacherDto toDto(Teacher teacher);
 
-    @Mapping(target = "weeklySchedules", source = "weeklySchedulesDto")
-    @Mapping(target = "schedules", source = "weeklySchedulesDto")
+    @Mapping(target = "weeklySchedules",  expression = "java(null)")
+    @Mapping(target = "schedules",  expression = "java(null)")
     @Mapping(target = "department", expression = "java(createEmptyDepartmentWithId(teacherDto))")
     Teacher toEntity(TeacherDto teacherDto);
 
