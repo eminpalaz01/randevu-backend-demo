@@ -26,4 +26,13 @@ public class SystemAdministrator extends SystemWorker {
 		setAuthority(Authority.ADMINISTRATOR.getValue());
 	}
 
+	public static SystemAdministrator createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		SystemAdministrator systemAdministrator = new SystemAdministrator();
+		systemAdministrator.setId(id);
+		return systemAdministrator;
+	}
+
 }

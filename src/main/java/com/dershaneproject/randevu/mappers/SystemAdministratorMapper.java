@@ -1,25 +1,39 @@
 package com.dershaneproject.randevu.mappers;
 
 import com.dershaneproject.randevu.dto.SystemAdministratorDto;
+import com.dershaneproject.randevu.dto.requests.SystemAdministratorSaveRequest;
+import com.dershaneproject.randevu.dto.responses.SystemAdministratorSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.SystemAdministrator;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring" ,
-        uses= {ScheduleMapper.class, WeeklyScheduleMapper.class})
+@Mapper(componentModel = "spring")
 public interface SystemAdministratorMapper {
 
-    @Mapping(target = "schedulesDto", source = "schedules")
-    @Mapping(target = "weeklySchedulesDto", source = "weeklySchedules")
+    @Mapping(target = "weeklySchedulesDto",  expression = "java(null)")
+    @Mapping(target = "schedulesDto",  expression = "java(null)")
     SystemAdministratorDto toDto(SystemAdministrator systemAdministrator);
 
-    @Mapping(target = "schedules", source = "schedulesDto")
-    @Mapping(target = "weeklySchedules", source = "weeklySchedulesDto")
+    @Mapping(target = "weeklySchedules",  expression = "java(null)")
+    @Mapping(target = "schedules",  expression = "java(null)")
     SystemAdministrator toEntity(SystemAdministratorDto systemAdministratorDto);
 
-    List<SystemAdministratorDto> toDtoList(List<SystemAdministrator> systemAdministrators);
+    @Mapping(target = "weeklySchedules",  expression = "java(null)")
+    @Mapping(target = "schedules",  expression = "java(null)")
+    @Mapping(target = "id", expression = "java(null)")
+    @Mapping(target = "createDate", expression = "java(null)")
+    @Mapping(target = "lastUpdateDate", expression = "java(null)")
+    SystemAdministrator toEntity(SystemAdministratorSaveRequest systemAdministratorSaveRequest);
 
-    List<SystemAdministrator> toEntityList(List<SystemAdministratorDto> systemAdministratorsDto);
+    SystemAdministratorSaveResponse toSaveResponse(SystemAdministrator systemAdministrator);
+
+    List<SystemAdministratorDto> toDtoList(List<SystemAdministrator> systemAdministratorList);
+
+    List<SystemAdministrator> toEntityList(List<SystemAdministratorDto> systemAdministratorDtoList);
+
+    List<SystemAdministratorSaveResponse> toSaveResponseList(List<SystemAdministrator> systemAdministratorList);
+
+    List<SystemAdministrator> toEntityListFromSaveRequestList(List<SystemAdministratorSaveRequest> systemAdministratorSaveRequestList);
 }

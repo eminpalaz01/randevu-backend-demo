@@ -65,6 +65,9 @@ public class Department implements Serializable{
 	}
 
 	public static Department createEmptyWithId(Long id){
+		if (id == null)
+			return null;
+
 		Department department = new Department();
 		department.setId(id);
 		return department;

@@ -3,11 +3,12 @@ package com.dershaneproject.randevu.business.concretes;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
 import com.dershaneproject.randevu.business.abstracts.TeacherService;
 import com.dershaneproject.randevu.business.abstracts.WeeklyScheduleService;
-import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.*;
-import com.dershaneproject.randevu.dto.*;
+import com.dershaneproject.randevu.dto.ScheduleDto;
+import com.dershaneproject.randevu.dto.TeacherDto;
+import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
 import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequestForTeacher;
 import com.dershaneproject.randevu.dto.requests.TeacherSaveRequest;
@@ -18,14 +19,15 @@ import com.dershaneproject.randevu.dto.responses.WeeklyScheduleSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Department;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
-import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import com.dershaneproject.randevu.mappers.ScheduleMapper;
+import com.dershaneproject.randevu.mappers.TeacherMapper;
+import com.dershaneproject.randevu.mappers.WeeklyScheduleMapper;
 import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,11 +39,17 @@ public class TeacherManager implements TeacherService {
 	private final  DepartmentDao departmentDao;
 	private final  HourDao hourDao;
 	private final  DayOfWeekDao dayOfWeekDao;
-	private final  ScheduleService scheduleService;
-	private final  ScheduleValidationService scheduleValidationService;
-	private final  WeeklyScheduleService weeklyScheduleService;
 	private final  SystemWorkerDao systemWorkerDao;
-	private final  ModelMapperServiceWithTypeMappingConfigs modelMapperService;
+
+	private final  ScheduleValidationService scheduleValidationService;
+
+	private final  ScheduleService scheduleService;
+	private final  WeeklyScheduleService weeklyScheduleService;
+
+	private final TeacherMapper teacherMapper;
+	private final WeeklyScheduleMapper weeklyScheduleMapper;
+	private final ScheduleMapper scheduleMapper;
+
 
 	@Transactional
 	@Override
@@ -56,7 +64,7 @@ public class TeacherManager implements TeacherService {
 						"Veritabanına öğretmen kaydı başarısız departman id'sini kontrol ediniz.");
 			}
 
-			Teacher teacher = teacherDao.saveAndFlush(createTeacherForSave(teacherSaveRequest));
+			Teacher teacher = teacherDao.saveAndFlush(teacherMapper.toEntity(teacherSaveRequest));
 
             // scheduleSaveRequestsForTeacher are updating for register
             DataResult<List<ScheduleSaveRequest>> resultUpdateSchedulesDto = updateScheduleSaveRequestListForTeacher(teacherSaveRequest, teacher.getId());
@@ -77,16 +85,14 @@ public class TeacherManager implements TeacherService {
 
                         // scheduleSaveRequestsForTeacher mapping to WeeklyScheduleSaveRequestList
                         scheduleSaveResponseList.forEach(scheduleSaveResponse -> {
-							WeeklyScheduleSaveRequest weeklyScheduleSaveRequest = modelMapperService.forResponse()
-                                    .map(scheduleSaveResponse,  WeeklyScheduleSaveRequest.class);
-                            weeklyScheduleSaveRequestList.add(weeklyScheduleSaveRequest);
+							weeklyScheduleSaveRequestList.add(createWeeklyScheduleSaveRequest(scheduleSaveResponse));
                         });
 
                         // weeklyScheduleSaveRequestList are saving and updating
                         DataResult<List<WeeklyScheduleSaveResponse>> resultResponseWeeklySchedulesDto
                                 = weeklyScheduleService.saveAll(weeklyScheduleSaveRequestList);
                          if(resultResponseWeeklySchedulesDto.isSuccess()){
-							 TeacherSaveResponse teacherSaveResponse = modelMapperService.forResponse().map(teacherSaveRequest, TeacherSaveResponse.class);
+							 TeacherSaveResponse teacherSaveResponse = teacherMapper.toSaveResponse(teacher);
 							 teacherSaveResponse.setSchedules(scheduleSaveResponseList);
 							 teacherSaveResponse.setWeeklySchedules(resultResponseWeeklySchedulesDto.getData());
 
@@ -125,18 +131,15 @@ public class TeacherManager implements TeacherService {
 
 	}
 
-	private Teacher createTeacherForSave(TeacherSaveRequest teacherSaveRequest) {
-		Department department = new Department();
-		department.setId(teacherSaveRequest.getDepartmentId());
-
-		Teacher teacher = new Teacher();
-		teacher.setUserName(teacherSaveRequest.getUserName());
-		teacher.setPassword(teacherSaveRequest.getPassword());
-		teacher.setEmail(teacherSaveRequest.getEmail());
-
-		teacher.setDepartment(department);
-		teacher.setTeacherNumber(teacherSaveRequest.getTeacherNumber());
-		return teacher;
+	private static WeeklyScheduleSaveRequest createWeeklyScheduleSaveRequest(ScheduleSaveResponse scheduleSaveResponse) {
+		WeeklyScheduleSaveRequest weeklyScheduleSaveRequest = new WeeklyScheduleSaveRequest();
+		weeklyScheduleSaveRequest.setTeacherId(scheduleSaveResponse.getTeacherId());
+		weeklyScheduleSaveRequest.setLastUpdateDateSystemWorkerId(scheduleSaveResponse.getLastUpdateDateSystemWorker().getId());
+		weeklyScheduleSaveRequest.setDayOfWeekId(scheduleSaveResponse.getDayOfWeek().getId());
+		weeklyScheduleSaveRequest.setHourId(scheduleSaveResponse.getHour().getId());
+		weeklyScheduleSaveRequest.setFull(scheduleSaveResponse.getFull());
+		weeklyScheduleSaveRequest.setDescription(scheduleSaveResponse.getDescription());
+		return weeklyScheduleSaveRequest;
 	}
 
 	@Override
@@ -144,7 +147,7 @@ public class TeacherManager implements TeacherService {
 
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
-			if (!(teacher.equals(Optional.empty()))) {
+			if (teacher.isPresent()) {
 				teacherDao.deleteById(id);
 				return new Result(true, id + " id'li öğretmen silindi.");
 			}
@@ -160,19 +163,8 @@ public class TeacherManager implements TeacherService {
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
-			if (!(teacher.equals(Optional.empty()))) {
-
-				TeacherDto teacherDto = new TeacherDto();
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-				teacherDto.setSchedulesDto(null);
+			if (teacher.isPresent()) {
+         		TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
 			}
@@ -188,59 +180,21 @@ public class TeacherManager implements TeacherService {
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
-			if (!(teacher.equals(Optional.empty()))) {
-				TeacherDto teacherDto = new TeacherDto();
-
-				List<Schedule> schedules = teacher.get().getSchedules();
-				List<ScheduleDto> schedulesDto = new ArrayList<>();
-				schedules.forEach(schedule -> {
-					ScheduleDto scheduleDto = new ScheduleDto();
-
-					scheduleDto.setId(schedule.getId());
-					scheduleDto.setTeacherId(schedule.getTeacher().getId());
-					scheduleDto.setFull(schedule.getFull());
-					scheduleDto.setDescription(schedule.getDescription());
-
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					scheduleDto.setCreateDate(schedule.getCreateDate());
-					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-					schedulesDto.add(scheduleDto);
-				});
+			if (teacher.isPresent()) {
+				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(teacher.get().getSchedules());
 
 				// SchedulesDto are sorting here
-				Collections.sort(schedulesDto, (o1, o2) -> {
-					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
+				schedulesDto.sort((o1, o2) -> {
+                    Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+                    int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 
-					if (dayOfWeekCompare == 0) {
-						Long s1HourId = o1.getHourDto().getId();
-						int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
-						return hourCompare;
-					}
-					return dayOfWeekCompare;
-				});
-				// SchedulesDto sorted
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
+                    if (dayOfWeekCompare == 0) {
+                        Long s1HourId = o1.getHourDto().getId();
+                        return s1HourId.compareTo(o2.getHourDto().getId());
+                    }
+                    return dayOfWeekCompare;
+                });
 				teacherDto.setSchedulesDto(schedulesDto);
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
@@ -256,105 +210,31 @@ public class TeacherManager implements TeacherService {
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
-			if (!(teacher.equals(Optional.empty()))) {
-				TeacherDto teacherDto = new TeacherDto();
+			if (teacher.isPresent()) {
+				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(teacher.get().getSchedules());
+				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(teacher.get().getWeeklySchedules());
 
-				List<Schedule> schedules = teacher.get().getSchedules();
-				List<ScheduleDto> schedulesDto = new ArrayList<>();
+ 				schedulesDto.sort((o1, o2) -> {
+					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 
-				List<WeeklySchedule> weeklySchedules = teacher.get().getWeeklySchedules();
-				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
-
-				schedules.forEach(schedule -> {
-					ScheduleDto scheduleDto = new ScheduleDto();
-
-					scheduleDto.setId(schedule.getId());
-					scheduleDto.setTeacherId(schedule.getTeacher().getId());
-					scheduleDto.setFull(schedule.getFull());
-					scheduleDto.setDescription(schedule.getDescription());
-
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(schedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(schedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(schedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(schedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(schedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(schedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(schedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					scheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					scheduleDto.setCreateDate(schedule.getCreateDate());
-					scheduleDto.setLastUpdateDate(schedule.getLastUpdateDate());
-					scheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(schedule.getDayOfWeek(), DayOfWeekDto.class));
-					scheduleDto.setHourDto(modelMapperService.forResponse().map(schedule.getHour(), HourDto.class));
-
-					schedulesDto.add(scheduleDto);});
-
-				    // SchedulesDto are sorting here
-				    Collections.sort(schedulesDto, (o1, o2) -> {
-				    	Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
-
-				    	if (dayOfWeekCompare == 0) {
-				    		Long s1HourId = o1.getHourDto().getId();
-				    		int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
-				    		return hourCompare;
-				    	}
-				    	return dayOfWeekCompare;
-				    });
-				    // SchedulesDto sorted
-
-
-				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-
-					weeklyScheduleDto.setId(weeklySchedule.getId());
-					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setFull(weeklySchedule.getFull());
-					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					if(!(weeklySchedule.getStudent() == null)){
-						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
+					if (dayOfWeekCompare == 0) {
+						Long s1HourId = o1.getHourDto().getId();
+						return s1HourId.compareTo(o2.getHourDto().getId());
 					}
+					return dayOfWeekCompare;
+				});
+				weeklySchedulesDto.sort((o1, o2) -> {
+					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 
-					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-					weeklyScheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class));
-					weeklyScheduleDto.setHourDto(modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class));
-
-					weeklySchedulesDto.add(weeklyScheduleDto);});
-
-				    // WeeklySchedulesDto are sorting here
-				    weeklySchedulesDto.sort((o1, o2) -> {
-				    	Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
-				    	if (dayOfWeekCompare == 0) {
-				    		Long s1HourId = o1.getHourDto().getId();
-				    		int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
-				    		return hourCompare;
-				    	}
-				    	return dayOfWeekCompare;
-				    });
-				    // WeeklySchedulesDto sorted
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
+					if (dayOfWeekCompare == 0) {
+						Long s1HourId = o1.getHourDto().getId();
+						return s1HourId.compareTo(o2.getHourDto().getId());
+					}
+					return dayOfWeekCompare;
+				});
 				teacherDto.setSchedulesDto(schedulesDto);
 				teacherDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
@@ -372,62 +252,20 @@ public class TeacherManager implements TeacherService {
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 
-			if (!(teacher.equals(Optional.empty()))) {
-				TeacherDto teacherDto = new TeacherDto();
+			if (teacher.isPresent()) {
+				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(teacher.get().getWeeklySchedules());
 
-				List<WeeklySchedule> weeklySchedules = teacher.get().getWeeklySchedules();
-				List<WeeklyScheduleDto> weeklySchedulesDto = new ArrayList<>();
+				weeklySchedulesDto.sort((o1, o2) -> {
+					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
 
-				weeklySchedules.forEach(weeklySchedule -> {
-					WeeklyScheduleDto weeklyScheduleDto = new WeeklyScheduleDto();
-
-					weeklyScheduleDto.setId(weeklySchedule.getId());
-					weeklyScheduleDto.setTeacherId(weeklySchedule.getTeacher().getId());
-					weeklyScheduleDto.setFull(weeklySchedule.getFull());
-					weeklyScheduleDto.setDescription(weeklySchedule.getDescription());
-
-					SystemWorkerDto systemWorkerDto = new SystemWorkerDto();
-					systemWorkerDto.setId(weeklySchedule.getLastUpdateDateSystemWorker().getId());
-					systemWorkerDto.setUserName(weeklySchedule.getLastUpdateDateSystemWorker().getUserName());
-					systemWorkerDto.setEmail(weeklySchedule.getLastUpdateDateSystemWorker().getEmail());
-					systemWorkerDto.setPassword(weeklySchedule.getLastUpdateDateSystemWorker().getPassword());
-					systemWorkerDto.setCreateDate(weeklySchedule.getLastUpdateDateSystemWorker().getCreateDate());
-					systemWorkerDto.setLastUpdateDate(weeklySchedule.getLastUpdateDateSystemWorker().getLastUpdateDate());
-					systemWorkerDto.setAuthority(weeklySchedule.getLastUpdateDateSystemWorker().getAuthority());
-
-					if(!(weeklySchedule.getStudent() == null)){
-						weeklyScheduleDto.setStudentId(weeklySchedule.getStudent().getId());
+					if (dayOfWeekCompare == 0) {
+						Long s1HourId = o1.getHourDto().getId();
+						return s1HourId.compareTo(o2.getHourDto().getId());
 					}
-
-					weeklyScheduleDto.setLastUpdateDateSystemWorkerDto(systemWorkerDto);
-					weeklyScheduleDto.setCreateDate(weeklySchedule.getCreateDate());
-					weeklyScheduleDto.setLastUpdateDate(weeklySchedule.getLastUpdateDate());
-					weeklyScheduleDto.setDayOfWeekDto(modelMapperService.forResponse().map(weeklySchedule.getDayOfWeek(), DayOfWeekDto.class));
-					weeklyScheduleDto.setHourDto(modelMapperService.forResponse().map(weeklySchedule.getHour(), HourDto.class));
-
-					weeklySchedulesDto.add(weeklyScheduleDto);});
-
-				    // WeeklySchedulesDto are sorting here
-				    weeklySchedulesDto.sort((o1, o2) -> {
-				    	Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-				    	int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
-				    	if (dayOfWeekCompare == 0) {
-				    		Long s1HourId = o1.getHourDto().getId();
-				    		int hourCompare = s1HourId.compareTo(o2.getHourDto().getId());
-				    		return hourCompare;
-				    	}
-				    	return dayOfWeekCompare;
-				    });
-				    // WeeklySchedulesDto sorted
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
+					return dayOfWeekCompare;
+				});
 				teacherDto.setWeeklySchedulesDto(weeklySchedulesDto);
 
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
@@ -446,28 +284,8 @@ public class TeacherManager implements TeacherService {
 	public DataResult<List<TeacherDto>> getByDepartmentId(long departmentId) {
 		try {
 			List<Teacher> teachers = teacherDao.getByDepartmentId(departmentId);
-			if (teachers.size() != 0) {
-				List<TeacherDto> teachersDto = new ArrayList<TeacherDto>();
-
-				teachers.forEach(teacher -> {
-
-					TeacherDto teacherDto = new TeacherDto();
-					teacherDto.setId(teacher.getId());
-					teacherDto.setUserName(teacher.getUserName());
-					teacherDto.setEmail(teacher.getEmail());
-					teacherDto.setPassword(teacher.getPassword());
-					teacherDto.setCreateDate(teacher.getCreateDate());
-					teacherDto.setLastUpdateDate(teacher.getLastUpdateDate());
-					teacherDto.setDepartmentId(teacher.getDepartment().getId());
-					teacherDto.setTeacherNumber(teacher.getTeacherNumber());
-
-					// Burası verilirse eğer öğretmen başına 105 satır değer olucak buda performans
-					// sorunu yaratır.
-					// Bu yüzden öğretmeni bireysel olarak çektiğimizde gönderdim sadece
-					teacherDto.setSchedulesDto(null);
-					teachersDto.add(teacherDto);
-				});
-
+			if (!teachers.isEmpty()) {
+				List<TeacherDto> teachersDto = teacherMapper.toDtoList(teachers);
 				return new DataResult<List<TeacherDto>>(teachersDto, true,
 						departmentId + " departman id'li öğretmenler getirildi.");
 
@@ -482,39 +300,17 @@ public class TeacherManager implements TeacherService {
 		}
 	}
 
-	// schedules değer verilirse eğer öğretmen başına 105 satır değer olucak buda
+	// schedules deger verilirse eğer öğretmen başına 105 satır değer olucak buda
 	// performans sorunu yaratır.
-	// Bu yüzden öğretmeni bireysel olarak çektiğimizde gönderdim sadece
+	// Bu yüzden ögretmeni bireysel olarak çektigimizde gönderdim sadece
 	@Override
 	public DataResult<List<TeacherDto>> findAll() {
 		try {
 			List<Teacher> teachers = teacherDao.findAll();
-			if (teachers.size() != 0) {
-				List<TeacherDto> teachersDto = new ArrayList<TeacherDto>();
-
-				teachers.forEach(teacher -> {
-
-					TeacherDto teacherDto = new TeacherDto();
-					teacherDto.setId(teacher.getId());
-					teacherDto.setUserName(teacher.getUserName());
-					teacherDto.setEmail(teacher.getEmail());
-					teacherDto.setPassword(teacher.getPassword());
-					teacherDto.setCreateDate(teacher.getCreateDate());
-					teacherDto.setLastUpdateDate(teacher.getLastUpdateDate());
-					teacherDto.setDepartmentId(teacher.getDepartment().getId());
-					teacherDto.setTeacherNumber(teacher.getTeacherNumber());
-
-					// Burası verilirse eğer öğretmen başına 105 satır değer olucak buda performans
-					// sorunu yaratır.
-					// Bu yüzden öğretmeni bireysel olarak çektiğimizde gönderdim sadece
-					teacherDto.setSchedulesDto(null);
-					teachersDto.add(teacherDto);
-				});
-
+			if (!teachers.isEmpty()) {
+				List<TeacherDto> teachersDto = teacherMapper.toDtoList(teachers);
 				return new DataResult<List<TeacherDto>>(teachersDto, true, "Öğretmenler getirildi.");
-
 			} else {
-
 				return new DataResult<>(false, "Öğretmen bulunamadı.");
 			}
 
@@ -526,56 +322,28 @@ public class TeacherManager implements TeacherService {
 
 	@Override
 	public DataResult<TeacherDto> updateEmailById(long id, String email) {
-
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
-
-			if (!(teacher.equals(Optional.empty()))) {
+			if (teacher.isPresent()) {
 				teacher.get().setEmail(email);
-
 				teacherDao.save(teacher.get());
-
-				TeacherDto teacherDto = new TeacherDto();
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-
+				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin maili güncellendi.");
 			}
 			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
 			return new DataResult<>(false, e.getMessage());
 		}
-
 	}
 
 	@Override
 	public DataResult<TeacherDto> updateUserNameById(long id, String userName) {
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
-
-			if (!(teacher.equals(Optional.empty()))) {
+			if (teacher.isPresent()) {
 				teacher.get().setUserName(userName);
-
 				teacherDao.save(teacher.get());
-
-				TeacherDto teacherDto = new TeacherDto();
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-
+				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
 				return new DataResult<TeacherDto>(teacherDto, true,
 						id + " id'li öğretmenin kullanıcı adı güncellendi.");
 			}
@@ -583,73 +351,42 @@ public class TeacherManager implements TeacherService {
 		} catch (Exception e) {
 			return new DataResult<>(false, e.getMessage());
 		}
-
 	}
 
 	@Override
 	public DataResult<TeacherDto> updatePasswordById(long id, String password) {
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
-
-			if (!(teacher.equals(Optional.empty()))) {
+			if (teacher.isPresent()) {
 				teacher.get().setPassword(password);
-
 				teacherDao.save(teacher.get());
-
-				TeacherDto teacherDto = new TeacherDto();
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-
+				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin şifresi güncellendi.");
 			}
 			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
-			// xTODO: handle exception
 			return new DataResult<>(false, e.getMessage());
 		}
-
 	}
 
 	@Override
 	public DataResult<TeacherDto> updateTeacherNumberById(long id, String teacherNumber) {
 		try {
 			Optional<Teacher> teacher = teacherDao.findById(id);
-
-			if (!(teacher.equals(Optional.empty()))) {
+			if (teacher.isPresent()) {
 				teacher.get().setTeacherNumber(teacherNumber);
-
 				teacherDao.save(teacher.get());
-
-				TeacherDto teacherDto = new TeacherDto();
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-
+				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin numarası güncellendi.");
 			}
 			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
 		} catch (Exception e) {
 			return new DataResult<>(false, e.getMessage());
 		}
-
 	}
 
 	@Override
 	public DataResult<TeacherDto> updateDepartmentById(long id, Long departmentId) {
-
 		if (departmentId == null) {
 			return new DataResult<TeacherDto>(false, "Departman boş bırakılamaz.");
 		}
@@ -657,22 +394,10 @@ public class TeacherManager implements TeacherService {
 			Optional<Teacher> teacher = teacherDao.findById(id);
 			Optional<Department> department = departmentDao.findById(departmentId);
 
-			if (!(teacher.equals(Optional.empty())) && !(department.equals(Optional.empty()))) {
+			if (teacher.isPresent() && department.isPresent()) {
 				teacher.get().setDepartment(department.get());
-
 				teacherDao.save(teacher.get());
-
-				TeacherDto teacherDto = new TeacherDto();
-
-				teacherDto.setId(teacher.get().getId());
-				teacherDto.setUserName(teacher.get().getUserName());
-				teacherDto.setEmail(teacher.get().getEmail());
-				teacherDto.setPassword(teacher.get().getPassword());
-				teacherDto.setCreateDate(teacher.get().getCreateDate());
-				teacherDto.setLastUpdateDate(teacher.get().getLastUpdateDate());
-				teacherDto.setDepartmentId(teacher.get().getDepartment().getId());
-				teacherDto.setTeacherNumber(teacher.get().getTeacherNumber());
-
+				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
 				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin departmanı güncellendi.");
 			} else {
 				if (department.equals(Optional.empty())) {
@@ -684,7 +409,6 @@ public class TeacherManager implements TeacherService {
 		} catch (Exception e) {
 			return new DataResult<>(false, e.getMessage());
 		}
-
 	}
 
 	public DataResult<List<ScheduleSaveRequest>> updateScheduleSaveRequestListForTeacher(TeacherSaveRequest teacherSaveRequest, Long teacherId) {
@@ -719,32 +443,20 @@ public class TeacherManager implements TeacherService {
 							"Eklediğiniz programlarda gün ve saati aynı olan programlar var kontrol ediniz.");
 				}
 				if (scheduleSaveRequestForTeacherList.size() == 1) {
-					ScheduleSaveRequest scheduleSaveRequest = modelMapperService.forRequest()
-							.map(scheduleSaveRequestForTeacherList.getFirst(), ScheduleSaveRequest.class);
+					ScheduleSaveRequest scheduleSaveRequest = scheduleMapper
+							.toSaveRequest(scheduleSaveRequestForTeacherList.getFirst());
 					scheduleSaveRequest.setTeacherId(teacherId);
 					scheduleSaveRequest.setLastUpdateDateSystemWorkerId(teacherSaveRequest.getLastUpdateDateSystemWorkerId());
 
 					willSaveSchedules.add(scheduleSaveRequest);
 				} else {
-					ScheduleSaveRequest emptyScheduleSaveRequest = createEmptyScheduleSaveRequest(teacherSaveRequest, teacherId, dayId, hourId);
-
-					willSaveSchedules.add(emptyScheduleSaveRequest);
+					ScheduleSaveRequest scheduleSaveRequest = Schedule.createDefaultScheduleForSave(teacherSaveRequest.getLastUpdateDateSystemWorkerId(), teacherId, dayId, hourId);
+					willSaveSchedules.add(scheduleSaveRequest);
 				}
 			}
 		}
 
 		return new DataResult<List<ScheduleSaveRequest>>(willSaveSchedules, true, "Öğretmenin programları ayarlandı.");
-	}
-
-	private ScheduleSaveRequest createEmptyScheduleSaveRequest(TeacherSaveRequest teacherSaveRequest, Long teacherId, long dayId, long hourId) {
-		ScheduleSaveRequest emptyScheduleSaveRequest = new ScheduleSaveRequest();
-		emptyScheduleSaveRequest.setDayOfWeekId(dayId);
-		emptyScheduleSaveRequest.setHourId(hourId);
-		emptyScheduleSaveRequest.setTeacherId(teacherId);
-		emptyScheduleSaveRequest.setLastUpdateDateSystemWorkerId(teacherSaveRequest.getLastUpdateDateSystemWorkerId());
-		emptyScheduleSaveRequest.setDescription(Schedule.DEFAULT_DESCRIPTION);
-		emptyScheduleSaveRequest.setFull(false);
-		return emptyScheduleSaveRequest;
 	}
 
 	@Override
@@ -756,5 +468,4 @@ public class TeacherManager implements TeacherService {
 			return new DataResult<>(false, e.getMessage());
 		}
 	}
-
 }

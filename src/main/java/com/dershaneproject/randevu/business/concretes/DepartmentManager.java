@@ -1,7 +1,6 @@
 package com.dershaneproject.randevu.business.concretes;
 
 import com.dershaneproject.randevu.business.abstracts.DepartmentService;
-import com.dershaneproject.randevu.core.utilities.abstracts.ModelMapperServiceWithTypeMappingConfigs;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.DepartmentDao;
@@ -10,7 +9,8 @@ import com.dershaneproject.randevu.dto.TeacherDto;
 import com.dershaneproject.randevu.dto.requests.DepartmentSaveRequest;
 import com.dershaneproject.randevu.dto.responses.DepartmentSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Department;
-import com.dershaneproject.randevu.entities.concretes.Teacher;
+import com.dershaneproject.randevu.mappers.DepartmentMapper;
+import com.dershaneproject.randevu.mappers.TeacherMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,16 +23,16 @@ import java.util.Optional;
 public class DepartmentManager implements DepartmentService {
 
 	private final DepartmentDao departmentDao;
-	private final ModelMapperServiceWithTypeMappingConfigs modelMapperService;
+
+	private final DepartmentMapper departmentMapper;
+	private final TeacherMapper teacherMapper;
 
 	@Override
 	public DataResult<DepartmentSaveResponse> save(DepartmentSaveRequest departmentSaveRequest) {
 		try {
-			Department department =  modelMapperService.forResponse()
-					.map(departmentSaveRequest, Department.class);
+			Department department =  departmentMapper.toEntity(departmentSaveRequest);
 
-			DepartmentSaveResponse departmentSaveResponse = modelMapperService.forResponse()
-					.map(departmentSaveRequest, DepartmentSaveResponse.class);
+			DepartmentSaveResponse departmentSaveResponse = departmentMapper.toSaveResponse(department);
 			departmentSaveResponse.setId(departmentDao.save(department).getId());
 
 			return new DataResult<DepartmentSaveResponse>(departmentSaveResponse, true, "Veritabanına kaydedildi.");
@@ -60,85 +60,43 @@ public class DepartmentManager implements DepartmentService {
 
 	@Override
 	public DataResult<DepartmentDto> findWithTeachersById(long id) {
-
 		try {
 			Optional<Department> department = departmentDao.findById(id);
-			if (!(department.equals(Optional.empty()))) {
-				
-				List<Teacher> teachers = department.get().getTeachers();
-				List<TeacherDto> teachersDto = new ArrayList<>();
-				
-				teachers.forEach(teacher -> {
-					teacher.setSchedules(null);
-					teacher.setWeeklySchedules(null);
-					TeacherDto teacherDto = modelMapperService.forResponse().map(teacher, TeacherDto.class);
-
-					teachersDto.add(teacherDto);
-				});
-				
-				DepartmentDto departmentDto = new DepartmentDto();
-				departmentDto.setId(department.get().getId());
-				departmentDto.setName(department.get().getName());
-				departmentDto.setCompressing(department.get().getCompressing());
+			if (department.isPresent()) {
+				DepartmentDto departmentDto = departmentMapper.toDto(department.get());
+				List<TeacherDto> teachersDto = teacherMapper.toDtoList(department.get().getTeachers());
 				departmentDto.setTeachersDto(teachersDto);
-
 				return new DataResult<DepartmentDto>(departmentDto, true, id + " id'li departman bulundu.");
 			}
-
 			return new DataResult<DepartmentDto>(false, id + " id'li departman bulunamadı.");
-
 		} catch (Exception e) {
 			return new DataResult<DepartmentDto>(false, e.getMessage());
 		}
-
 	}
 
 	@Override
 	public DataResult<DepartmentDto> findById(long id) {
 		try {
 			Optional<Department> department = departmentDao.findById(id);
-			if (!(department.equals(Optional.empty()))) {
-				DepartmentDto departmentDto = new DepartmentDto();
-				departmentDto.setId(department.get().getId());
-				departmentDto.setName(department.get().getName());
-				departmentDto.setCompressing(department.get().getCompressing());
-
+			if (department.isPresent()) {
+				DepartmentDto departmentDto = departmentMapper.toDto(department.get());
 				return new DataResult<DepartmentDto>(departmentDto, true, id + " id'li departman bulundu.");
 			}
-
 			return new DataResult<DepartmentDto>(false, id + " id'li departman bulunamadı.");
 		} catch (Exception e) {
 			return new DataResult<DepartmentDto>(false, e.getMessage());
 		}
-
 	}
 
 	@Override
 	public DataResult<List<DepartmentDto>> findAllWithTeachers() {
 		try {
 			List<Department> departments = departmentDao.findAll();
-			if (departments.size() != 0) {
+			if (!departments.isEmpty()) {
 				List<DepartmentDto> departmentsDto = new ArrayList<DepartmentDto>();
-
 				for (Department department : departments) {
-					DepartmentDto departmentDto = new DepartmentDto();
-
-					List<Teacher> teachers = department.getTeachers();
-					List<TeacherDto> teachersDto = new ArrayList<>();
-
-					teachers.forEach(teacher -> {
-						teacher.setSchedules(null);
-						teacher.setWeeklySchedules(null);
-						TeacherDto teacherDto = modelMapperService.forResponse().map(teacher, TeacherDto.class);
-
-						teachersDto.add(teacherDto);
-					});
-
-					departmentDto.setId(department.getId());
-					departmentDto.setName(department.getName());
-					departmentDto.setCompressing(department.getCompressing());
-					departmentDto.setTeachersDto(teachersDto);
-
+					DepartmentDto departmentDto = departmentMapper.toDto(department);
+					List<TeacherDto> teachersDto = teacherMapper.toDtoList(department.getTeachers());
 					departmentsDto.add(departmentDto);
 				}
 				return new DataResult<List<DepartmentDto>>(departmentsDto, true, "Tüm departmanlar getirildi.");
@@ -148,24 +106,14 @@ public class DepartmentManager implements DepartmentService {
 		} catch (Exception e) {
 			return new DataResult<List<DepartmentDto>>(false, e.getMessage());
 		}
-
 	}
 
 	@Override
 	public DataResult<List<DepartmentDto>> findAll() {
 		try {
 			List<Department> departments = departmentDao.findAll();
-			if (departments.size() != 0) {
-				List<DepartmentDto> departmentsDto = new ArrayList<DepartmentDto>();
-
-				departments.forEach(department -> {
-					DepartmentDto departmentDto = new DepartmentDto();
-					departmentDto.setId(department.getId());
-					departmentDto.setName(department.getName());
-					departmentDto.setCompressing(department.getCompressing());
-
-					departmentsDto.add(departmentDto);
-				});
+			if (!departments.isEmpty()) {
+				List<DepartmentDto> departmentsDto = departmentMapper.toDtoList(departments);
 				return new DataResult<List<DepartmentDto>>(departmentsDto, true, "Tüm departmanlar getirildi.");
 			} else {
 				return new DataResult<List<DepartmentDto>>(false, "Departman bulunamadı.");
@@ -177,22 +125,14 @@ public class DepartmentManager implements DepartmentService {
 
 	@Override
 	public DataResult<DepartmentDto> updateNameById(long id, String name) {
-
 		try {
 			Optional<Department> department = departmentDao.findById(id);
-			if (!(department.equals(Optional.empty()))) {
+			if (department.isPresent()) {
 				department.get().setName(name);
-
 				departmentDao.save(department.get());
-
-				DepartmentDto departmentDto = new DepartmentDto();
-				departmentDto.setId(department.get().getId());
-				departmentDto.setName(department.get().getName());
-				departmentDto.setCompressing(department.get().getCompressing());
-
+				DepartmentDto departmentDto = departmentMapper.toDto(department.get());
 				return new DataResult<DepartmentDto>(departmentDto, true, id + " id'li departmanın adı güncellendi.");
 			}
-
 			return new DataResult<DepartmentDto>(false, id + " id'li departman bulunamadı.");
 
 		} catch (Exception e) {
@@ -205,25 +145,16 @@ public class DepartmentManager implements DepartmentService {
 	public DataResult<DepartmentDto> updateCompressingById(long id, String compressing) {
 		try {
 			Optional<Department> department = departmentDao.findById(id);
-			if (!(department.equals(Optional.empty()))) {
+			if (department.isPresent()) {
 				department.get().setCompressing(compressing);
-
 				departmentDao.save(department.get());
-
-				DepartmentDto departmentDto = new DepartmentDto();
-				departmentDto.setId(department.get().getId());
-				departmentDto.setName(department.get().getName());
-				departmentDto.setCompressing(department.get().getCompressing());
-
+				DepartmentDto departmentDto = departmentMapper.toDto(department.get());
 				return new DataResult<DepartmentDto>(departmentDto, true, id + " id'li departmanın kısaltması güncellendi.");
 			}
-
 			return new DataResult<DepartmentDto>(false, id + " id'li departman bulunamadı.");
-
 		} catch (Exception e) {
 			return new DataResult<DepartmentDto>(false, e.getMessage());
 		}
-
 	}
 
 	@Override

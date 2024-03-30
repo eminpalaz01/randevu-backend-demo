@@ -1,9 +1,10 @@
 package com.dershaneproject.randevu.mappers;
 
 import com.dershaneproject.randevu.dto.ScheduleDto;
-import com.dershaneproject.randevu.dto.mappers.SystemWorkerMapper;
-import com.dershaneproject.randevu.entities.concretes.Schedule;
-import com.dershaneproject.randevu.entities.concretes.Teacher;
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequestForTeacher;
+import com.dershaneproject.randevu.dto.responses.ScheduleSaveResponse;
+import com.dershaneproject.randevu.entities.concretes.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -27,13 +28,51 @@ public interface ScheduleMapper {
     @Mapping(target = "teacher", expression = "java(createEmptyTeacherWithId(scheduleDto))")
     Schedule toEntity(ScheduleDto scheduleDto);
 
-    List<ScheduleDto> toDtoList(List<Schedule> schedules);
+    @Mapping(target = "teacher", expression = "java(createEmptyTeacherWithId(scheduleSaveRequest))")
+    @Mapping(target = "lastUpdateDateSystemWorker", expression = "java(createEmptyLastUpdateDateSystemWorkerWithId(scheduleSaveRequest))")
+    @Mapping(target = "dayOfWeek", expression = "java(createEmptyDayOfWeekWithId(scheduleSaveRequest))")
+    @Mapping(target = "hour", expression = "java(createEmptyHourWithId(scheduleSaveRequest))")
+    @Mapping(target = "id", expression = "java(null)")
+    @Mapping(target = "lastUpdateDate", expression = "java(null)")
+    @Mapping(target = "createDate", expression = "java(null)")
+    Schedule toEntity(ScheduleSaveRequest scheduleSaveRequest);
 
-    List<Schedule> toEntityList(List<ScheduleDto> schedulesDto);
+    @Mapping(target = "hour", source = "hour")
+    @Mapping(target = "dayOfWeek", source = "dayOfWeek")
+    @Mapping(target = "lastUpdateDateSystemWorker", source = "lastUpdateDateSystemWorker")
+    @Mapping(target = "teacherId", source = "teacher.id")
+    ScheduleSaveResponse toSaveResponse(Schedule schedule);
+
+    @Mapping(target = "lastUpdateDateSystemWorkerId", expression = "java(null)")
+    @Mapping(target = "teacherId", expression = "java(null)")
+    ScheduleSaveRequest toSaveRequest(ScheduleSaveRequestForTeacher scheduleSaveRequestForTeacher);
+
+    List<ScheduleDto> toDtoList(List<Schedule> scheduleList);
+
+    List<Schedule> toEntityList(List<ScheduleDto> scheduleDtoList);
+
+    List<ScheduleSaveResponse> toSaveResponseList(List<Schedule> scheduleList);
+
+    List<Schedule> toEntityListFromSaveRequestList(List<ScheduleSaveRequest> scheduleSaveRequestList);
 
     default Teacher createEmptyTeacherWithId(ScheduleDto scheduleDto) {
         return Teacher.createEmptyWithId(scheduleDto.getTeacherId());
     }
 
+    default Teacher createEmptyTeacherWithId(ScheduleSaveRequest scheduleSaveRequest) {
+        return Teacher.createEmptyWithId(scheduleSaveRequest.getTeacherId());
+    }
+
+    default SystemWorker createEmptyLastUpdateDateSystemWorkerWithId(ScheduleSaveRequest scheduleSaveRequest) {
+        return SystemWorker.createEmptyWithId(scheduleSaveRequest.getLastUpdateDateSystemWorkerId());
+    }
+
+    default DayOfWeek createEmptyDayOfWeekWithId(ScheduleSaveRequest scheduleSaveRequest) {
+        return DayOfWeek.createEmptyWithId(scheduleSaveRequest.getDayOfWeekId());
+    }
+
+    default Hour createEmptyHourWithId(ScheduleSaveRequest scheduleSaveRequest) {
+        return Hour.createEmptyWithId(scheduleSaveRequest.getHourId());
+    }
 
 }

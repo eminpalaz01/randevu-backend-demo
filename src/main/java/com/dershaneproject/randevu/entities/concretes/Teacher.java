@@ -57,6 +57,9 @@ public class Teacher extends User{
 	}
 
 	public static Teacher createEmptyWithId(Long id){
+		if (id == null)
+			return null;
+
 		Teacher teacher = new Teacher();
 		teacher.setId(id);
 		return teacher;

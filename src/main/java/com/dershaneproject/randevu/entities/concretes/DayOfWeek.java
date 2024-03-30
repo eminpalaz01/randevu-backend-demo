@@ -43,4 +43,13 @@ public class DayOfWeek implements Serializable {
 	public final int hashCode() {
 		return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
 	}
+
+	public static DayOfWeek createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		DayOfWeek dayOfWeek = new DayOfWeek();
+		dayOfWeek.setId(id);
+		return dayOfWeek;
+	}
 }

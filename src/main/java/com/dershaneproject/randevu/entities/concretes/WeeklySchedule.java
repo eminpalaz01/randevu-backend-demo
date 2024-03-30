@@ -84,4 +84,13 @@ public class WeeklySchedule implements Serializable{
 	public final int hashCode() {
 		return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
 	}
+
+	public static WeeklySchedule createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		WeeklySchedule weeklySchedule = new WeeklySchedule();
+		weeklySchedule.setId(id);
+		return weeklySchedule;
+	}
 }
