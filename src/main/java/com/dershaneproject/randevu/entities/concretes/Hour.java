@@ -44,4 +44,13 @@ public class Hour implements Serializable{
 	public final int hashCode() {
 		return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
 	}
+
+	public static Hour createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		Hour hour = new Hour();
+		hour.setId(id);
+		return hour;
+	}
 }

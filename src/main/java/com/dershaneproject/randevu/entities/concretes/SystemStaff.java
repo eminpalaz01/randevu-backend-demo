@@ -1,11 +1,12 @@
 package com.dershaneproject.randevu.entities.concretes;
 
-import java.util.Date;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -14,21 +15,25 @@ import lombok.ToString;
 @Table(name = "system_staffs")
 public class SystemStaff extends SystemWorker {
 
-	/**
-	 * 
-	 */
-
 	public SystemStaff() {
-		// TODO Auto-generated constructor stub
 		super();
 		super.setAuthority(Authority.STAFF.getValue());
 	}
 
-	public SystemStaff(Long id, String userName, String password, Date createDate, Integer authority, Date lastUpdateDate,
+	public SystemStaff(Long id, String userName, String password, Date createDate, Date lastUpdateDate,
 			String email) {
 		
 		super(id, userName, password, createDate, lastUpdateDate, email);
-		super.setAuthority(Authority.STAFF.getValue());
+		setAuthority(Authority.STAFF.getValue());
+	}
+
+	public static SystemStaff createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		SystemStaff systemStaff = new SystemStaff();
+		systemStaff.setId(id);
+		return systemStaff;
 	}
 
 }

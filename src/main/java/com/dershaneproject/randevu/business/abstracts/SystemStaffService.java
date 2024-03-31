@@ -1,13 +1,16 @@
 package com.dershaneproject.randevu.business.abstracts;
 
-import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.SystemStaffDto;
+import com.dershaneproject.randevu.dto.requests.SystemStaffSaveRequest;
+import com.dershaneproject.randevu.dto.responses.SystemStaffSaveResponse;
+
+import java.util.List;
 
 public interface SystemStaffService {
 
-	DataResult<SystemStaffDto> save(SystemStaffDto systemStaffDto);
+	DataResult<SystemStaffSaveResponse> save(SystemStaffSaveRequest systemStaffSaveRequest);
 
 	Result deleteById(long id);
 

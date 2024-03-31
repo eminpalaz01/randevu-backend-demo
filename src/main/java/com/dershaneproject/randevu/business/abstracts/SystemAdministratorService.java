@@ -1,13 +1,16 @@
 package com.dershaneproject.randevu.business.abstracts;
 
-import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.SystemAdministratorDto;
+import com.dershaneproject.randevu.dto.requests.SystemAdministratorSaveRequest;
+import com.dershaneproject.randevu.dto.responses.SystemAdministratorSaveResponse;
+
+import java.util.List;
 
 public interface SystemAdministratorService {
 
-	DataResult<SystemAdministratorDto> save(SystemAdministratorDto systemAdministratorDto);
+	DataResult<SystemAdministratorSaveResponse> save(SystemAdministratorSaveRequest systemAdministratorSaveRequest);
 
 	Result deleteById(long id);
 

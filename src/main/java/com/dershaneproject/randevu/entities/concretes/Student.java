@@ -1,17 +1,13 @@
 package com.dershaneproject.randevu.entities.concretes;
 
-import java.util.Date;
-import java.util.List;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -40,4 +36,12 @@ public class Student extends User {
 		this.studentNumber = studentNumber;
 	}
 
+	public static Student createEmptyWithId(Long id) {
+		if (id == null)
+			return null;
+
+		Student student = new Student();
+		student.setId(id);
+		return student;
+	}
 }

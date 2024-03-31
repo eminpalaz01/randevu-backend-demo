@@ -1,41 +1,33 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.dershaneproject.randevu.business.abstracts.ScheduleService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.ScheduleDto;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/schedules")
 @RequiredArgsConstructor
-public class SchedulesController {
+public class ScheduleController {
 
 	private final ScheduleService scheduleService;
 
-	@PostMapping
-	public ResponseEntity<DataResult<ScheduleDto>> save(@RequestBody ScheduleDto scheduleDto) {
-
-		return ResponseEntity.ok(scheduleService.save(scheduleDto));
-	}
-
-	@PostMapping("/all")
-	public ResponseEntity<DataResult<List<ScheduleDto>>> saveAll(@RequestBody List<ScheduleDto> schedulesDto) {
-
-		return ResponseEntity.ok(scheduleService.saveAll(schedulesDto));
-	}
+//	@PostMapping
+//	public ResponseEntity<DataResult<ScheduleSaveResponse>> save(@RequestBody ScheduleSaveRequest scheduleSaveRequest) {
+//
+//		return ResponseEntity.ok(scheduleService.save(scheduleSaveRequest));
+//	}
+//
+//	@PostMapping("/all")
+//	public ResponseEntity<DataResult<List<ScheduleSaveResponse>>> saveAll(@RequestBody List<ScheduleSaveRequest> scheduleSaveRequestList) {
+//
+//		return ResponseEntity.ok(scheduleService.saveAll(scheduleSaveRequestList));
+//	}
 
 	@GetMapping
 	public ResponseEntity<DataResult<List<ScheduleDto>>> findAll() {
@@ -55,6 +47,12 @@ public class SchedulesController {
 		return ResponseEntity.ok(scheduleService.findById(id));
 	}
 
+	@GetMapping("/teacher/{teacherId}")
+	public ResponseEntity<DataResult<List<ScheduleDto>>> findAllByTeacherId(@PathVariable long teacherId) {
+
+		return ResponseEntity.ok(scheduleService.findAllByTeacherId(teacherId));
+	}
+
 	@DeleteMapping("/{id}")
 	public ResponseEntity<Result> deleteById(@PathVariable long id) {
 
@@ -65,14 +63,14 @@ public class SchedulesController {
 	public ResponseEntity<DataResult<ScheduleDto>> updateDayOfWeekById(@PathVariable long id,
 			@RequestBody ScheduleDto scheduleDto) {
 
-		return ResponseEntity.ok(scheduleService.updateDayOfWeekById(id, scheduleDto.getDayOfWeek().getId()));
+		return ResponseEntity.ok(scheduleService.updateDayOfWeekById(id, scheduleDto.getDayOfWeekDto().getId()));
 	}
 
 	@PutMapping("/{id}/hour")
 	public ResponseEntity<DataResult<ScheduleDto>> updateHourById(@PathVariable long id,
 			@RequestBody ScheduleDto scheduleDto) {
 
-		return ResponseEntity.ok(scheduleService.updateHourById(id, scheduleDto.getHour().getId()));
+		return ResponseEntity.ok(scheduleService.updateHourById(id, scheduleDto.getHourDto().getId()));
 	}
 
 	@PutMapping("/{id}/full")
@@ -94,7 +92,7 @@ public class SchedulesController {
 			@RequestBody ScheduleDto scheduleDto) {
 
 		return ResponseEntity.ok(scheduleService.updateLastUpdateDateSystemWorkerById(id,
-				scheduleDto.getLastUpdateDateSystemWorker().getId()));
+				scheduleDto.getLastUpdateDateSystemWorkerDto().getId()));
 	}
 
 	@PutMapping("/{id}/description")

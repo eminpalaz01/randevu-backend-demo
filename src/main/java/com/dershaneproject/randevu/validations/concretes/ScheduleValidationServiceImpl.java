@@ -1,18 +1,17 @@
 package com.dershaneproject.randevu.validations.concretes;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.DayOfWeekDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.HourDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.SystemWorkerDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.TeacherDao;
-import com.dershaneproject.randevu.dto.ScheduleDto;
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
 import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Component
@@ -24,18 +23,20 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 	private final SystemWorkerDao systemWorkerDao;
 
 	@Override
-	public Result isValidateResult(ScheduleDto scheduleDto) {
-		// TODO Auto-generated method stub
-		StringBuffer fieldErrorMessage = new StringBuffer("Program oluşturulamaz girdiğiniz");
+	public Result isValidateResult(ScheduleSaveRequest scheduleSaveRequest) {
+		return isValidateResult(scheduleSaveRequest.getFull(), scheduleSaveRequest.getTeacherId(), scheduleSaveRequest.getLastUpdateDateSystemWorkerId(), scheduleSaveRequest.getDayOfWeekId(), scheduleSaveRequest.getHourId());
+	}
+
+	private Result isValidateResult(Boolean isFull, Long teacherId, Long lastUpdateSystemWorkerId, Long dayOfWeekId, Long hourId) {
+		StringBuilder fieldErrorMessage = new StringBuilder("Program oluşturulamaz girdiğiniz");
 		String messageSuccess = "Program ın oluşturulmasında bir sorun yok.";
 
-		Boolean isFullEmpty = scheduleDto.getFull();
-		boolean isExistsTeacher = teacherDao.existsById(scheduleDto.getTeacherId());
-		boolean isExistsDayOfWeek = dayOfWeekDao.existsById(scheduleDto.getDayOfWeek().getId());
-		boolean isExistsHour = hourDao.existsById(scheduleDto.getHour().getId());
-		boolean isExistsSystemWorker = systemWorkerDao.existsById(scheduleDto.getLastUpdateDateSystemWorker().getId());
+		boolean isExistsTeacher = teacherDao.existsById(teacherId);
+		boolean isExistsDayOfWeek = dayOfWeekDao.existsById(dayOfWeekId);
+		boolean isExistsHour = hourDao.existsById(hourId);
+		boolean isExistsSystemWorker = systemWorkerDao.existsById(lastUpdateSystemWorkerId);
 
-		if (!isExistsTeacher || !isExistsDayOfWeek || !isExistsHour || !isExistsSystemWorker || isFullEmpty == null) {
+		if (!isExistsTeacher || !isExistsDayOfWeek || !isExistsHour || !isExistsSystemWorker || isFull == null) {
 			List<String> errorFields = new ArrayList<>(5);
 
 			if (!isExistsTeacher) {
@@ -50,39 +51,36 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 			if (!isExistsSystemWorker) {
 				errorFields.add("Sistem Çalışanı");
 			}
-			if (isFullEmpty == null) {
+			if (isFull == null) {
 				errorFields.add("Doluluk değeri");
 			}
 
 			// This algorithm writes in a readable form
 			for (int i = 0; i < errorFields.size(); i++) {
 				if (errorFields.size() - 1 == i) {
-					fieldErrorMessage.append(" " + errorFields.get(i));
+					fieldErrorMessage.append(" ").append(errorFields.get(i));
 					break;
 				}
-				fieldErrorMessage.append(" " + errorFields.get(i) + ",");
+				fieldErrorMessage.append(" ").append(errorFields.get(i)).append(",");
 			}
-
 			fieldErrorMessage.append(" değerleri sistemde bulunamadı kontrol ediniz.");
-
 			return new Result(false, fieldErrorMessage.toString());
 		}
-
 		return new Result(true, messageSuccess);
-
 	}
 
 	@Override
-	public Result areValidateForCreateTeacherResult(List<ScheduleDto> schedulesDto) {
-		// TODO Auto-generated method stub
-		StringBuffer fieldErrorMessage = new StringBuffer("Programların biri veya bazıları oluşturulamaz girdiğiniz bazı");
-		String messageSuccess = "Programlar'ın oluşturulmasında bir sorun yok.";
+	public Result areValidateResult(List<ScheduleSaveRequest> scheduleSaveRequestList) {
+		String successMessage = "Programlar'ın oluşturulmasında bir sorun yok.";
+		String errorMessageFirstPart = "Programların biri veya bazıları oluşturulamaz girdiğiniz bazı";
+		String errorMessageLastPart = " değerleri sistemde bulunamadı kontrol ediniz.";
+		StringBuilder fieldErrorMessage = new StringBuilder(errorMessageFirstPart);
 
-		for(ScheduleDto scheduleDto:schedulesDto) {
+		for(ScheduleSaveRequest scheduleDto: scheduleSaveRequestList) {
 			
 		boolean isExistsTeacher = teacherDao.existsById(scheduleDto.getTeacherId());
-		boolean isExistsDayOfWeek = dayOfWeekDao.existsById(scheduleDto.getDayOfWeek().getId());
-		boolean isExistsHour = hourDao.existsById(scheduleDto.getHour().getId());
+		boolean isExistsDayOfWeek = dayOfWeekDao.existsById(scheduleDto.getDayOfWeekId());
+		boolean isExistsHour = hourDao.existsById(scheduleDto.getHourId());
 
 		if (!isExistsTeacher || !isExistsDayOfWeek || !isExistsHour) {
 			List<String> errorFields = new ArrayList<>(3);
@@ -100,20 +98,16 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 			// This algorithm writes in a readable form
 			for (int i = 0; i < errorFields.size(); i++) {
 				if (errorFields.size() - 1 == i) {
-					fieldErrorMessage.append(" " + errorFields.get(i));
+					fieldErrorMessage.append(" ").append(errorFields.get(i));
 				}
-				fieldErrorMessage.append(" " + errorFields.get(i) + ",");
+				fieldErrorMessage.append(" ").append(errorFields.get(i)).append(",");
 			}
 
-			fieldErrorMessage.append(" değerleri sistemde bulunamadı kontrol ediniz.");
+			fieldErrorMessage.append(errorMessageLastPart);
 
 			return new Result(false, fieldErrorMessage.toString());
 		}
-		
 	  }
-
-		return new Result(true, messageSuccess);
-
+		return new Result(true, successMessage);
 	}
-
 }

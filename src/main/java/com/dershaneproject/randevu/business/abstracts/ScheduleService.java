@@ -1,18 +1,18 @@
 package com.dershaneproject.randevu.business.abstracts;
 
-import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.ScheduleDto;
-import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
+import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
+import com.dershaneproject.randevu.dto.responses.ScheduleSaveResponse;
+
+import java.util.List;
 
 public interface ScheduleService {
 
-	DataResult<ScheduleDto> save(ScheduleDto scheduleDto);
+	DataResult<ScheduleSaveResponse> save(ScheduleSaveRequest scheduleSaveRequest);
 
-	DataResult<List<ScheduleDto>> saveAll(List<ScheduleDto> schedulesDto);
-	
-	DataResult<List<ScheduleDto>> saveAllForCreateTeacher(List<ScheduleDto> schedulesDto);
+	DataResult<List<ScheduleSaveResponse>> saveAll(List<ScheduleSaveRequest> scheduleSaveRequestList);
 
 	Result deleteById(long id);
 
@@ -33,4 +33,6 @@ public interface ScheduleService {
 	DataResult<ScheduleDto> updateHourById(long id, Long hourId);
 	
 	DataResult<Long> getCount();
+
+	DataResult<List<ScheduleDto>> findAllByTeacherId(long teacherId);
 }

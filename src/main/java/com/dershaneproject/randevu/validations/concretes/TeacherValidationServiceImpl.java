@@ -11,7 +11,6 @@ public class TeacherValidationServiceImpl implements TeacherValidationService{
 
 	@Override
 	public boolean isValid(TeacherDto teacherDto) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

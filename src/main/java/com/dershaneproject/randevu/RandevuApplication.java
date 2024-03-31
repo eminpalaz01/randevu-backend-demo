@@ -1,26 +1,6 @@
 package com.dershaneproject.randevu;
 
-import java.util.List;
-
 import io.github.cdimascio.dotenv.Dotenv;
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
-/*import org.springframework.context.ConfigurableApplicationContext;
-import com.dershaneproject.randevu.dataAccess.abstracts.DayOfWeekDao;
-import com.dershaneproject.randevu.dataAccess.abstracts.HourDao;
-import com.dershaneproject.randevu.dataAccess.abstracts.SystemStaffDao;
-import com.dershaneproject.randevu.dataAccess.abstracts.SystemWorkerDao;
-import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
-import com.dershaneproject.randevu.entities.concretes.Hour;
-import com.dershaneproject.randevu.entities.concretes.SystemStaff;
-import com.dershaneproject.randevu.entities.concretes.SystemWorker;
-import java.time.LocalTime;
-import java.util.Optional;*/
-import org.springframework.context.annotation.Bean;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.annotations.OpenAPI31;
@@ -28,8 +8,16 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import java.util.List;
 
 @OpenAPI31
+@EnableTransactionManagement
 @SpringBootApplication
 public class RandevuApplication {
 
@@ -77,12 +65,12 @@ public class RandevuApplication {
 		// Uygulama çalışınca oluşan classları daha doğrusu
 		// beanleri kullanmak için instence oluşturdum
 
-	//	ConfigurableApplicationContext configurableApplicationContext = 
+		//	ConfigurableApplicationContext configurableApplicationContext =
 		SpringApplication.run(RandevuApplication.class, args);
-		
+
 		/* Versiyon kontrolleri */
-		System.out.println(" My jdk version " + System.getProperty("java.version"));
-		System.out.println(" Hibernate version " + org.hibernate.Version.getVersionString());
+//		System.out.println(" My jdk version " + System.getProperty("java.version"));
+//		System.out.println(" Hibernate version " + org.hibernate.Version.getVersionString());
 
 	/*	 SystemWorker deneme = new SystemWorker();
 		 deneme.setUserName("auth kontrolü");
@@ -120,11 +108,4 @@ public class RandevuApplication {
 				.description(description)
 				.license(new License().name("Randevu Api Licence")));	
 	}
-    
-    @Bean
-    public ModelMapper getModelMapper() {
-    	ModelMapper modelMapper = new ModelMapper();
-    	return modelMapper;
-    }
-
 }

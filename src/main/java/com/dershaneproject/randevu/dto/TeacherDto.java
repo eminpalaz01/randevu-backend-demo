@@ -1,12 +1,10 @@
 package com.dershaneproject.randevu.dto;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
-import com.dershaneproject.randevu.entities.concretes.Schedule;
-
-import lombok.Data;
 
 @Data
 public class TeacherDto implements Serializable {
@@ -32,8 +30,8 @@ public class TeacherDto implements Serializable {
 
 	private String teacherNumber;
 		
-	private List<ScheduleDto> schedules;
+	private List<ScheduleDto> schedulesDto;
 	
-	private List<WeeklyScheduleDto> weeklySchedules;
+	private List<WeeklyScheduleDto> weeklySchedulesDto;
 
 }

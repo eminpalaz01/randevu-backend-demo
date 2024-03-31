@@ -1,34 +1,28 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.dershaneproject.randevu.business.abstracts.TeacherService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.TeacherDto;
+import com.dershaneproject.randevu.dto.requests.TeacherSaveRequest;
+import com.dershaneproject.randevu.dto.responses.TeacherSaveResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/teachers")
 @RequiredArgsConstructor
-public class TeachersController {
+public class TeacherController {
 
 	private final TeacherService teacherService;
 
 	@PostMapping
-	public ResponseEntity<DataResult<TeacherDto>> save(@RequestBody TeacherDto teacherDto) {
+	public ResponseEntity<DataResult<TeacherSaveResponse>> save(@RequestBody TeacherSaveRequest teacherSaveRequest) {
 
-		return ResponseEntity.ok(teacherService.save(teacherDto));
+		return ResponseEntity.ok(teacherService.save(teacherSaveRequest));
 	}
 
 	@GetMapping
@@ -50,27 +44,13 @@ public class TeachersController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<DataResult<TeacherDto>> findById(@PathVariable long id) {
-
+	public ResponseEntity<DataResult<TeacherDto>> findById(@PathVariable long id,
+														   @RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
+														   @RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) {
+		if (withSchedules && withWeeklySchedules) { return ResponseEntity.ok(teacherService.findByIdWithAllSchedules(id));}
+		if (withSchedules) { return ResponseEntity.ok(teacherService.findByIdWithSchedules(id));}
+		if (withWeeklySchedules) { return ResponseEntity.ok(teacherService.findByIdWithWeeklySchedules(id));}
 		return ResponseEntity.ok(teacherService.findById(id));
-	}
-	
-	@GetMapping("/schedules-and-weekly-schedules/{id}")
-	public ResponseEntity<DataResult<TeacherDto>> findByIdWithAllSchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(teacherService.findByIdWithAllSchedules(id));
-	}
-	
-	@GetMapping("/schedules/{id}")
-	public ResponseEntity<DataResult<TeacherDto>> findByIdWithSchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(teacherService.findByIdWithSchedules(id));
-	}
-	
-	@GetMapping("/weekly-schedules/{id}")
-	public ResponseEntity<DataResult<TeacherDto>> findByIdWithWeeklySchedules(@PathVariable long id) {
-
-		return ResponseEntity.ok(teacherService.findByIdWithWeeklySchedules(id));
 	}
 
 	@DeleteMapping("/{id}")

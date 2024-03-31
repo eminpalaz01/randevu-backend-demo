@@ -1,11 +1,11 @@
 package com.dershaneproject.randevu.validations.abstracts;
 
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
-import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
+import com.dershaneproject.randevu.dto.requests.WeeklyScheduleSaveRequest;
 
 public interface WeeklyScheduleValidationService {
 
-    public Result isValidateResult(WeeklyScheduleDto weeklyScheduleDto);
+    Result isValidateResult(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest);
 
-    public Result studentExistById(WeeklyScheduleDto weeklyScheduleDto);
+    Result studentExistById(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest);
 }

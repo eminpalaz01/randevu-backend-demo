@@ -1,35 +1,29 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import com.dershaneproject.randevu.api.controllers.doc.IHourController;
 import com.dershaneproject.randevu.business.abstracts.HourService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.HourDto;
+import com.dershaneproject.randevu.dto.requests.HourSaveRequest;
+import com.dershaneproject.randevu.dto.responses.HourSaveResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/hours")
 @RequiredArgsConstructor
-public class HoursController {
+public class HourController implements IHourController {
 
 	private final HourService hourService;
 
 	@PostMapping
-	public ResponseEntity<DataResult<HourDto>> save(@RequestBody HourDto hourDto) {
+	public ResponseEntity<DataResult<HourSaveResponse>> save(@RequestBody HourSaveRequest hourSaveRequest) {
 
-		return ResponseEntity.ok(hourService.save(hourDto));
+		return ResponseEntity.ok(hourService.save(hourSaveRequest));
 	}
 
 	@GetMapping

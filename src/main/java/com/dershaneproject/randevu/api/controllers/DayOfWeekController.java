@@ -1,34 +1,28 @@
 package com.dershaneproject.randevu.api.controllers;
 
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import com.dershaneproject.randevu.business.abstracts.DayOfWeekService;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.DayOfWeekDto;
+import com.dershaneproject.randevu.dto.requests.DayOfWeekSaveRequest;
+import com.dershaneproject.randevu.dto.responses.DayOfWeekSaveResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/days-of-week")
 @RequiredArgsConstructor
-public class DaysOfWeekController {
+public class DayOfWeekController {
 
 	private final DayOfWeekService dayOfWeekService;
 
 	@PostMapping
-	public ResponseEntity<DataResult<DayOfWeekDto>> save(@RequestBody DayOfWeekDto dayOfWeekDto) {
+	public ResponseEntity<DataResult<DayOfWeekSaveResponse>> save(@RequestBody DayOfWeekSaveRequest dayOfWeekSaveRequest) {
 
-		return ResponseEntity.ok(dayOfWeekService.save(dayOfWeekDto));
+		return ResponseEntity.ok(dayOfWeekService.save(dayOfWeekSaveRequest));
 	}
 
 	@GetMapping

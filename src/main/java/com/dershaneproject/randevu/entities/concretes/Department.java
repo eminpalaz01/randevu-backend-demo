@@ -63,4 +63,13 @@ public class Department implements Serializable{
 	public final int hashCode() {
 		return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
 	}
+
+	public static Department createEmptyWithId(Long id){
+		if (id == null)
+			return null;
+
+		Department department = new Department();
+		department.setId(id);
+		return department;
+	}
 }

@@ -1,14 +1,17 @@
 package com.dershaneproject.randevu.business.abstracts;
 
-import java.time.LocalTime;
-import java.util.List;
 import com.dershaneproject.randevu.core.utilities.concretes.DataResult;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.HourDto;
+import com.dershaneproject.randevu.dto.requests.HourSaveRequest;
+import com.dershaneproject.randevu.dto.responses.HourSaveResponse;
+
+import java.time.LocalTime;
+import java.util.List;
 
 public interface HourService {
 	
-	DataResult<HourDto> save(HourDto hourDto);
+	DataResult<HourSaveResponse> save(HourSaveRequest hourSaveRequest);
 
 	Result deleteById(long id);
 
