@@ -97,6 +97,7 @@ public class DepartmentManager implements DepartmentService {
 				for (Department department : departments) {
 					DepartmentDto departmentDto = departmentMapper.toDto(department);
 					List<TeacherDto> teachersDto = teacherMapper.toDtoList(department.getTeachers());
+					departmentDto.setTeachersDto(teachersDto);
 					departmentsDto.add(departmentDto);
 				}
 				return new DataResult<List<DepartmentDto>>(departmentsDto, true, "Tüm departmanlar getirildi.");

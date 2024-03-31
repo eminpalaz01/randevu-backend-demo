@@ -58,31 +58,25 @@ public class TeacherManager implements TeacherService {
 			if (teacherSaveRequest.getSchedules() == null) {
 				teacherSaveRequest.setSchedules(new ArrayList<ScheduleSaveRequestForTeacher>());
 			}
-
 			if (!departmentDao.existsById(teacherSaveRequest.getDepartmentId())) {
 				return new DataResult<>(false,
 						"Veritabanına öğretmen kaydı başarısız departman id'sini kontrol ediniz.");
 			}
-
 			Teacher teacher = teacherDao.saveAndFlush(teacherMapper.toEntity(teacherSaveRequest));
 
             // scheduleSaveRequestsForTeacher are updating for register
             DataResult<List<ScheduleSaveRequest>> resultUpdateSchedulesDto = updateScheduleSaveRequestListForTeacher(teacherSaveRequest, teacher.getId());
-
             if (resultUpdateSchedulesDto.isSuccess()) {
                 // scheduleSaveRequestsForTeacher are validating
                 Result resultValidationSchedulesDto = scheduleValidationService
                         .areValidateResult(resultUpdateSchedulesDto.getData());
-
                 if (resultValidationSchedulesDto.isSuccess()) {
                     // scheduleSaveRequestsForTeacher are saving and updating
                     DataResult<List<ScheduleSaveResponse>> resultScheduleSaveResponseList = scheduleService
                             .saveAll(resultUpdateSchedulesDto.getData());
-
                     if (resultScheduleSaveResponseList.isSuccess()) {
                         List<ScheduleSaveResponse> scheduleSaveResponseList = resultScheduleSaveResponseList.getData();
                         List<WeeklyScheduleSaveRequest> weeklyScheduleSaveRequestList = new ArrayList<>();
-
                         // scheduleSaveRequestsForTeacher mapping to WeeklyScheduleSaveRequestList
                         scheduleSaveResponseList.forEach(scheduleSaveResponse -> {
 							weeklyScheduleSaveRequestList.add(createWeeklyScheduleSaveRequest(scheduleSaveResponse));
@@ -108,27 +102,21 @@ public class TeacherManager implements TeacherService {
                              teacherDao.deleteById(teacher.getId());
                              return new DataResult<>(false, resultResponseWeeklySchedulesDto.getMessage());
                          }
-
                     } else {
                         teacherDao.deleteById(teacher.getId());
                         return new DataResult<>(false, resultScheduleSaveResponseList.getMessage());
                     }
-
                 } else {
                     teacherDao.deleteById(teacher.getId());
                     return new DataResult<>(false, resultValidationSchedulesDto.getMessage());
                 }
-
             } else {
                 teacherDao.deleteById(teacher.getId());
                 return new DataResult<>(false, resultUpdateSchedulesDto.getMessage());
             }
-
-
         } catch (Exception e) {
 			return new DataResult<>(false, e.getMessage());
 		}
-
 	}
 
 	private static WeeklyScheduleSaveRequest createWeeklyScheduleSaveRequest(ScheduleSaveResponse scheduleSaveResponse) {

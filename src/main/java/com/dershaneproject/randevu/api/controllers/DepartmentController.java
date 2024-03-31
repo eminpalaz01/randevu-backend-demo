@@ -31,28 +31,19 @@ public class DepartmentController {
 		return ResponseEntity.ok(departmentService.getCount());
 	}
 
-	@GetMapping("/teachers")
-	public ResponseEntity<DataResult<List<DepartmentDto>>> findAllWithTeachers() {
-		return ResponseEntity.ok(departmentService.findAllWithTeachers());
-	}
-
 	@GetMapping
-	public ResponseEntity<DataResult<List<DepartmentDto>>> findAll() {
+	public ResponseEntity<DataResult<List<DepartmentDto>>> findAll(@RequestParam(required = false, defaultValue = "false") boolean withTeachers) {
+		if (withTeachers)
+			return ResponseEntity.ok(departmentService.findAllWithTeachers());
 		return ResponseEntity.ok(departmentService.findAll());
 	}
 
-	@GetMapping("/teachers/{id}")
-	public ResponseEntity<DataResult<DepartmentDto>> findWithTeachersById(@PathVariable long id) {
-
-		return ResponseEntity.ok(departmentService.findWithTeachersById(id));
-
-	}
-
 	@GetMapping("/{id}")
-	public ResponseEntity<DataResult<DepartmentDto>> findById(@PathVariable long id) {
-
+	public ResponseEntity<DataResult<DepartmentDto>> findById(@PathVariable long id,
+															  @RequestParam(required = false, defaultValue = "false") boolean withTeachers) {
+		if (withTeachers)
+			return ResponseEntity.ok(departmentService.findWithTeachersById(id));
 		return ResponseEntity.ok(departmentService.findById(id));
-
 	}
 
 	@DeleteMapping("/{id}")
@@ -72,7 +63,6 @@ public class DepartmentController {
 	public ResponseEntity<DataResult<DepartmentDto>> updateNameById(@PathVariable long id,
 			@RequestBody DepartmentDto departmentDto) {
 		return ResponseEntity.ok(departmentService.updateNameById(id, departmentDto.getName()));
-
 	}
 
 }
