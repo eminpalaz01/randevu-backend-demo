@@ -85,8 +85,8 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 
 				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemAdministrator.get().getSchedules());
 				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemAdministrator.get().getWeeklySchedules());
-				systemAdministratorDto.setSchedulesDto(schedulesDto);
-				systemAdministratorDto.setWeeklySchedulesDto(weeklySchedulesDto);
+				systemAdministratorDto.setSchedules(schedulesDto);
+				systemAdministratorDto.setWeeklySchedules(weeklySchedulesDto);
 
 				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisi getirildi.");
@@ -106,7 +106,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
 
 				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemAdministrator.get().getWeeklySchedules());
-				systemAdministratorDto.setWeeklySchedulesDto(weeklySchedulesDto);
+				systemAdministratorDto.setWeeklySchedules(weeklySchedulesDto);
 
 				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisi getirildi.");
@@ -126,7 +126,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 				SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator.get());
 
 				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemAdministrator.get().getSchedules());
-				systemAdministratorDto.setSchedulesDto(schedulesDto);
+				systemAdministratorDto.setSchedules(schedulesDto);
 
 				return new DataResult<SystemAdministratorDto>(systemAdministratorDto, true,
 						id + " id'li sistem yöneticisi getirildi.");
@@ -164,7 +164,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator);
 
 					List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemAdministrator.getSchedules());
-					systemAdministratorDto.setSchedulesDto(schedulesDto);
+					systemAdministratorDto.setSchedules(schedulesDto);
 
 					systemAdministratorsDto.add(systemAdministratorDto);
 				});
@@ -192,8 +192,8 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemAdministrator.getSchedules());
 					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemAdministrator.getWeeklySchedules());
 
-					systemAdministratorDto.setSchedulesDto(schedulesDto);
-					systemAdministratorDto.setWeeklySchedulesDto(weeklySchedulesDto);
+					systemAdministratorDto.setSchedules(schedulesDto);
+					systemAdministratorDto.setWeeklySchedules(weeklySchedulesDto);
 
 					systemAdministratorsDto.add(systemAdministratorDto);
 				});
@@ -219,7 +219,7 @@ public class SystemAdministratorManager implements SystemAdministratorService {
 					SystemAdministratorDto systemAdministratorDto = systemAdministratorMapper.toDto(systemAdministrator);
 
 					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemAdministrator.getWeeklySchedules());
-					systemAdministratorDto.setWeeklySchedulesDto(weeklySchedulesDto);
+					systemAdministratorDto.setWeeklySchedules(weeklySchedulesDto);
 
 					systemAdministratorsDto.add(systemAdministratorDto);
 				});

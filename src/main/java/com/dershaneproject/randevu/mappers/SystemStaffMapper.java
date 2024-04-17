@@ -11,8 +11,8 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface SystemStaffMapper {
-    @Mapping(target = "weeklySchedulesDto",  expression = "java(null)")
-    @Mapping(target = "schedulesDto",  expression = "java(null)")
+    @Mapping(target = "weeklySchedules",  expression = "java(null)")
+    @Mapping(target = "schedules",  expression = "java(null)")
     SystemStaffDto toDto(SystemStaff systemStaff);
 
     @Mapping(target = "weeklySchedules",  expression = "java(null)")

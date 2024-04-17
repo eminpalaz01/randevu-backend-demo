@@ -88,15 +88,15 @@ public class StudentManager implements StudentService {
 					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(student.getWeeklySchedules());
 					// WeeklySchedulesDto are sorting
 					weeklySchedulesDto.sort((o1, o2) -> {
-						Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-						int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
+						Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+						int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 						if (dayOfWeekCompare == 0) {
-							Long s1HourId = o1.getHourDto().getId();
-                            return s1HourId.compareTo(o2.getHourDto().getId());
+							Long s1HourId = o1.getHour().getId();
+                            return s1HourId.compareTo(o2.getHour().getId());
 						}
 						return dayOfWeekCompare;
 					});
-					studentDto.setWeeklySchedulesDto(weeklySchedulesDto);
+					studentDto.setWeeklySchedules(weeklySchedulesDto);
 
 					studentsDto.add(studentDto);
 				});
@@ -132,15 +132,15 @@ public class StudentManager implements StudentService {
 				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(student.get().getWeeklySchedules());
 				// WeeklySchedulesDto are sorting here
 				weeklySchedulesDto.sort((o1, o2) -> {
-					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
+					Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 					if (dayOfWeekCompare == 0) {
-						Long s1HourId = o1.getHourDto().getId();
-                        return s1HourId.compareTo(o2.getHourDto().getId());
+						Long s1HourId = o1.getHour().getId();
+                        return s1HourId.compareTo(o2.getHour().getId());
 					}
 					return dayOfWeekCompare;
 				});
-				studentDto.setWeeklySchedulesDto(weeklySchedulesDto);
+				studentDto.setWeeklySchedules(weeklySchedulesDto);
 				return new DataResult<StudentDto>(studentDto, true, id + " id'li öğrenci getirildi.");
 			}
 			return new DataResult<StudentDto>(false, id + " id'li öğrenci bulunamadı.");

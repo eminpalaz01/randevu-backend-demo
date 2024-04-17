@@ -65,7 +65,7 @@ public class DepartmentManager implements DepartmentService {
 			if (department.isPresent()) {
 				DepartmentDto departmentDto = departmentMapper.toDto(department.get());
 				List<TeacherDto> teachersDto = teacherMapper.toDtoList(department.get().getTeachers());
-				departmentDto.setTeachersDto(teachersDto);
+				departmentDto.setTeachers(teachersDto);
 				return new DataResult<DepartmentDto>(departmentDto, true, id + " id'li departman bulundu.");
 			}
 			return new DataResult<DepartmentDto>(false, id + " id'li departman bulunamadı.");
@@ -97,7 +97,7 @@ public class DepartmentManager implements DepartmentService {
 				for (Department department : departments) {
 					DepartmentDto departmentDto = departmentMapper.toDto(department);
 					List<TeacherDto> teachersDto = teacherMapper.toDtoList(department.getTeachers());
-					departmentDto.setTeachersDto(teachersDto);
+					departmentDto.setTeachers(teachersDto);
 					departmentsDto.add(departmentDto);
 				}
 				return new DataResult<List<DepartmentDto>>(departmentsDto, true, "Tüm departmanlar getirildi.");

@@ -23,11 +23,11 @@ public class SystemWorker extends User {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "lastUpdateDateSystemWorker")
 	private List<WeeklySchedule> weeklySchedules;
 
-	protected SystemWorker() {
+	public SystemWorker() {
 		super();
 	}
 
-	protected SystemWorker(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email) {
+	public SystemWorker(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email) {
 		super(id, userName, password, createDate, lastUpdateDate, email);
 	}
 

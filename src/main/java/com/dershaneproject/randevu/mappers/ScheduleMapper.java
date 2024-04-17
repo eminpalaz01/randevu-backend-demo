@@ -16,15 +16,15 @@ import java.util.List;
 )
 public interface ScheduleMapper {
 
-    @Mapping(target = "hourDto", source = "hour")
-    @Mapping(target = "dayOfWeekDto", source = "dayOfWeek")
-    @Mapping(target = "lastUpdateDateSystemWorkerDto", source = "lastUpdateDateSystemWorker")
+    @Mapping(target = "hour", source = "hour")
+    @Mapping(target = "dayOfWeek", source = "dayOfWeek")
+    @Mapping(target = "lastUpdateDateSystemWorker", source = "lastUpdateDateSystemWorker")
     @Mapping(target = "teacherId", source = "teacher.id")
     ScheduleDto toDto(Schedule schedule);
 
-    @Mapping(target = "hour", source = "hourDto")
-    @Mapping(target = "dayOfWeek", source = "dayOfWeekDto")
-    @Mapping(target = "lastUpdateDateSystemWorker", source = "lastUpdateDateSystemWorkerDto")
+    @Mapping(target = "hour", source = "hour")
+    @Mapping(target = "dayOfWeek", source = "dayOfWeek")
+    @Mapping(target = "lastUpdateDateSystemWorker", source = "lastUpdateDateSystemWorker")
     @Mapping(target = "teacher", expression = "java(createEmptyTeacherWithId(scheduleDto))")
     Schedule toEntity(ScheduleDto scheduleDto);
 

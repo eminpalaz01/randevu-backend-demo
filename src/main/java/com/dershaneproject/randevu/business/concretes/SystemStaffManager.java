@@ -82,8 +82,8 @@ public class SystemStaffManager implements SystemStaffService {
 				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemStaff.get().getSchedules());
 				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemStaff.get().getWeeklySchedules());
 
-				systemStaffDto.setSchedulesDto(schedulesDto);
-				systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
+				systemStaffDto.setSchedules(schedulesDto);
+				systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
 			}
@@ -102,7 +102,7 @@ public class SystemStaffManager implements SystemStaffService {
 				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 
 				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemStaff.get().getWeeklySchedules());
-				systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
+				systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
 			}
@@ -121,7 +121,7 @@ public class SystemStaffManager implements SystemStaffService {
 				SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff.get());
 
 				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemStaff.get().getSchedules());
-				systemStaffDto.setSchedulesDto(schedulesDto);
+				systemStaffDto.setSchedules(schedulesDto);
 
 				return new DataResult<SystemStaffDto>(systemStaffDto, true, id + " id'li sistem çalışanı getirildi.");
 			}
@@ -161,8 +161,8 @@ public class SystemStaffManager implements SystemStaffService {
 					List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemStaff.getSchedules());
 					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemStaff.getWeeklySchedules());
 
-					systemStaffDto.setSchedulesDto(schedulesDto);
-					systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
+					systemStaffDto.setSchedules(schedulesDto);
+					systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
 				});
@@ -189,7 +189,7 @@ public class SystemStaffManager implements SystemStaffService {
 					SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff);
 
 					List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(systemStaff.getSchedules());
-					systemStaffDto.setSchedulesDto(schedulesDto);
+					systemStaffDto.setSchedules(schedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
 				});
@@ -216,7 +216,7 @@ public class SystemStaffManager implements SystemStaffService {
 					SystemStaffDto systemStaffDto = systemStaffMapper.toDto(systemStaff);
 
 					List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(systemStaff.getWeeklySchedules());
-					systemStaffDto.setWeeklySchedulesDto(weeklySchedulesDto);
+					systemStaffDto.setWeeklySchedules(weeklySchedulesDto);
 
 					systemStaffsDto.add(systemStaffDto);
 				});

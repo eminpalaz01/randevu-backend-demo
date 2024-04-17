@@ -63,14 +63,14 @@ public class ScheduleController {
 	public ResponseEntity<DataResult<ScheduleDto>> updateDayOfWeekById(@PathVariable long id,
 			@RequestBody ScheduleDto scheduleDto) {
 
-		return ResponseEntity.ok(scheduleService.updateDayOfWeekById(id, scheduleDto.getDayOfWeekDto().getId()));
+		return ResponseEntity.ok(scheduleService.updateDayOfWeekById(id, scheduleDto.getDayOfWeek().getId()));
 	}
 
 	@PutMapping("/{id}/hour")
 	public ResponseEntity<DataResult<ScheduleDto>> updateHourById(@PathVariable long id,
 			@RequestBody ScheduleDto scheduleDto) {
 
-		return ResponseEntity.ok(scheduleService.updateHourById(id, scheduleDto.getHourDto().getId()));
+		return ResponseEntity.ok(scheduleService.updateHourById(id, scheduleDto.getHour().getId()));
 	}
 
 	@PutMapping("/{id}/full")
@@ -92,7 +92,7 @@ public class ScheduleController {
 			@RequestBody ScheduleDto scheduleDto) {
 
 		return ResponseEntity.ok(scheduleService.updateLastUpdateDateSystemWorkerById(id,
-				scheduleDto.getLastUpdateDateSystemWorkerDto().getId()));
+				scheduleDto.getLastUpdateDateSystemWorker().getId()));
 	}
 
 	@PutMapping("/{id}/description")

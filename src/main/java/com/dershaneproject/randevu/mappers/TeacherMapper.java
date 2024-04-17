@@ -13,8 +13,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface TeacherMapper {
 
-    @Mapping(target = "weeklySchedulesDto",  expression = "java(null)")
-    @Mapping(target = "schedulesDto",  expression = "java(null)")
+    @Mapping(target = "weeklySchedules",  expression = "java(null)")
+    @Mapping(target = "schedules",  expression = "java(null)")
     @Mapping(target = "departmentId", expression = "java(teacher.getDepartment() != null ? teacher.getDepartment().getId() : null)")
     TeacherDto toDto(Teacher teacher);
 
