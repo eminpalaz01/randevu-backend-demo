@@ -12,11 +12,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "teachers")
-public class Teacher extends User{
-
-	/**
-	 * 
-	 */
+public class Teacher extends User {
 	
 	@JsonBackReference(value = "departmentTeachersReference")
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -34,14 +30,18 @@ public class Teacher extends User{
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "teacher", cascade = CascadeType.REMOVE)
 	private List<WeeklySchedule> weeklySchedules;
 
-	public Teacher() {
-	}
+	public Teacher() { setAuthority(); }
 
 	public Teacher(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email,
-			Department department, String teacherNumber) {
+				   Department department, String teacherNumber) {
 		super(id, userName, password, createDate, lastUpdateDate, email);
+		setAuthority();
 		this.teacherNumber = teacherNumber;
 		this.department = department;
+	}
+
+	private void setAuthority() {
+		setAuthority(Authority.TEACHER.getValue());
 	}
 
 	@Override

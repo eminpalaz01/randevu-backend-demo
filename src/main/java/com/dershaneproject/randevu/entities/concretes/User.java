@@ -37,6 +37,9 @@ public class User implements Serializable{
 	@Column(name = "password", length = 30)
 	private String password;
 
+	@Column(name = "authority")
+	private Integer authority;
+
 	@CreationTimestamp
 	@Column(name = "create_date")
 	private Date createDate;
@@ -59,6 +62,10 @@ public class User implements Serializable{
 		this.createDate = createDate;
 		this.lastUpdateDate = lastUpdateDate;
 		this.email = email;
+	}
+
+	protected void setAuthority(Integer authority) {
+		this.authority = authority;
 	}
 
 	@Override

@@ -15,13 +15,6 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 public class SystemWorker extends User {
 
-	/**
-	 * 
-	 */
-
-	@Column(name = "authority")
-	private Integer authority;
-
 	@JsonBackReference("systemWorkerSchedulesReference")
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "lastUpdateDateSystemWorker")
 	private List<Schedule> schedules;
@@ -30,16 +23,12 @@ public class SystemWorker extends User {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "lastUpdateDateSystemWorker")
 	private List<WeeklySchedule> weeklySchedules;
 
-	public SystemWorker() {
+	protected SystemWorker() {
 		super();
 	}
 
-	public SystemWorker(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email) {
+	protected SystemWorker(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email) {
 		super(id, userName, password, createDate, lastUpdateDate, email);
-	}
-
-    protected void setAuthority(Integer authority) {
-		this.authority = authority;
 	}
 
 	@Override

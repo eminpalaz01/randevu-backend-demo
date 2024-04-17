@@ -20,6 +20,8 @@ public class TeacherDto implements Serializable {
 
 	private String password;
 
+	private Long authority;
+
 	private Date createDate;
 
 	private Date lastUpdateDate;
