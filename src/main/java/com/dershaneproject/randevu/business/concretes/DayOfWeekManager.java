@@ -8,7 +8,9 @@ import com.dershaneproject.randevu.dto.DayOfWeekDto;
 import com.dershaneproject.randevu.dto.requests.DayOfWeekSaveRequest;
 import com.dershaneproject.randevu.dto.responses.DayOfWeekSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
+import com.dershaneproject.randevu.exceptions.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,107 +24,76 @@ public class DayOfWeekManager implements DayOfWeekService {
 	private final DayOfWeekDao dayOfWeekDao;
 
 	@Override
-	public DataResult<DayOfWeekSaveResponse> save(DayOfWeekSaveRequest dayOfWeekSaveRequest) {
-		try {
-			DayOfWeek dayOfWeek = new DayOfWeek();
-			dayOfWeek.setName(dayOfWeekSaveRequest.getName());
+	public DataResult<DayOfWeekSaveResponse> save(DayOfWeekSaveRequest dayOfWeekSaveRequest) throws BusinessException {
+		DayOfWeek dayOfWeek = new DayOfWeek();
+		dayOfWeek.setName(dayOfWeekSaveRequest.getName());
 
-			DayOfWeekSaveResponse dayOfWeekSaveResponse = new DayOfWeekSaveResponse();
-			dayOfWeekSaveResponse.setId(dayOfWeekDao.save(dayOfWeek).getId());
-
-			return new DataResult<DayOfWeekSaveResponse>(dayOfWeekSaveResponse, true, "Veritabanına kaydedildi.");
-		} catch (Exception e) {
-			return new DataResult<DayOfWeekSaveResponse>(false, e.getMessage());
-		}
+		DayOfWeekSaveResponse dayOfWeekSaveResponse = new DayOfWeekSaveResponse();
+		dayOfWeekSaveResponse.setId(dayOfWeekDao.save(dayOfWeek).getId());
+		return new DataResult<DayOfWeekSaveResponse>(dayOfWeekSaveResponse, "Veritabanına kaydedildi.");
 	}
 
 	@Override
-	public Result deleteById(long id) {
-		try {
-			Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
-			if (!(dayOfWeek.equals(Optional.empty()))) {
-				dayOfWeekDao.deleteById(id);
-				return new Result(true, id + " id'li silme işlemi başarılı.");
-			}
-
-			return new Result(false, id + " id'li gün bulunamadı.");
-		} catch (Exception e) {
-			return new Result(false, e.getMessage());
+	public Result deleteById(long id) throws BusinessException {
+		Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
+		if (dayOfWeek.isPresent()) {
+			dayOfWeekDao.deleteById(id);
+			return new Result(id + " id'li silme işlemi başarılı.");
 		}
+
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + "id'li silme işlemi başarısız"));
 	}
 
 	@Override
-	public DataResult<List<DayOfWeekDto>> findAll() {
-		try {
-			List<DayOfWeek> daysOfWeek = dayOfWeekDao.findAll();
-			if (!daysOfWeek.isEmpty()) {
-				List<DayOfWeekDto> daysOfWeekDto = new ArrayList<DayOfWeekDto>();
+	public DataResult<List<DayOfWeekDto>> findAll() throws BusinessException {
+		List<DayOfWeek> daysOfWeek = dayOfWeekDao.findAll();
+		if (daysOfWeek.isEmpty())
+			throw new BusinessException(HttpStatus.NOT_FOUND, List.of("Kayıtlı Gün bulunamadı."));
 
-				daysOfWeek.forEach(dayOfWeek -> {
-					DayOfWeekDto dayOfWeekDto = new DayOfWeekDto();
-					dayOfWeekDto.setId(dayOfWeek.getId());
-					dayOfWeekDto.setName(dayOfWeek.getName());
-
-					daysOfWeekDto.add(dayOfWeekDto);
-				});
-				return new DataResult<List<DayOfWeekDto>>(daysOfWeekDto, true, "Tüm günler getirildi.");
-			} else {
-				return new DataResult<List<DayOfWeekDto>>(false, "Kayıtlı Gün bulunamadı.");
-			}
-		} catch (Exception e) {
-			return new DataResult<List<DayOfWeekDto>>(false, e.getMessage());
-		}
-	}
-
-	@Override
-	public DataResult<DayOfWeekDto> findById(long id) {
-		try {
-			Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
-			if (!(dayOfWeek.equals(Optional.empty()))) {
+		List<DayOfWeekDto> daysOfWeekDto = new ArrayList<>();
+		daysOfWeek.forEach(dayOfWeek -> {
 				DayOfWeekDto dayOfWeekDto = new DayOfWeekDto();
-				dayOfWeekDto.setId(dayOfWeek.get().getId());
-				dayOfWeekDto.setName(dayOfWeek.get().getName());
+				dayOfWeekDto.setId(dayOfWeek.getId());
+				dayOfWeekDto.setName(dayOfWeek.getName());
 
-				return new DataResult<DayOfWeekDto>(dayOfWeekDto, true, id + " id'li gün bulundu.");
-			}
-
-			return new DataResult<DayOfWeekDto>(false, id + " id'li gün bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<DayOfWeekDto>(false, e.getMessage());
-		}
+				daysOfWeekDto.add(dayOfWeekDto);
+			});
+		return new DataResult<List<DayOfWeekDto>>(daysOfWeekDto, "Tüm günler getirildi.");
 	}
 
 	@Override
-	public DataResult<DayOfWeekDto> updateNameById(long id, String name) {
-		try {
-			Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
-			if (!(dayOfWeek.equals(Optional.empty()))) {
-				dayOfWeek.get().setName(name);
+	public DataResult<DayOfWeekDto> findById(long id) throws BusinessException {
+		Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
+		if (dayOfWeek.isPresent()) {
+			DayOfWeekDto dayOfWeekDto = new DayOfWeekDto();
+			dayOfWeekDto.setId(dayOfWeek.get().getId());
+			dayOfWeekDto.setName(dayOfWeek.get().getName());
+			return new DataResult<DayOfWeekDto>(dayOfWeekDto, id + " id'li gün bulundu.");
+		}
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li gün bulunamadı."));
+	}
 
-				dayOfWeekDao.save(dayOfWeek.get());
+	@Override
+	public DataResult<DayOfWeekDto> updateNameById(long id, String name) throws BusinessException {
+		Optional<DayOfWeek> dayOfWeek = dayOfWeekDao.findById(id);
+		if (dayOfWeek.isPresent()) {
+			dayOfWeek.get().setName(name);
 
-				DayOfWeekDto dayOfWeekDto = new DayOfWeekDto();
-				dayOfWeekDto.setId(dayOfWeek.get().getId());
-				dayOfWeekDto.setName(dayOfWeek.get().getName());
+			dayOfWeekDao.save(dayOfWeek.get());
 
-				return new DataResult<DayOfWeekDto>(dayOfWeekDto, true, id + " id'li günün adı güncellendi.");
-			}
+			DayOfWeekDto dayOfWeekDto = new DayOfWeekDto();
+			dayOfWeekDto.setId(dayOfWeek.get().getId());
+			dayOfWeekDto.setName(dayOfWeek.get().getName());
 
-			return new DataResult<DayOfWeekDto>(false, id + " id'li gün bulunamadı.");
-
-		} catch (Exception e) {
-			return new DataResult<DayOfWeekDto>(false, e.getMessage());
+			return new DataResult<DayOfWeekDto>(dayOfWeekDto, id + " id'li günün adı güncellendi.");
 		}
 
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(" id'li gün bulunamadı."));
 	}
 
 	@Override
 	public DataResult<Long> getCount() {
-		try {
-			return new DataResult<Long>(dayOfWeekDao.count(), true, "Günlerin sayısı getirildi.");
-		} catch (Exception e) {
-			return new DataResult<Long>(false, e.getMessage());
-		}
+		return new DataResult<Long>(dayOfWeekDao.count(), "Günlerin sayısı getirildi.");
 	}
 
 }

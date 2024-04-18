@@ -5,38 +5,39 @@ import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.dto.requests.WeeklyScheduleSaveRequest;
 import com.dershaneproject.randevu.dto.responses.WeeklyScheduleSaveResponse;
+import com.dershaneproject.randevu.exceptions.BusinessException;
 
 import java.util.List;
 
 public interface WeeklyScheduleService {
 
-	DataResult<WeeklyScheduleSaveResponse> save(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest);
+	DataResult<WeeklyScheduleSaveResponse> save(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest) throws BusinessException;
 	
-	DataResult<List<WeeklyScheduleSaveResponse>> saveAll(List<WeeklyScheduleSaveRequest> weeklyScheduleSaveRequestList);
+	DataResult<List<WeeklyScheduleSaveResponse>> saveAll(List<WeeklyScheduleSaveRequest> weeklyScheduleSaveRequestList) throws BusinessException;
 
-	Result deleteById(long id);
+	Result deleteById(long id) throws BusinessException;
 
-	DataResult<List<WeeklyScheduleDto>> findAll();
+	DataResult<List<WeeklyScheduleDto>> findAll() throws BusinessException;
 
-	DataResult<WeeklyScheduleDto> findById(long id);
+	DataResult<WeeklyScheduleDto> findById(long id) throws BusinessException;
 
-	DataResult<WeeklyScheduleDto> updateFullById(long id, Boolean full);
+	DataResult<WeeklyScheduleDto> updateFullById(long id, Boolean full) throws BusinessException;
 
-	DataResult<WeeklyScheduleDto> updateTeacherById(long id, Long teacherId);
+	DataResult<WeeklyScheduleDto> updateTeacherById(long id, Long teacherId) throws BusinessException;
 
-	DataResult<WeeklyScheduleDto> updateStudentById(long id, Long studentId);
+	DataResult<WeeklyScheduleDto> updateStudentById(long id, Long studentId) throws BusinessException;
 	
-	DataResult<WeeklyScheduleDto> updateDescriptionById(long id, String description);
+	DataResult<WeeklyScheduleDto> updateDescriptionById(long id, String description) throws BusinessException;
 
-	DataResult<WeeklyScheduleDto> updateLastUpdateDateSystemWorkerById(long id, Long lastUpdateDateSystemWorkerId);
+	DataResult<WeeklyScheduleDto> updateLastUpdateDateSystemWorkerById(long id, Long lastUpdateDateSystemWorkerId) throws BusinessException;
 
-	DataResult<WeeklyScheduleDto> updateDayOfWeekById(long id, Long dayOfWeekId);
+	DataResult<WeeklyScheduleDto> updateDayOfWeekById(long id, Long dayOfWeekId) throws BusinessException;
 	
-	DataResult<WeeklyScheduleDto> updateHourById(long id, Long hourId);
+	DataResult<WeeklyScheduleDto> updateHourById(long id, Long hourId) throws BusinessException;
 	
+    DataResult<List<WeeklyScheduleDto>> findAllByTeacherId(long teacherId) throws BusinessException;
+
+	DataResult<List<WeeklyScheduleDto>> findAllByStudentId(long studentId) throws BusinessException;
+
 	DataResult<Long> getCount();
-
-    DataResult<List<WeeklyScheduleDto>> findAllByTeacherId(long teacherId);
-
-	DataResult<List<WeeklyScheduleDto>> findAllByStudentId(long studentId);
 }

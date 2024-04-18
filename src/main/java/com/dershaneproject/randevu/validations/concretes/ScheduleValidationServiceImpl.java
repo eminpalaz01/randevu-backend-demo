@@ -6,8 +6,10 @@ import com.dershaneproject.randevu.dataAccess.abstracts.HourDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.SystemWorkerDao;
 import com.dershaneproject.randevu.dataAccess.abstracts.TeacherDao;
 import com.dershaneproject.randevu.dto.requests.ScheduleSaveRequest;
+import com.dershaneproject.randevu.exceptions.BusinessException;
 import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -23,11 +25,11 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 	private final SystemWorkerDao systemWorkerDao;
 
 	@Override
-	public Result isValidateResult(ScheduleSaveRequest scheduleSaveRequest) {
+	public Result isValidateResult(ScheduleSaveRequest scheduleSaveRequest) throws BusinessException {
 		return isValidateResult(scheduleSaveRequest.getFull(), scheduleSaveRequest.getTeacherId(), scheduleSaveRequest.getLastUpdateDateSystemWorkerId(), scheduleSaveRequest.getDayOfWeekId(), scheduleSaveRequest.getHourId());
 	}
 
-	private Result isValidateResult(Boolean isFull, Long teacherId, Long lastUpdateSystemWorkerId, Long dayOfWeekId, Long hourId) {
+	private Result isValidateResult(Boolean isFull, Long teacherId, Long lastUpdateSystemWorkerId, Long dayOfWeekId, Long hourId) throws BusinessException {
 		StringBuilder fieldErrorMessage = new StringBuilder("Program oluşturulamaz girdiğiniz");
 		String messageSuccess = "Program ın oluşturulmasında bir sorun yok.";
 
@@ -64,13 +66,13 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 				fieldErrorMessage.append(" ").append(errorFields.get(i)).append(",");
 			}
 			fieldErrorMessage.append(" değerleri sistemde bulunamadı kontrol ediniz.");
-			return new Result(false, fieldErrorMessage.toString());
+			throw new BusinessException(HttpStatus.BAD_REQUEST, List.of(fieldErrorMessage.toString()));
 		}
-		return new Result(true, messageSuccess);
+		return new Result(messageSuccess);
 	}
 
 	@Override
-	public Result areValidateResult(List<ScheduleSaveRequest> scheduleSaveRequestList) {
+	public Result areValidateResult(List<ScheduleSaveRequest> scheduleSaveRequestList) throws BusinessException {
 		String successMessage = "Programlar'ın oluşturulmasında bir sorun yok.";
 		String errorMessageFirstPart = "Programların biri veya bazıları oluşturulamaz girdiğiniz bazı";
 		String errorMessageLastPart = " değerleri sistemde bulunamadı kontrol ediniz.";
@@ -102,12 +104,10 @@ public class ScheduleValidationServiceImpl implements ScheduleValidationService 
 				}
 				fieldErrorMessage.append(" ").append(errorFields.get(i)).append(",");
 			}
-
 			fieldErrorMessage.append(errorMessageLastPart);
-
-			return new Result(false, fieldErrorMessage.toString());
+			throw new BusinessException(HttpStatus.BAD_REQUEST, List.of(fieldErrorMessage.toString()));
 		}
 	  }
-		return new Result(true, successMessage);
+		return new Result(successMessage);
 	}
 }

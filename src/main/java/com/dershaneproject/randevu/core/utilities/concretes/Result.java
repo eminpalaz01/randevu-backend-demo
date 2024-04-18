@@ -1,29 +1,16 @@
 package com.dershaneproject.randevu.core.utilities.concretes;
 
-//Bunları projeye ekle. Düzgün ve anlaşılır bir veri aktarımı için.
+import lombok.Getter;
+
+@Getter
 public class Result {
-	private boolean success;
-	private String message;
 
-	public Result(boolean success) {
-		this.success = success;
-	}
+	private final String message;
 
-	public Result(boolean success, String message) {
-		this(success);
-		this.message = message;
+	public Result(String message) {
+		if (message == null || message.isEmpty())
+			this.message = "Genel Hata";
+		else
+			this.message = message;
 	}
-
-	public boolean isSuccess() {
-		return this.success;
-	}
-
-	public String getMessage() {
-		return this.message;
-	}
-	
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
 }

@@ -49,6 +49,7 @@ public class SystemWorker extends User {
 
 		SystemWorker systemWorker = new SystemWorker();
 		systemWorker.setId(id);
+		systemWorker.setEmail("xx");
 		return systemWorker;
 	}
 }
