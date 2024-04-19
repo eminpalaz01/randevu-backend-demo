@@ -3,8 +3,10 @@ package com.dershaneproject.randevu.validations.concretes;
 import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dataAccess.abstracts.*;
 import com.dershaneproject.randevu.dto.requests.WeeklyScheduleSaveRequest;
+import com.dershaneproject.randevu.exceptions.BusinessException;
 import com.dershaneproject.randevu.validations.abstracts.WeeklyScheduleValidationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -21,7 +23,7 @@ public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValida
     private final StudentDao studentDao;
 
     @Override
-    public Result isValidateResult(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest) {
+    public Result isValidateResult(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest) throws BusinessException {
         StringBuilder fieldErrorMessage = new StringBuilder("Haftalık Program oluşturulamaz girdiğiniz bazı");
         String messageSuccess = "Haftalık Program'ın oluşturulmasında bir sorun yok.";
 
@@ -58,30 +60,21 @@ public class WeeklyScheduleValidationServiceImpl implements WeeklyScheduleValida
                 }
                 fieldErrorMessage.append(" ").append(errorFields.get(i)).append(",");
             }
-
             fieldErrorMessage.append(" değerleri sistemde bulunamadı kontrol ediniz.");
-
-            return new Result(false, fieldErrorMessage.toString());
+            throw new BusinessException(HttpStatus.BAD_REQUEST, List.of(fieldErrorMessage.toString()));
         }
-
-        return new Result(true, messageSuccess);
-
+        return new Result(messageSuccess);
     }
 
-    public Result studentExistById(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest){
+    public Result studentExistById(WeeklyScheduleSaveRequest weeklyScheduleSaveRequest) throws BusinessException {
         StringBuilder fieldErrorMessage = new StringBuilder("Haftalık Program oluşturulamaz girdiğiniz bazı");
         String messageSuccess = "Haftalık Program'ın oluşturulmasında bir sorun yok.";
 
         boolean isExistsStudent = studentDao.existsById(weeklyScheduleSaveRequest.getStudentId());
-
         if (!isExistsStudent){
-
             fieldErrorMessage.append(" öğrenci değerleri sistemde bulunamadı kontrol ediniz.");
-
-            return new Result(false, fieldErrorMessage.toString());
+            throw new BusinessException(HttpStatus.BAD_REQUEST, List.of(fieldErrorMessage.toString()));
         }
-
-        return new Result(true, messageSuccess);
-
+        return new Result(messageSuccess);
     }
 }

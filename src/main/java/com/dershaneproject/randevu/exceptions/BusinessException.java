@@ -11,9 +11,11 @@ import java.util.List;
 public class BusinessException extends RuntimeException{
 
     private final HttpStatus httpStatus;
+    private final List<String> errorMessages;
 
     public BusinessException(HttpStatus httpStatus, List<String> errorMessages) {
-        super(errorMessages.toString());
+        super();
+        this.errorMessages = errorMessages;
         this.httpStatus = httpStatus;
     }
 

@@ -8,7 +8,9 @@ import com.dershaneproject.randevu.dto.HourDto;
 import com.dershaneproject.randevu.dto.requests.HourSaveRequest;
 import com.dershaneproject.randevu.dto.responses.HourSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Hour;
+import com.dershaneproject.randevu.exceptions.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
@@ -24,106 +26,80 @@ public class HourManager implements HourService {
 
 	@Override
 	public DataResult<HourSaveResponse> save(HourSaveRequest hourSaveRequest) {
-		try {
-			Hour hour = new Hour();
-			hour.setTime(hourSaveRequest.getTime());
-			Long hourId = hourDao.save(hour).getId();
+		Hour hour = new Hour();
+		hour.setTime(hourSaveRequest.getTime());
+		Long hourId = hourDao.save(hour).getId();
 
-			HourSaveResponse HourSaveResponse = new HourSaveResponse();
-			HourSaveResponse.setTime(hourSaveRequest.getTime());
-			HourSaveResponse.setId(hourId);
+		HourSaveResponse HourSaveResponse = new HourSaveResponse();
+		HourSaveResponse.setTime(hourSaveRequest.getTime());
+		HourSaveResponse.setId(hourId);
 
-			return new DataResult<HourSaveResponse>(HourSaveResponse, true, "Veritabanına kaydedildi.");
-		} catch (Exception e) {
-			return new DataResult<HourSaveResponse>(false, e.getMessage());
-		}
+		return new DataResult<HourSaveResponse>(HourSaveResponse, "Veritabanına kaydedildi.");
 	}
 
 	@Override
-	public Result deleteById(long id) {
-		try {
-			Optional<Hour> hour = hourDao.findById(id);
-			if (!(hour.equals(Optional.empty()))) {
-				hourDao.deleteById(id);
-				return new Result(true, id + " id'li silme işlemi başarılı.");
-			}
-
-			return new Result(false, id + " id'li saat bulunamadı.");
-		} catch (Exception e) {
-			return new Result(false, e.getMessage());
+	public Result deleteById(long id) throws BusinessException {
+		Optional<Hour> hour = hourDao.findById(id);
+		if (hour.isPresent()) {
+			hourDao.deleteById(id);
+			return new Result(id + " id'li silme işlemi başarılı.");
 		}
+
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li saat bulunamadı."));
 	}
 
 	@Override
-	public DataResult<List<HourDto>> findAll() {
-		try {
-			List<Hour> hours = hourDao.findAll();
-			if (hours.size() != 0) {
-				List<HourDto> hoursDto = new ArrayList<HourDto>();
+	public DataResult<List<HourDto>> findAll() throws BusinessException {
+		List<Hour> hours = hourDao.findAll();
+		if (hours.isEmpty())
+			throw new BusinessException(HttpStatus.NOT_FOUND, List.of("Kayıtlı saat bulunamadı."));
 
-				hours.forEach(hour -> {
-					HourDto hourDto = new HourDto();
-					hourDto.setId(hour.getId());
-					hourDto.setTime(hour.getTime());
+		List<HourDto> hoursDto = new ArrayList<HourDto>();
+		hours.forEach(hour -> {
+			HourDto hourDto = new HourDto();
+			hourDto.setId(hour.getId());
+			hourDto.setTime(hour.getTime());
 
-					hoursDto.add(hourDto);
-				});
-				return new DataResult<List<HourDto>>(hoursDto, true, "Tüm saatler getirildi.");
-			} else {
-				return new DataResult<List<HourDto>>(false, "Kayıtlı saat bulunamadı.");
-			}
-		} catch (Exception e) {
-			return new DataResult<List<HourDto>>(false, e.getMessage());
-		}
+			hoursDto.add(hourDto);
+		});
+		return new DataResult<List<HourDto>>(hoursDto, "Tüm saatler getirildi.");
 	}
 
 	@Override
-	public DataResult<HourDto> findById(long id) {
-		try {
-			Optional<Hour> hour = hourDao.findById(id);
-			if (!(hour.equals(Optional.empty()))) {
-				HourDto hourDto = new HourDto();
-				hourDto.setId(hour.get().getId());
-				hourDto.setTime(hour.get().getTime());
+	public DataResult<HourDto> findById(long id) throws BusinessException {
+		Optional<Hour> hour = hourDao.findById(id);
+		if (hour.isPresent()) {
+			HourDto hourDto = new HourDto();
+			hourDto.setId(hour.get().getId());
+			hourDto.setTime(hour.get().getTime());
 
-				return new DataResult<HourDto>(hourDto, true, id + " id'li saat bulundu.");
-			}
-
-			return new DataResult<HourDto>(false, id + " id'li saat bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<HourDto>(false, e.getMessage());
+			return new DataResult<HourDto>(hourDto, id + " id'li saat bulundu.");
 		}
+
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li saat bulunamadı."));
 	}
 
 	@Override
-	public DataResult<HourDto> updateTimeById(long id, LocalTime time) {
-		try {
-			Optional<Hour> hour = hourDao.findById(id);
-			if (!(hour.equals(Optional.empty()))) {
-				hour.get().setTime(time);
+	public DataResult<HourDto> updateTimeById(long id, LocalTime time) throws BusinessException {
+		Optional<Hour> hour = hourDao.findById(id);
+		if (hour.isPresent()) {
+			hour.get().setTime(time);
 
-				hourDao.save(hour.get());
+			hourDao.save(hour.get());
 
-				HourDto hourDto = new HourDto();
-				hourDto.setId(hour.get().getId());
-				hourDto.setTime(hour.get().getTime());
+			HourDto hourDto = new HourDto();
+			hourDto.setId(hour.get().getId());
+			hourDto.setTime(hour.get().getTime());
 
-				return new DataResult<HourDto>(hourDto, true, id + " id'li saat güncellendi.");
-			}
-
-			return new DataResult<HourDto>(false, id + " id'li saat bulunamadı.");
-
-		} catch (Exception e) {
-			return new DataResult<HourDto>(false, e.getMessage());
+			return new DataResult<HourDto>(hourDto, id + " id'li saat güncellendi.");
 		}
+
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li saat bulunamadı."));
 	}
 
 	@Override
 	public DataResult<Long> getCount() {
-		try {
-			return new DataResult<Long>(hourDao.count(), true, "Saatlerin sayısı getirildi.");
-		} catch (Exception e) {
-			return new DataResult<Long>(false, e.getMessage());
-		}	}
+		return new DataResult<Long>(hourDao.count(), "Saatlerin sayısı getirildi.");
+	}
 
 }

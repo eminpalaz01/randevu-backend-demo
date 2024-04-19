@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface StudentMapper {
 
-    @Mapping(target = "weeklySchedulesDto",  expression = "java(null)")
+    @Mapping(target = "weeklySchedules",  expression = "java(null)")
     StudentDto toDto(Student student);
 
     @Mapping(target = "weeklySchedules",  expression = "java(null)")

@@ -15,16 +15,16 @@ import java.util.List;
 )
 public interface WeeklyScheduleMapper {
 
-    @Mapping(target = "hourDto", source = "hour")
-    @Mapping(target = "dayOfWeekDto", source = "dayOfWeek")
-    @Mapping(target = "lastUpdateDateSystemWorkerDto", source = "lastUpdateDateSystemWorker")
+    @Mapping(target = "hour", source = "hour")
+    @Mapping(target = "dayOfWeek", source = "dayOfWeek")
+    @Mapping(target = "lastUpdateDateSystemWorker", source = "lastUpdateDateSystemWorker")
     @Mapping(target = "teacherId", source = "teacher.id")
     @Mapping(target = "studentId", expression = "java(weeklySchedule.getStudent() != null ? weeklySchedule.getStudent().getId() : null)")
     WeeklyScheduleDto toDto(WeeklySchedule weeklySchedule);
 
-    @Mapping(target = "hour", source = "hourDto")
-    @Mapping(target = "dayOfWeek", source = "dayOfWeekDto")
-    @Mapping(target = "lastUpdateDateSystemWorker", source = "lastUpdateDateSystemWorkerDto")
+    @Mapping(target = "hour", source = "hour")
+    @Mapping(target = "dayOfWeek", source = "dayOfWeek")
+    @Mapping(target = "lastUpdateDateSystemWorker", source = "lastUpdateDateSystemWorker")
     @Mapping(target = "teacher", expression = "java(createEmptyTeacherWithId(weeklyScheduleDto))")
     @Mapping(target = "student", expression = "java(createEmptyStudentWithId(weeklyScheduleDto))")
     WeeklySchedule toEntity(WeeklyScheduleDto weeklyScheduleDto);

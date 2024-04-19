@@ -25,10 +25,10 @@ public class ScheduleDto implements Serializable {
 
 	private Long teacherId;
 
-	private SystemWorkerDto lastUpdateDateSystemWorkerDto;
+	private SystemWorkerDto lastUpdateDateSystemWorker;
 
-	private DayOfWeekDto dayOfWeekDto;
+	private DayOfWeekDto dayOfWeek;
 
-	private HourDto hourDto;
+	private HourDto hour;
 
 }

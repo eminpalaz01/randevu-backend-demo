@@ -41,12 +41,12 @@ public class Schedule implements Serializable{
 	@Column(name = "description", nullable = true)
 	private String description = DEFAULT_DESCRIPTION;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
 	@JoinColumn(name = "teacher_id")
 	@JsonManagedReference(value = "teacherSchedulesReference")
 	private Teacher teacher;
 	
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
 	@JoinColumn(name = "last_update_date_system_worker_id")
 	@JsonManagedReference(value = "systemWorkerSchedulesReference")
 	private SystemWorker lastUpdateDateSystemWorker;
@@ -59,12 +59,12 @@ public class Schedule implements Serializable{
 	@Column(name = "last_update_date")
 	private Date lastUpdateDate;
     
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
 	@JoinColumn(name = "day_of_week_id")
 	@JsonManagedReference(value = "dayOfWeekSchedulesReference")
 	private DayOfWeek dayOfWeek;
 
-	@ManyToOne(fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REFRESH)
 	@JoinColumn(name = "hour_id")
 	@JsonManagedReference(value = "hourSchedulesReference")
 	private Hour hour;

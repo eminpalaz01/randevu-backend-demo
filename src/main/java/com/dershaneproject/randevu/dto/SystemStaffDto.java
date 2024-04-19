@@ -28,7 +28,7 @@ public class SystemStaffDto implements Serializable {
 
 	private String email;
 	
-	private List<ScheduleDto> schedulesDto;
+	private List<ScheduleDto> schedules;
 	
-	private List<WeeklyScheduleDto> weeklySchedulesDto;
+	private List<WeeklyScheduleDto> weeklySchedules;
 }

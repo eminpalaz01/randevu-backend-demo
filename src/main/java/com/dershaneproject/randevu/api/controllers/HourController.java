@@ -7,7 +7,9 @@ import com.dershaneproject.randevu.core.utilities.concretes.Result;
 import com.dershaneproject.randevu.dto.HourDto;
 import com.dershaneproject.randevu.dto.requests.HourSaveRequest;
 import com.dershaneproject.randevu.dto.responses.HourSaveResponse;
+import com.dershaneproject.randevu.exceptions.BusinessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,38 +24,32 @@ public class HourController implements IHourController {
 
 	@PostMapping
 	public ResponseEntity<DataResult<HourSaveResponse>> save(@RequestBody HourSaveRequest hourSaveRequest) {
-
-		return ResponseEntity.ok(hourService.save(hourSaveRequest));
+		return ResponseEntity.status(HttpStatus.CREATED).body(hourService.save(hourSaveRequest));
 	}
 
 	@GetMapping
-	public ResponseEntity<DataResult<List<HourDto>>> findAll() {
+	public ResponseEntity<DataResult<List<HourDto>>> findAll() throws BusinessException {
+		return ResponseEntity.status(HttpStatus.OK).body(hourService.findAll());
+	}
 
-		return ResponseEntity.ok(hourService.findAll());
+	@GetMapping("/{id}")
+	public ResponseEntity<DataResult<HourDto>> findById(@PathVariable long id) throws BusinessException {
+		return ResponseEntity.status(HttpStatus.OK).body(hourService.findById(id));
+	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Result> deleteById(@PathVariable long id) throws BusinessException {
+		return ResponseEntity.status(HttpStatus.OK).body(hourService.deleteById(id));
+	}
+
+	@PutMapping("/{id}/time")
+	public ResponseEntity<DataResult<HourDto>> updateTimeById(@PathVariable long id, @RequestBody HourDto hourDto) throws BusinessException {
+		return ResponseEntity.status(HttpStatus.OK).body(hourService.updateTimeById(id, hourDto.getTime()));
 	}
 
 	@GetMapping("/count")
 	public ResponseEntity<DataResult<Long>> getCount() {
-
-		return ResponseEntity.ok(hourService.getCount());
-	}
-
-	@GetMapping("/{id}")
-	public ResponseEntity<DataResult<HourDto>> findById(@PathVariable long id) {
-
-		return ResponseEntity.ok(hourService.findById(id));
-	}
-
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Result> deleteById(@PathVariable long id) {
-
-		return ResponseEntity.ok(hourService.deleteById(id));
-	}
-
-	@PutMapping("/{id}/time")
-	public ResponseEntity<DataResult<HourDto>> updateTimeById(@PathVariable long id, @RequestBody HourDto hourDto) {
-
-		return ResponseEntity.ok(hourService.updateTimeById(id, hourDto.getTime()));
+		return ResponseEntity.status(HttpStatus.OK).body(hourService.getCount());
 	}
 
 }

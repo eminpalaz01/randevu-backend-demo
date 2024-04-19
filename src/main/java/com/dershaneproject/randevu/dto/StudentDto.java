@@ -20,6 +20,8 @@ public class StudentDto implements Serializable {
 
 	private String password;
 
+	private Long authority;
+
 	private Date createDate;
 
 	private Date lastUpdateDate;
@@ -28,6 +30,6 @@ public class StudentDto implements Serializable {
 
 	private String studentNumber;
 	
-	private List<WeeklyScheduleDto> weeklySchedulesDto;
+	private List<WeeklyScheduleDto> weeklySchedules;
 
 }

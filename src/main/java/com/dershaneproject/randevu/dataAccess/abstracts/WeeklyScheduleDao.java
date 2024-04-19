@@ -25,4 +25,8 @@ public interface WeeklyScheduleDao extends JpaRepository<WeeklySchedule,Long>{
                    "ORDER BY weeklySchedule.dayOfWeek.id ASC, weeklySchedule.hour.id ASC")
     List<WeeklySchedule> findAllByStudentIdSorted(Long studentId);
 
+    @Query(value = "SELECT weeklySchedule FROM WeeklySchedule weeklySchedule " +
+                   "WHERE weeklySchedule.lastUpdateDateSystemWorker.id = :systemWorkerId " +
+                   "ORDER BY weeklySchedule.dayOfWeek.id ASC, weeklySchedule.hour.id ASC")
+    List<WeeklySchedule> findAllBySystemWorkerIdSorted(long systemWorkerId);
 }

@@ -19,17 +19,17 @@ import com.dershaneproject.randevu.dto.responses.WeeklyScheduleSaveResponse;
 import com.dershaneproject.randevu.entities.concretes.Department;
 import com.dershaneproject.randevu.entities.concretes.Schedule;
 import com.dershaneproject.randevu.entities.concretes.Teacher;
+import com.dershaneproject.randevu.exceptions.BusinessException;
 import com.dershaneproject.randevu.mappers.ScheduleMapper;
 import com.dershaneproject.randevu.mappers.TeacherMapper;
 import com.dershaneproject.randevu.mappers.WeeklyScheduleMapper;
 import com.dershaneproject.randevu.validations.abstracts.ScheduleValidationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -53,70 +53,51 @@ public class TeacherManager implements TeacherService {
 
 	@Transactional
 	@Override
-	public DataResult<TeacherSaveResponse> save(TeacherSaveRequest teacherSaveRequest) {
+	public DataResult<TeacherSaveResponse> save(TeacherSaveRequest teacherSaveRequest) throws BusinessException {
+		if (!departmentDao.existsById(teacherSaveRequest.getDepartmentId()))
+			throw new BusinessException(HttpStatus.BAD_REQUEST, List.of( "öğretmen kaydı başarısız departman id'sini kontrol ediniz."));
+
+		if (teacherSaveRequest.getSchedules() == null)
+			teacherSaveRequest.setSchedules(new ArrayList<ScheduleSaveRequestForTeacher>());
+
+		Teacher teacher = teacherDao.saveAndFlush(teacherMapper.toEntity(teacherSaveRequest));
+		List<ScheduleSaveResponse> scheduleSaveResponseList = null;
+		List<WeeklyScheduleSaveResponse> weeklyScheduleSaveResponseList = null;
 		try {
-			if (teacherSaveRequest.getSchedules() == null) {
-				teacherSaveRequest.setSchedules(new ArrayList<ScheduleSaveRequestForTeacher>());
-			}
-			if (!departmentDao.existsById(teacherSaveRequest.getDepartmentId())) {
-				return new DataResult<>(false,
-						"Veritabanına öğretmen kaydı başarısız departman id'sini kontrol ediniz.");
-			}
-			Teacher teacher = teacherDao.saveAndFlush(teacherMapper.toEntity(teacherSaveRequest));
+			// scheduleSaveRequestsForTeacher are updating for register
+			DataResult<List<ScheduleSaveRequest>> resultUpdateSchedulesDto = updateScheduleSaveRequestListForTeacher(teacherSaveRequest, teacher.getId());
 
-            // scheduleSaveRequestsForTeacher are updating for register
-            DataResult<List<ScheduleSaveRequest>> resultUpdateSchedulesDto = updateScheduleSaveRequestListForTeacher(teacherSaveRequest, teacher.getId());
-            if (resultUpdateSchedulesDto.isSuccess()) {
-                // scheduleSaveRequestsForTeacher are validating
-                Result resultValidationSchedulesDto = scheduleValidationService
-                        .areValidateResult(resultUpdateSchedulesDto.getData());
-                if (resultValidationSchedulesDto.isSuccess()) {
-                    // scheduleSaveRequestsForTeacher are saving and updating
-                    DataResult<List<ScheduleSaveResponse>> resultScheduleSaveResponseList = scheduleService
-                            .saveAll(resultUpdateSchedulesDto.getData());
-                    if (resultScheduleSaveResponseList.isSuccess()) {
-                        List<ScheduleSaveResponse> scheduleSaveResponseList = resultScheduleSaveResponseList.getData();
-                        List<WeeklyScheduleSaveRequest> weeklyScheduleSaveRequestList = new ArrayList<>();
-                        // scheduleSaveRequestsForTeacher mapping to WeeklyScheduleSaveRequestList
-                        scheduleSaveResponseList.forEach(scheduleSaveResponse -> {
-							weeklyScheduleSaveRequestList.add(createWeeklyScheduleSaveRequest(scheduleSaveResponse));
-                        });
+			// scheduleSaveRequestsForTeacher are validating
+			Result resultValidationSchedulesDto = scheduleValidationService.areValidateResult(resultUpdateSchedulesDto.getData());
 
-                        // weeklyScheduleSaveRequestList are saving and updating
-                        DataResult<List<WeeklyScheduleSaveResponse>> resultResponseWeeklySchedulesDto
-                                = weeklyScheduleService.saveAll(weeklyScheduleSaveRequestList);
-                         if(resultResponseWeeklySchedulesDto.isSuccess()){
-							 TeacherSaveResponse teacherSaveResponse = teacherMapper.toSaveResponse(teacher);
-							 teacherSaveResponse.setSchedules(scheduleSaveResponseList);
-							 teacherSaveResponse.setWeeklySchedules(resultResponseWeeklySchedulesDto.getData());
+			// scheduleSaveRequestsForTeacher are saving and updating
+			DataResult<List<ScheduleSaveResponse>> resultScheduleSaveResponseList = scheduleService.saveAll(resultUpdateSchedulesDto.getData());
+			scheduleSaveResponseList = resultScheduleSaveResponseList.getData();
 
-							 teacherSaveResponse.setId(teacher.getId());
-							 teacherSaveResponse.setCreateDate(teacher.getCreateDate());
-							 teacherSaveResponse.setLastUpdateDate(teacher.getLastUpdateDate());
-                             return new DataResult<TeacherSaveResponse>(teacherSaveResponse, true, "Öğretmen veritabanına eklendi.(Gelen response'da"
-                                     + " schedule ların date lerinde 1 2 saniye yanılma payı vardır "
-                                     + "sadece oluşturulurken date leri getirmediği için tekrar istek atmak yerine "
-                                     + "database e kendim anlık tarihi koydum tüm schedule larda ama database de tamamen doğru"
-                                     + " şekildedir bir dahaki isteklerde yanılma payı yoktur.) null olmasıda tercih edilebilirdi.");
-                         }else{
-                             teacherDao.deleteById(teacher.getId());
-                             return new DataResult<>(false, resultResponseWeeklySchedulesDto.getMessage());
-                         }
-                    } else {
-                        teacherDao.deleteById(teacher.getId());
-                        return new DataResult<>(false, resultScheduleSaveResponseList.getMessage());
-                    }
-                } else {
-                    teacherDao.deleteById(teacher.getId());
-                    return new DataResult<>(false, resultValidationSchedulesDto.getMessage());
-                }
-            } else {
-                teacherDao.deleteById(teacher.getId());
-                return new DataResult<>(false, resultUpdateSchedulesDto.getMessage());
-            }
-        } catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+			// scheduleSaveRequestsForTeacher mapping to WeeklyScheduleSaveRequestList
+			List<WeeklyScheduleSaveRequest> weeklyScheduleSaveRequestList = new ArrayList<>();
+			scheduleSaveResponseList.forEach(scheduleSaveResponse -> {
+				weeklyScheduleSaveRequestList.add(createWeeklyScheduleSaveRequest(scheduleSaveResponse));
+			});
+
+			// weeklyScheduleSaveRequestList are saving and updating
+			DataResult<List<WeeklyScheduleSaveResponse>> resultResponseWeeklySchedulesDto = weeklyScheduleService.saveAll(weeklyScheduleSaveRequestList);
+			weeklyScheduleSaveResponseList = resultResponseWeeklySchedulesDto.getData();
+		} catch (BusinessException exception){
+            List<String> errorMessages = Arrays.asList(exception.getMessage());
+			errorMessages.add("Öğretmen veritabanına eklenirken hata oluştu.");
+			throw new BusinessException(exception.getHttpStatus(), errorMessages);
 		}
+
+		//Teacher save response ready
+		TeacherSaveResponse teacherSaveResponse = teacherMapper.toSaveResponse(teacher);
+		teacherSaveResponse.setSchedules(scheduleSaveResponseList);
+		teacherSaveResponse.setWeeklySchedules(weeklyScheduleSaveResponseList);
+
+		teacherSaveResponse.setId(teacher.getId());
+		teacherSaveResponse.setCreateDate(teacher.getCreateDate());
+		teacherSaveResponse.setLastUpdateDate(teacher.getLastUpdateDate());
+		return new DataResult<TeacherSaveResponse>(teacherSaveResponse, "Öğretmen veritabanına eklendi.");
 	}
 
 	private static WeeklyScheduleSaveRequest createWeeklyScheduleSaveRequest(ScheduleSaveResponse scheduleSaveResponse) {
@@ -131,283 +112,218 @@ public class TeacherManager implements TeacherService {
 	}
 
 	@Override
-	public Result deleteById(long id) {
-
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
-			if (teacher.isPresent()) {
-				teacherDao.deleteById(id);
-				return new Result(true, id + " id'li öğretmen silindi.");
-			}
-			return new Result(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new Result(false, e.getMessage());
+	public Result deleteById(long id) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
+		if (teacher.isPresent()) {
+			teacherDao.deleteById(id);
+			return new Result(id + " id'li öğretmen silindi.");
 		}
-
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	@Override
-	public DataResult<TeacherDto> findById(long id) {
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
+	public DataResult<TeacherDto> findById(long id) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
+		if (teacher.isPresent()) {
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
 
-			if (teacher.isPresent()) {
-         		TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-
-				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
-			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+			return new DataResult<TeacherDto>(teacherDto, id + " id'li öğretmen getirildi.");
 		}
-
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	@Override
-	public DataResult<TeacherDto> findByIdWithSchedules(long id) {
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
+	public DataResult<TeacherDto> findByIdWithSchedules(long id) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
 
-			if (teacher.isPresent()) {
-				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(teacher.get().getSchedules());
+		if (teacher.isPresent()) {
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+			List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(teacher.get().getSchedules());
 
-				// SchedulesDto are sorting here
-				schedulesDto.sort((o1, o2) -> {
-                    Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-                    int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
+			// SchedulesDto are sorting here
+			schedulesDto.sort((o1, o2) -> {
+				Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+				int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 
-                    if (dayOfWeekCompare == 0) {
-                        Long s1HourId = o1.getHourDto().getId();
-                        return s1HourId.compareTo(o2.getHourDto().getId());
-                    }
-                    return dayOfWeekCompare;
-                });
-				teacherDto.setSchedulesDto(schedulesDto);
+				if (dayOfWeekCompare == 0) {
+					Long s1HourId = o1.getHour().getId();
+					return s1HourId.compareTo(o2.getHour().getId());
+				}
+				return dayOfWeekCompare;
+			});
+			teacherDto.setSchedules(schedulesDto);
 
-				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
-			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+			return new DataResult<TeacherDto>(teacherDto, id + " id'li öğretmen getirildi.");
 		}
+	throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	@Override
-	public DataResult<TeacherDto> findByIdWithAllSchedules(long id) {
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
+	public DataResult<TeacherDto> findByIdWithAllSchedules(long id) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
 
-			if (teacher.isPresent()) {
-				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-				List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(teacher.get().getSchedules());
-				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(teacher.get().getWeeklySchedules());
+		if (teacher.isPresent()) {
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+			List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(teacher.get().getSchedules());
+			List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(teacher.get().getWeeklySchedules());
 
- 				schedulesDto.sort((o1, o2) -> {
-					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
+			schedulesDto.sort((o1, o2) -> {
+				Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+				int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 
-					if (dayOfWeekCompare == 0) {
-						Long s1HourId = o1.getHourDto().getId();
-						return s1HourId.compareTo(o2.getHourDto().getId());
-					}
-					return dayOfWeekCompare;
-				});
-				weeklySchedulesDto.sort((o1, o2) -> {
-					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
+				if (dayOfWeekCompare == 0) {
+					Long s1HourId = o1.getHour().getId();
+					return s1HourId.compareTo(o2.getHour().getId());
+				}
+				return dayOfWeekCompare;
+			});
+			weeklySchedulesDto.sort((o1, o2) -> {
+				Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+				int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 
-					if (dayOfWeekCompare == 0) {
-						Long s1HourId = o1.getHourDto().getId();
-						return s1HourId.compareTo(o2.getHourDto().getId());
-					}
-					return dayOfWeekCompare;
-				});
-				teacherDto.setSchedulesDto(schedulesDto);
-				teacherDto.setWeeklySchedulesDto(weeklySchedulesDto);
+				if (dayOfWeekCompare == 0) {
+					Long s1HourId = o1.getHour().getId();
+					return s1HourId.compareTo(o2.getHour().getId());
+				}
+				return dayOfWeekCompare;
+			});
+			teacherDto.setSchedules(schedulesDto);
+			teacherDto.setWeeklySchedules(weeklySchedulesDto);
 
-				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
-			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+			return new DataResult<TeacherDto>(teacherDto, id + " id'li öğretmen getirildi.");
 		}
-
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	@Override
-	public DataResult<TeacherDto> findByIdWithWeeklySchedules(long id) {
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
+	public DataResult<TeacherDto> findByIdWithWeeklySchedules(long id) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
 
-			if (teacher.isPresent()) {
-				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-				List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(teacher.get().getWeeklySchedules());
+		if (teacher.isPresent()) {
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+			List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(teacher.get().getWeeklySchedules());
 
-				weeklySchedulesDto.sort((o1, o2) -> {
-					Long s1DayOfWeekId = o1.getDayOfWeekDto().getId();
-					int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeekDto().getId());
+			weeklySchedulesDto.sort((o1, o2) -> {
+				Long s1DayOfWeekId = o1.getDayOfWeek().getId();
+				int dayOfWeekCompare = s1DayOfWeekId.compareTo(o2.getDayOfWeek().getId());
 
-					if (dayOfWeekCompare == 0) {
-						Long s1HourId = o1.getHourDto().getId();
-						return s1HourId.compareTo(o2.getHourDto().getId());
-					}
-					return dayOfWeekCompare;
-				});
-				teacherDto.setWeeklySchedulesDto(weeklySchedulesDto);
+				if (dayOfWeekCompare == 0) {
+					Long s1HourId = o1.getHour().getId();
+					return s1HourId.compareTo(o2.getHour().getId());
+				}
+				return dayOfWeekCompare;
+			});
+			teacherDto.setWeeklySchedules(weeklySchedulesDto);
 
-				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmen getirildi.");
-			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+			return new DataResult<TeacherDto>(teacherDto, id + " id'li öğretmen getirildi.");
 		}
-
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	// schedules değer verilirse eğer öğretmen başına 105 satır değer olucak buda
 	// performans sorunu yaratır.
 	// Bu yüzden öğretmeni bireysel olarak çektiğimizde gönderdim sadece
 	@Override
-	public DataResult<List<TeacherDto>> getByDepartmentId(long departmentId) {
-		try {
-			List<Teacher> teachers = teacherDao.getByDepartmentId(departmentId);
-			if (!teachers.isEmpty()) {
-				List<TeacherDto> teachersDto = teacherMapper.toDtoList(teachers);
-				return new DataResult<List<TeacherDto>>(teachersDto, true,
-						departmentId + " departman id'li öğretmenler getirildi.");
+	public DataResult<List<TeacherDto>> getByDepartmentId(long departmentId) throws BusinessException {
+		List<Teacher> teachers = teacherDao.getByDepartmentId(departmentId);
+		if (teachers.isEmpty())
+			throw new BusinessException(HttpStatus.NOT_FOUND, List.of(departmentId + " departman id'li bir öğretmen bulunamadı."));
 
-			} else {
-
-				return new DataResult<>(false,
-						departmentId + " departman id'li bir öğretmen bulunamadı.");
-			}
-
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
-		}
+		List<TeacherDto> teachersDto = teacherMapper.toDtoList(teachers);
+		return new DataResult<List<TeacherDto>>(teachersDto,  departmentId + " departman id'li öğretmenler getirildi.");
 	}
 
 	// schedules deger verilirse eğer öğretmen başına 105 satır değer olucak buda
 	// performans sorunu yaratır.
 	// Bu yüzden ögretmeni bireysel olarak çektigimizde gönderdim sadece
 	@Override
-	public DataResult<List<TeacherDto>> findAll() {
-		try {
-			List<Teacher> teachers = teacherDao.findAll();
-			if (!teachers.isEmpty()) {
-				List<TeacherDto> teachersDto = teacherMapper.toDtoList(teachers);
-				return new DataResult<List<TeacherDto>>(teachersDto, true, "Öğretmenler getirildi.");
-			} else {
-				return new DataResult<>(false, "Öğretmen bulunamadı.");
-			}
+	public DataResult<List<TeacherDto>> findAll() throws BusinessException {
+		List<Teacher> teachers = teacherDao.findAll();
+		if (teachers.isEmpty())
+			throw new BusinessException(HttpStatus.NOT_FOUND, List.of("Öğretmen bulunamadı."));
 
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
-		}
-
+		List<TeacherDto> teachersDto = teacherMapper.toDtoList(teachers);
+		return new DataResult<List<TeacherDto>>(teachersDto, "Öğretmenler getirildi.");
 	}
 
 	@Override
-	public DataResult<TeacherDto> updateEmailById(long id, String email) {
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
-			if (teacher.isPresent()) {
-				teacher.get().setEmail(email);
-				teacherDao.save(teacher.get());
-				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin maili güncellendi.");
-			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+	public DataResult<TeacherDto> updateEmailById(long id, String email) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
+		if (teacher.isPresent()) {
+			teacher.get().setEmail(email);
+			teacherDao.save(teacher.get());
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+			return new DataResult<TeacherDto>(teacherDto, id + " id'li öğretmenin maili güncellendi.");
 		}
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	@Override
-	public DataResult<TeacherDto> updateUserNameById(long id, String userName) {
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
-			if (teacher.isPresent()) {
-				teacher.get().setUserName(userName);
-				teacherDao.save(teacher.get());
-				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-				return new DataResult<TeacherDto>(teacherDto, true,
-						id + " id'li öğretmenin kullanıcı adı güncellendi.");
-			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+	public DataResult<TeacherDto> updateUserNameById(long id, String userName) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
+		if (teacher.isPresent()) {
+			teacher.get().setUserName(userName);
+			teacherDao.save(teacher.get());
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+			return new DataResult<TeacherDto>(teacherDto,
+					id + " id'li öğretmenin kullanıcı adı güncellendi.");
 		}
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	@Override
-	public DataResult<TeacherDto> updatePasswordById(long id, String password) {
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
-			if (teacher.isPresent()) {
-				teacher.get().setPassword(password);
-				teacherDao.save(teacher.get());
-				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin şifresi güncellendi.");
-			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+	public DataResult<TeacherDto> updatePasswordById(long id, String password) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
+		if (teacher.isPresent()) {
+			teacher.get().setPassword(password);
+			teacherDao.save(teacher.get());
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+			return new DataResult<TeacherDto>(teacherDto, id + " id'li öğretmenin şifresi güncellendi.");
 		}
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	@Override
-	public DataResult<TeacherDto> updateTeacherNumberById(long id, String teacherNumber) {
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
-			if (teacher.isPresent()) {
-				teacher.get().setTeacherNumber(teacherNumber);
-				teacherDao.save(teacher.get());
-				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin numarası güncellendi.");
-			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
+	public DataResult<TeacherDto> updateTeacherNumberById(long id, String teacherNumber) throws BusinessException {
+		Optional<Teacher> teacher = teacherDao.findById(id);
+		if (teacher.isPresent()) {
+			teacher.get().setTeacherNumber(teacherNumber);
+			teacherDao.save(teacher.get());
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+			return new DataResult<TeacherDto>(teacherDto, id + " id'li öğretmenin numarası güncellendi.");
 		}
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
 	@Override
-	public DataResult<TeacherDto> updateDepartmentById(long id, Long departmentId) {
+	public DataResult<TeacherDto> updateDepartmentById(long id, Long departmentId) throws BusinessException {
 		if (departmentId == null) {
-			return new DataResult<TeacherDto>(false, "Departman boş bırakılamaz.");
+			return new DataResult<TeacherDto>("Departman boş bırakılamaz.");
 		}
-		try {
-			Optional<Teacher> teacher = teacherDao.findById(id);
-			Optional<Department> department = departmentDao.findById(departmentId);
 
-			if (teacher.isPresent() && department.isPresent()) {
-				teacher.get().setDepartment(department.get());
-				teacherDao.save(teacher.get());
-				TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
-				return new DataResult<TeacherDto>(teacherDto, true, id + " id'li öğretmenin departmanı güncellendi.");
-			} else {
-				if (department.equals(Optional.empty())) {
-					return new DataResult<>(false,
-							id + " id'li öğretmen için verdiğiniz departman id'sini kontrol ediniz.");
-				}
+		Optional<Teacher> teacher = teacherDao.findById(id);
+		Optional<Department> department = departmentDao.findById(departmentId);
+
+		if (teacher.isPresent() && department.isPresent()) {
+			teacher.get().setDepartment(department.get());
+			teacherDao.save(teacher.get());
+			TeacherDto teacherDto = teacherMapper.toDto(teacher.get());
+			return new DataResult<TeacherDto>(teacherDto, id + " id'li öğretmenin departmanı güncellendi.");
+		} else {
+			if (department.isEmpty()) {
+				throw new BusinessException(HttpStatus.BAD_REQUEST, List.of(id + " id'li öğretmen için verdiğiniz departman id'sini kontrol ediniz."));
 			}
-			return new DataResult<>(false, id + " id'li öğretmen bulunamadı.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
 		}
+		throw new BusinessException(HttpStatus.NOT_FOUND, List.of(id + " id'li öğretmen bulunamadı."));
 	}
 
-	public DataResult<List<ScheduleSaveRequest>> updateScheduleSaveRequestListForTeacher(TeacherSaveRequest teacherSaveRequest, Long teacherId) {
+	public DataResult<List<ScheduleSaveRequest>> updateScheduleSaveRequestListForTeacher(TeacherSaveRequest teacherSaveRequest, Long teacherId) throws BusinessException {
 		// Eklerken hiç schedules verilmeme olasılığı olduğu için önce onu kontrol ediyorum ve
 		// ScheduleValidationService de sadece create edilirken kullanılması için system çalışanı olmayan halini
 		// yazdım bu arada. Eğerki eklenmişse Schedule bununda sistem çalışanı kontrol ediliyor var mı yok mu diye.
 		// ve de teacher oluşturulurken tüm programların sistem çalışanı aynı olmalı ondan buraya özel kontrol yazdım.
-
 		if (!systemWorkerDao.existsById(teacherSaveRequest.getLastUpdateDateSystemWorkerId())) {
-			return new DataResult<>(false,
-					"Eklediğiniz programlardaki sistem çalışanı bulunamadı kontrol ediniz.");
+			throw new BusinessException(HttpStatus.BAD_REQUEST, List.of( "Eklediğiniz programlardaki sistem çalışanı bulunamadı kontrol ediniz."));
 		}
 
 		// Dao dan toplam sayılarını getiriyor.
@@ -427,12 +343,10 @@ public class TeacherManager implements TeacherService {
 						.toList();
 
 				if (scheduleSaveRequestForTeacherList.size() > 1) {
-					return new DataResult<>(false,
-							"Eklediğiniz programlarda gün ve saati aynı olan programlar var kontrol ediniz.");
+					throw new BusinessException(HttpStatus.BAD_REQUEST, List.of( "Eklediğiniz programlarda gün ve saati aynı olan programlar var kontrol ediniz."));
 				}
 				if (scheduleSaveRequestForTeacherList.size() == 1) {
-					ScheduleSaveRequest scheduleSaveRequest = scheduleMapper
-							.toSaveRequest(scheduleSaveRequestForTeacherList.getFirst());
+					ScheduleSaveRequest scheduleSaveRequest = scheduleMapper.toSaveRequest(scheduleSaveRequestForTeacherList.getFirst());
 					scheduleSaveRequest.setTeacherId(teacherId);
 					scheduleSaveRequest.setLastUpdateDateSystemWorkerId(teacherSaveRequest.getLastUpdateDateSystemWorkerId());
 
@@ -443,17 +357,11 @@ public class TeacherManager implements TeacherService {
 				}
 			}
 		}
-
-		return new DataResult<List<ScheduleSaveRequest>>(willSaveSchedules, true, "Öğretmenin programları ayarlandı.");
+		return new DataResult<List<ScheduleSaveRequest>>(willSaveSchedules, "Öğretmenin programları ayarlandı.");
 	}
 
 	@Override
 	public DataResult<Long> getCount() {
-		// xTODO Auto-generated method stub
-		try {
-			return new DataResult<Long>(teacherDao.count(), true, "Öğretmenlerin sayısı getirildi.");
-		} catch (Exception e) {
-			return new DataResult<>(false, e.getMessage());
-		}
+		return new DataResult<Long>(teacherDao.count(), "Öğretmenlerin sayısı getirildi.");
 	}
 }

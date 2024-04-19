@@ -27,13 +27,17 @@ public class Student extends User {
 	@OneToMany(fetch = FetchType.LAZY, mappedBy = "student", cascade = CascadeType.REFRESH)
 	private List<WeeklySchedule> weeklySchedules;
 
-	public Student() {
-	}
+	public Student() { setAuthority(); }
 
 	public Student(Long id, String userName, String password, Date createDate, Date lastUpdateDate, String email,
-			String studentNumber) {
+				   String studentNumber) {
 		super(id, userName, password, createDate, lastUpdateDate, email);
+		setAuthority();
 		this.studentNumber = studentNumber;
+	}
+
+	private void setAuthority() {
+		setAuthority(Authority.STUDENT.getValue());
 	}
 
 	public static Student createEmptyWithId(Long id) {
