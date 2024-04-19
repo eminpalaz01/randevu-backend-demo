@@ -213,6 +213,16 @@ public class ScheduleManager implements ScheduleService {
 	}
 
 	@Override
+	public DataResult<List<ScheduleDto>> findAllBySystemWorkerId(long systemWorkerId) throws BusinessException {
+		List<Schedule> schedules = scheduleDao.findAllBySystemWorkerIdSorted(systemWorkerId);
+		if (schedules.isEmpty())
+			throw new BusinessException(HttpStatus.NOT_FOUND, List.of("Program bulunamadı."));
+
+		List<ScheduleDto> schedulesDto = scheduleMapper.toDtoList(schedules);
+		return new DataResult<List<ScheduleDto>>(schedulesDto, "Programlar getirildi.");
+	}
+
+	@Override
 	public DataResult<Long> getCount() {
 		return new DataResult<Long>(scheduleDao.count(), "Programların sayısı getirildi.");
 	}

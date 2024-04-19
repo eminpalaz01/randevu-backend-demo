@@ -26,22 +26,34 @@ public class SystemAdministratorController {
 		return ResponseEntity.status(HttpStatus.CREATED).body(systemAdministratorService.save(systemAdministratorSaveRequest));
 	}
 
+// Performance problem
+//	@GetMapping
+//	public ResponseEntity<DataResult<List<SystemAdministratorDto>>> findAll(@RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
+//																			@RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) throws BusinessException {
+//		if (withSchedules && withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findAllWithAllSchedules());}
+//		if (withSchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findAllWithSchedules());}
+//		if (withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findAllWithWeeklySchedules());}
+//		return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findAll());
+//	}
+
 	@GetMapping
-	public ResponseEntity<DataResult<List<SystemAdministratorDto>>> findAll(@RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
-																			@RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) throws BusinessException {
-		if (withSchedules && withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findAllWithAllSchedules());}
-		if (withSchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findAllWithSchedules());}
-		if (withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findAllWithWeeklySchedules());}
+	public ResponseEntity<DataResult<List<SystemAdministratorDto>>> findAll() throws BusinessException {
 		return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findAll());
 	}
 
+// Performance problem
+//	@GetMapping("/{id}")
+//	public ResponseEntity<DataResult<SystemAdministratorDto>> findById(@PathVariable long id,
+//																	   @RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
+//																	   @RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) throws BusinessException {
+//		if (withSchedules && withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findByIdWithAllSchedules(id));}
+//		if (withSchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findByIdWithSchedules(id));}
+//		if (withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findByIdWithWeeklySchedules(id));}
+//		return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findById(id));
+//	}
+
 	@GetMapping("/{id}")
-	public ResponseEntity<DataResult<SystemAdministratorDto>> findById(@PathVariable long id,
-																	   @RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
-																	   @RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) throws BusinessException {
-		if (withSchedules && withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findByIdWithAllSchedules(id));}
-		if (withSchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findByIdWithSchedules(id));}
-		if (withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findByIdWithWeeklySchedules(id));}
+	public ResponseEntity<DataResult<SystemAdministratorDto>> findById(@PathVariable long id) throws BusinessException {
 		return ResponseEntity.status(HttpStatus.OK).body(systemAdministratorService.findById(id));
 	}
 

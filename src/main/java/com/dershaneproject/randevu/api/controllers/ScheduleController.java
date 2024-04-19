@@ -49,6 +49,11 @@ public class ScheduleController {
 		return ResponseEntity.status(HttpStatus.OK).body(scheduleService.findAllByTeacherId(teacherId));
 	}
 
+	@GetMapping("/system-worker/{systemWorkerId}")
+	public ResponseEntity<DataResult<List<ScheduleDto>>> findAllBySystemWorkerId(@PathVariable long systemWorkerId) throws BusinessException {
+		return ResponseEntity.status(HttpStatus.OK).body(scheduleService.findAllBySystemWorkerId(systemWorkerId));
+	}
+
 	@PutMapping("/{id}/day-of-week")
 	public ResponseEntity<DataResult<ScheduleDto>> updateDayOfWeekById(@PathVariable long id,
 																	   @RequestBody ScheduleDto scheduleDto) throws BusinessException {

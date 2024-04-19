@@ -37,7 +37,9 @@ public interface WeeklyScheduleService {
 	
     DataResult<List<WeeklyScheduleDto>> findAllByTeacherId(long teacherId) throws BusinessException;
 
-	DataResult<List<WeeklyScheduleDto>> findAllByStudentId(long studentId) throws BusinessException;
+    DataResult<List<WeeklyScheduleDto>> findAllBySystemWorkerId(long systemWorkerId) throws BusinessException;
+
+    DataResult<List<WeeklyScheduleDto>> findAllByStudentId(long studentId) throws BusinessException;
 
 	DataResult<Long> getCount();
 }

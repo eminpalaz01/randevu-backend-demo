@@ -43,6 +43,11 @@ public class WeeklyScheduleController {
 		return ResponseEntity.status(HttpStatus.OK).body(weeklyScheduleService.findAllByStudentId(studentId));
 	}
 
+	@GetMapping("/system-worker/{systemWorkerId}")
+	public ResponseEntity<DataResult<List<WeeklyScheduleDto>>> findAllBySystemWorkerId(@PathVariable long systemWorkerId) throws BusinessException {
+		return ResponseEntity.status(HttpStatus.OK).body(weeklyScheduleService.findAllBySystemWorkerId(systemWorkerId));
+	}
+
 	@GetMapping("/{id}")
 	public ResponseEntity<DataResult<WeeklyScheduleDto>> findById(@PathVariable long id) throws BusinessException {
 		return ResponseEntity.status(HttpStatus.OK).body(weeklyScheduleService.findById(id));

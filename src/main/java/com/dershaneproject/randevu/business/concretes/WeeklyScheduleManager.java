@@ -255,6 +255,16 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 	}
 
 	@Override
+	public DataResult<List<WeeklyScheduleDto>> findAllBySystemWorkerId(long systemWorkerId) throws BusinessException {
+		List<WeeklySchedule> weeklySchedules = weeklyScheduleDao.findAllBySystemWorkerIdSorted(systemWorkerId);
+		if (weeklySchedules.isEmpty())
+			throw new BusinessException(HttpStatus.NOT_FOUND, List.of("Haftalık program bulunamadı."));
+
+		List<WeeklyScheduleDto> weeklySchedulesDto = weeklyScheduleMapper.toDtoList(weeklySchedules);
+		return new DataResult<List<WeeklyScheduleDto>>(weeklySchedulesDto, "Haftalık programlar getirildi.");
+	}
+
+	@Override
 	public DataResult<List<WeeklyScheduleDto>> findAllByStudentId(long studentId) throws BusinessException {
 		List<WeeklySchedule> weeklySchedules = weeklyScheduleDao.findAllByStudentIdSorted(studentId);
 		if (weeklySchedules.isEmpty())

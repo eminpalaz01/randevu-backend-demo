@@ -35,5 +35,7 @@ public interface ScheduleService {
 	
 	DataResult<List<ScheduleDto>> findAllByTeacherId(long teacherId) throws BusinessException;
 
-	DataResult<Long> getCount();
+    DataResult<List<ScheduleDto>> findAllBySystemWorkerId(long systemWorkerId) throws BusinessException;
+
+    DataResult<Long> getCount();
 }

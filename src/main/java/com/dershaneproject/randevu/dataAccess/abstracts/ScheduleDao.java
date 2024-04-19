@@ -19,4 +19,9 @@ public interface ScheduleDao extends JpaRepository<Schedule,Long> {
                    "ORDER BY schedule.dayOfWeek.id ASC, schedule.hour.id ASC")
     List<Schedule> findAllByTeacherIdSorted(Long teacherId);
 
+    @Query(value = "SELECT schedule FROM Schedule schedule " +
+            "WHERE schedule.lastUpdateDateSystemWorker.id = :systemWorkerId " +
+            "ORDER BY schedule.dayOfWeek.id ASC, schedule.hour.id ASC")
+    List<Schedule> findAllBySystemWorkerIdSorted(Long systemWorkerId);
+
 }

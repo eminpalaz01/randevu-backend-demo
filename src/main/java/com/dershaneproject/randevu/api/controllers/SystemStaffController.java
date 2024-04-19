@@ -25,23 +25,34 @@ public class SystemStaffController {
 	public ResponseEntity<DataResult<SystemStaffSaveResponse>> save(@RequestBody SystemStaffSaveRequest systemStaffSaveRequest) {
 		return ResponseEntity.status(HttpStatus.CREATED).body(systemStaffService.save(systemStaffSaveRequest));
 	}
+// Performance problem
+//	@GetMapping
+//	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAll(@RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
+//																	@RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) throws BusinessException {
+//		if (withSchedules && withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findAllWithAllSchedules());}
+//		if (withSchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findAllWithSchedules());}
+//		if (withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findAllWithWeeklySchedules());}
+//		return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findAll());
+//	}
 
 	@GetMapping
-	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAll(@RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
-																	@RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) throws BusinessException {
-		if (withSchedules && withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findAllWithAllSchedules());}
-		if (withSchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findAllWithSchedules());}
-		if (withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findAllWithWeeklySchedules());}
+	public ResponseEntity<DataResult<List<SystemStaffDto>>> findAll() throws BusinessException {
 		return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findAll());
 	}
 
+// Performance problem
+//	@GetMapping("/{id}")
+//	public ResponseEntity<DataResult<SystemStaffDto>> findById(@PathVariable long id,
+//															   @RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
+//															   @RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) throws BusinessException {
+//		if (withSchedules && withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findByIdWithAllSchedules(id));}
+//		if (withSchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findByIdWithSchedules(id));}
+//		if (withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findByIdWithWeeklySchedules(id));}
+//		return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findById(id));
+//	}
+
 	@GetMapping("/{id}")
-	public ResponseEntity<DataResult<SystemStaffDto>> findById(@PathVariable long id,
-															   @RequestParam(required = false, defaultValue = "false") Boolean withSchedules,
-															   @RequestParam(required = false, defaultValue = "false") Boolean withWeeklySchedules) throws BusinessException {
-		if (withSchedules && withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findByIdWithAllSchedules(id));}
-		if (withSchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findByIdWithSchedules(id));}
-		if (withWeeklySchedules) { return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findByIdWithWeeklySchedules(id));}
+	public ResponseEntity<DataResult<SystemStaffDto>> findById(@PathVariable long id) throws BusinessException {
 		return ResponseEntity.status(HttpStatus.OK).body(systemStaffService.findById(id));
 	}
 
