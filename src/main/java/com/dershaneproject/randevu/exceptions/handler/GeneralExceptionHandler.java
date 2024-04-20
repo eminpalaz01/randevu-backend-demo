@@ -40,6 +40,6 @@ public class GeneralExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handle(Exception exception)  {
         // "Genel Sunucu Hatasi" is will be message in next times and the current exc message will be logged
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(exception.getMessage()));
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(exception.getMessage() != null ? exception.getMessage() : "Genel Sunucu Hatasi"));
     }
 }

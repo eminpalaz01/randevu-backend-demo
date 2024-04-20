@@ -68,7 +68,7 @@ public class TeacherManager implements TeacherService {
 			DataResult<List<ScheduleSaveRequest>> resultUpdateSchedulesDto = updateScheduleSaveRequestListForTeacher(teacherSaveRequest, teacher.getId());
 
 			// scheduleSaveRequestsForTeacher are validating
-			Result resultValidationSchedulesDto = scheduleValidationService.areValidateResult(resultUpdateSchedulesDto.getData());
+			scheduleValidationService.areValidateResult(resultUpdateSchedulesDto.getData());
 
 			// scheduleSaveRequestsForTeacher are saving and updating
 			DataResult<List<ScheduleSaveResponse>> resultScheduleSaveResponseList = scheduleService.saveAll(resultUpdateSchedulesDto.getData());
@@ -84,9 +84,9 @@ public class TeacherManager implements TeacherService {
 			DataResult<List<WeeklyScheduleSaveResponse>> resultResponseWeeklySchedulesDto = weeklyScheduleService.saveAll(weeklyScheduleSaveRequestList);
 			weeklyScheduleSaveResponseList = resultResponseWeeklySchedulesDto.getData();
 		} catch (BusinessException exception){
-            List<String> errorMessages = Arrays.asList(exception.getMessage());
+            List<String> errorMessages = new ArrayList<>(exception.getErrorMessages());
 			errorMessages.add("Öğretmen veritabanına eklenirken hata oluştu.");
-			throw new BusinessException(exception.getHttpStatus(), errorMessages);
+			throw new BusinessException(exception.getHttpStatus(), errorMessages.reversed());
 		}
 
 		//Teacher save response ready
@@ -322,9 +322,13 @@ public class TeacherManager implements TeacherService {
 		// ScheduleValidationService de sadece create edilirken kullanılması için system çalışanı olmayan halini
 		// yazdım bu arada. Eğerki eklenmişse Schedule bununda sistem çalışanı kontrol ediliyor var mı yok mu diye.
 		// ve de teacher oluşturulurken tüm programların sistem çalışanı aynı olmalı ondan buraya özel kontrol yazdım.
-		if (!systemWorkerDao.existsById(teacherSaveRequest.getLastUpdateDateSystemWorkerId())) {
+		if (!systemWorkerDao.existsById(teacherSaveRequest.getLastUpdateDateSystemWorkerId()))
 			throw new BusinessException(HttpStatus.BAD_REQUEST, List.of( "Eklediğiniz programlardaki sistem çalışanı bulunamadı kontrol ediniz."));
-		}
+
+		teacherSaveRequest.getSchedules().forEach(scheduleSaveRequestForTeacher -> {
+			if (!dayOfWeekDao.existsById(scheduleSaveRequestForTeacher.getDayOfWeekId()) || !hourDao.existsById(scheduleSaveRequestForTeacher.getHourId()))
+				throw new BusinessException(HttpStatus.BAD_REQUEST, List.of("Eklediğiniz programlarin gün ve saat id'lerini kontrol ediniz"));
+		});
 
 		// Dao dan toplam sayılarını getiriyor.
 		long dayOfWeekCount = dayOfWeekDao.count();
