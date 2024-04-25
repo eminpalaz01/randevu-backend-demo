@@ -63,6 +63,10 @@ public class ScheduleManager implements ScheduleService {
 
 		// Schedule saved and id and dates return to list
 		schedules = scheduleDao.saveAllAndFlush(schedules);
+		// it goes to db every step so using clear for now
+//		for (Schedule schedule : schedules) {
+//			entityManager.refresh(schedule);
+//		}
 		entityManager.clear();
 		schedules = scheduleDao.findAllByIdSorted(schedules.stream()
 				.map(Schedule::getId)
