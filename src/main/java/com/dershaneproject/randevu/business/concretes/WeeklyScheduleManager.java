@@ -7,10 +7,7 @@ import com.dershaneproject.randevu.dataAccess.abstracts.*;
 import com.dershaneproject.randevu.dto.WeeklyScheduleDto;
 import com.dershaneproject.randevu.dto.requests.WeeklyScheduleSaveRequest;
 import com.dershaneproject.randevu.dto.responses.WeeklyScheduleSaveResponse;
-import com.dershaneproject.randevu.entities.concretes.DayOfWeek;
-import com.dershaneproject.randevu.entities.concretes.Hour;
-import com.dershaneproject.randevu.entities.concretes.Student;
-import com.dershaneproject.randevu.entities.concretes.WeeklySchedule;
+import com.dershaneproject.randevu.entities.concretes.*;
 import com.dershaneproject.randevu.exceptions.BusinessException;
 import com.dershaneproject.randevu.mappers.WeeklyScheduleMapper;
 import com.dershaneproject.randevu.validations.abstracts.WeeklyScheduleValidationService;
@@ -73,6 +70,10 @@ public class WeeklyScheduleManager implements WeeklyScheduleService{
 
 		// Schedule saved. Id and dates return to list
 		weeklySchedules = weeklyScheduleDao.saveAllAndFlush(weeklySchedules);
+		// it goes to db every step so using clear for now
+//		for (WeeklySchedule weeklySchedule : weeklySchedules) {
+//			entityManager.refresh(weeklySchedule);
+//		}
 		entityManager.clear();
 		weeklySchedules = weeklyScheduleDao.findAllByIdSorted(weeklySchedules.stream()
 				.map(WeeklySchedule::getId)
